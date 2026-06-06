@@ -1192,126 +1192,107 @@ def penalty_shootout_distribution(p_a: float = 0.75, p_b: float = 0.75,
     
     Returns dict mapping (pen_a, pen_b) -> probability, where pen_a ≠ pen_b always.
     """
-    # Dynamic programming over penalty states
-    # State: (round, kicks_taken_a, kicks_taken_b, goals_a, goals_b, whose_turn)
-    # We enumerate all paths through 5 rounds
+    results = {}
     
-    results = {}  # {(goals_a, goals_b): probability}
+    # States for 5 standard rounds: list of (goals_a, goals_b, probability)
+    states = [(0, 0, 1.0)]
     
-    def _simulate_5_rounds():
-        """Simulate the standard 5 rounds with early termination."""
-        # State: list of (goals_a, goals_b, probability)
-        # After each kick, branch into score/miss
-        states = [(0, 0, 1.0)]  # (goals_a, goals_b, prob)
+    for round_num in range(1, 6):
+        remaining_kicks_a = 5 - round_num
+        remaining_kicks_b = 5 - round_num
         
-        for round_num in range(1, 6):  # Rounds 1-5
-            new_states = []
-            for ga, gb, prob in states:
-                kicks_left_a = 5 - round_num + 1  # Including this round's kick
-                kicks_left_b = 5 - round_num + 1  # B also kicks this round
+        # A shoots
+        after_a_states = []
+        for ga, gb, p in states:
+            for a_scores in [True, False]:
+                p_trans = p_a if a_scores else (1.0 - p_a)
+                ga_new = ga + (1 if a_scores else 0)
                 
-                # Team A kicks
-                for a_scores in [True, False]:
-                    pa = p_a if a_scores else (1.0 - p_a)
-                    ga_new = ga + (1 if a_scores else 0)
-                    
-                    # Check if B has already kicked this round (no — A goes first)
-                    kicks_remaining_b = 5 - (round_num - 1)  # B still has this many kicks
-                    
-                    # Can B still catch up after A's kick?
-                    # B needs: gb + remaining_B_kicks >= ga_new to still have a chance
-                    # A needs: ga_new + remaining_A_kicks > gb to still have a chance  
-                    # (remaining_A_kicks = 5 - round_num, since A just kicked round_num)
-                    remaining_a = 5 - round_num
-                    remaining_b = 5 - (round_num - 1)  # B hasn't kicked this round yet
-                    
-                    # Team B kicks
-                    for b_scores in [True, False]:
-                        pb = p_b if b_scores else (1.0 - p_b)
-                        gb_new = gb + (1 if b_scores else 0)
-                        p_combined = prob * pa * pb
-                        
-                        if p_combined < 1e-15:
-                            continue
-                        
-                        remaining_a_after = 5 - round_num  # A's remaining kicks
-                        remaining_b_after = 5 - round_num  # B's remaining kicks
-                        
-                        # Check early termination
-                        # A wins if: ga_new > gb_new + remaining_b_after
-                        # B wins if: gb_new > ga_new + remaining_a_after
-                        a_insurmountable = ga_new > gb_new + remaining_b_after
-                        b_insurmountable = gb_new > ga_new + remaining_a_after
-                        
-                        if a_insurmountable or b_insurmountable:
-                            # Shootout decided — record result
-                            key = (ga_new, gb_new)
-                            results[key] = results.get(key, 0.0) + p_combined
-                        elif round_num == 5:
-                            # End of 5 rounds
-                            if ga_new != gb_new:
-                                key = (ga_new, gb_new)
-                                results[key] = results.get(key, 0.0) + p_combined
-                            else:
-                                # Tied after 5 — goes to sudden death
-                                new_states.append((ga_new, gb_new, p_combined))
-                        else:
-                            new_states.append((ga_new, gb_new, p_combined))
-            
-            # Filter states: remove terminated ones, keep active
-            states = [(ga, gb, p) for ga, gb, p in new_states 
-                      if (ga, gb) not in results or round_num == 5]
+                # Check if A's kick ended the shootout
+                # B has remaining_kicks_b + 1 kicks left (since B hasn't shot this round)
+                if ga_new > gb + (remaining_kicks_b + 1):
+                    # A wins immediately
+                    key = (ga_new, gb)
+                    results[key] = results.get(key, 0.0) + p * p_trans
+                elif gb > ga_new + remaining_kicks_a:
+                    # B wins immediately
+                    key = (ga_new, gb)
+                    results[key] = results.get(key, 0.0) + p * p_trans
+                else:
+                    after_a_states.append((ga_new, gb, p * p_trans))
         
-        return states  # These are the tied-after-5 states
-    
-    tied_states = _simulate_5_rounds()
+        # B shoots
+        after_b_states = []
+        for ga, gb, p in after_a_states:
+            for b_scores in [True, False]:
+                p_trans = p_b if b_scores else (1.0 - p_b)
+                gb_new = gb + (1 if b_scores else 0)
+                
+                # Check if B's kick ended the shootout
+                if ga > gb_new + remaining_kicks_b:
+                    # A wins immediately
+                    key = (ga, gb_new)
+                    results[key] = results.get(key, 0.0) + p * p_trans
+                elif gb_new > ga + remaining_kicks_a:
+                    # B wins immediately
+                    key = (ga, gb_new)
+                    results[key] = results.get(key, 0.0) + p * p_trans
+                else:
+                    # If this is round 5 and it's not a tie, someone won
+                    if round_num == 5 and ga != gb_new:
+                        key = (ga, gb_new)
+                        results[key] = results.get(key, 0.0) + p * p_trans
+                    else:
+                        after_b_states.append((ga, gb_new, p * p_trans))
+                        
+        states = after_b_states
+        
+    tied_states = states  # These are the tied-after-5 states
     
     # Sudden death: each team takes 1 kick per round until a winner emerges
-    for ga_base, gb_base, prob_tied in tied_states:
-        remaining_prob = prob_tied
-        ga_sd = ga_base
-        gb_sd = gb_base
-        
-        for sd_round in range(1, max_sd_rounds + 1):
+    active_sd_states = tied_states
+    
+    for sd_round in range(1, max_sd_rounds + 1):
+        if not active_sd_states:
+            break
+            
+        next_sd_states = []
+        for ga, gb, p in active_sd_states:
             # A scores, B misses → A wins
-            p_a_wins = p_sd_a * (1.0 - p_sd_b)
-            key = (ga_sd + 1, gb_sd)
-            results[key] = results.get(key, 0.0) + remaining_prob * p_a_wins
-            
+            p_a_wins = p * p_sd_a * (1.0 - p_sd_b)
+            if p_a_wins > 0:
+                key = (ga + 1, gb)
+                results[key] = results.get(key, 0.0) + p_a_wins
+                
             # A misses, B scores → B wins
-            p_b_wins = (1.0 - p_sd_a) * p_sd_b
-            key = (ga_sd, gb_sd + 1)
-            results[key] = results.get(key, 0.0) + remaining_prob * p_b_wins
-            
-            # Both score → continue (add 1 to each)
-            p_both_score = p_sd_a * p_sd_b
+            p_b_wins = p * (1.0 - p_sd_a) * p_sd_b
+            if p_b_wins > 0:
+                key = (ga, gb + 1)
+                results[key] = results.get(key, 0.0) + p_b_wins
+                
+            # Both score → continue
+            p_both_score = p * p_sd_a * p_sd_b
+            if p_both_score > 0:
+                next_sd_states.append((ga + 1, gb + 1, p_both_score))
+                
             # Both miss → continue (no change to goals)
-            p_both_miss = (1.0 - p_sd_a) * (1.0 - p_sd_b)
-            
-            # Update for next round
-            prob_continue_scored = remaining_prob * p_both_score
-            prob_continue_missed = remaining_prob * p_both_miss
-            
-            ga_sd += 1  # Both scored, so increment both
-            gb_sd += 1
-            
-            # The "both miss" branch keeps the same score but same remaining prob
-            # We need to track both branches
-            # Simplification: after both-score, goals go up; after both-miss, goals stay
-            # For tractability, merge: next round starts with weighted avg
-            remaining_prob = prob_continue_scored + prob_continue_missed
-            
-            # Adjust ga_sd/gb_sd: the both-miss branch didn't add goals
-            # We handle this by tracking separately
-            if remaining_prob < 1e-12:
-                break
+            p_both_miss = p * (1.0 - p_sd_a) * (1.0 - p_sd_b)
+            if p_both_miss > 0:
+                next_sd_states.append((ga, gb, p_both_miss))
+                
+        active_sd_states = next_sd_states
         
-        # Any remaining probability after max sudden death rounds: split 50/50
-        if remaining_prob > 1e-12:
-            key_a = (ga_sd + 1, gb_sd)
-            key_b = (ga_sd, gb_sd + 1)
-            results[key_a] = results.get(key_a, 0.0) + remaining_prob * 0.5
-            results[key_b] = results.get(key_b, 0.0) + remaining_prob * 0.5
+        # Check total remaining probability
+        remaining = sum(p for _, _, p in active_sd_states)
+        if remaining < 1e-12:
+            break
+            
+    # Any remaining probability after max sudden death rounds: split 50/50
+    for ga, gb, p in active_sd_states:
+        key_a = (ga + 1, gb)
+        key_b = (ga, gb + 1)
+        results[key_a] = results.get(key_a, 0.0) + p * 0.5
+        results[key_b] = results.get(key_b, 0.0) + p * 0.5
     
     return results
 

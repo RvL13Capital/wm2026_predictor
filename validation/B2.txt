@@ -1,0 +1,26 @@
+Loaded 64 matches from data/wc2022_full.csv
+
+============================================================
+BACKTEST COMPARISON REPORT
+============================================================
+Total Matches:          64
+Baseline Total Points:  104.0
+Optimized Total Points: 99.0
+Baseline Avg Points:    1.625
+Optimized Avg Points:   1.547
+Delta Total Points:     -5.0
+Delta Avg Points:       -0.078
+
+────────────────────────────────────────────────────────────
+PER-PHASE BREAKDOWN
+────────────────────────────────────────────────────────────
+  GROUP    (48 matches): Baseline= 74.0  Optimized= 71.0  Δ=-3.0  (Avg: 1.54 → 1.48)
+  R16      ( 8 matches): Baseline= 17.0  Optimized= 17.0  Δ=+0.0  (Avg: 2.12 → 2.12)
+  QF       ( 4 matches): Baseline=  7.0  Optimized=  7.0  Δ=+0.0  (Avg: 1.75 → 1.75)
+  SF       ( 2 matches): Baseline=  4.0  Optimized=  4.0  Δ=+0.0  (Avg: 2.00 → 2.00)
+  THIRD    ( 1 matches): Baseline=  0.0  Optimized=  0.0  Δ=+0.0  (Avg: 0.00 → 0.00)
+  FINAL    ( 1 matches): Baseline=  2.0  Optimized=  0.0  Δ=-2.0  (Avg: 2.00 → 0.00)
+============================================================
+⚠️  Baseline outperformed optimized by 5 pts on this dataset.
+   Note: With penalty-scoring rules, the simple baseline can occasionally
+   match penalty result tendencies by chance on small KO datasets.

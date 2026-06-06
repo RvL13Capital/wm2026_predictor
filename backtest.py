@@ -272,11 +272,37 @@ def run_backtest(model_type: str, data: List[dict]) -> dict:
             alpha_b = row.get("alpha_b", 0.0)
             
             # Apply phase adjustments (v4: knockout modeling)
-            rho_adj, mu_a_adj, mu_b_adj = predictor.apply_phase_adjustments(
-                rho, mu_a_adj, mu_b_adj, phase
-            )
+            import sys
+            if "--no-phase" not in sys.argv:
+                rho_adj, mu_a_adj, mu_b_adj = predictor.apply_phase_adjustments(
+                    rho, mu_a_adj, mu_b_adj, phase
+                )
+            else:
+                rho_adj = rho
             
             dist_type = predictor.ModelDistribution.NEGATIVE_BINOMIAL if (alpha_a > 0.0 or alpha_b > 0.0) else predictor.ModelDistribution.POISSON
+            
+            import argparse
+            # Hack to read global args in run_backtest
+            import sys
+            no_context = "--no-context" in sys.argv
+            no_phase = "--no-phase" in sys.argv
+            no_nb = "--no-nb" in sys.argv
+            no_dc = "--no-dc" in sys.argv
+            
+            if no_context:
+                mu_a_adj, mu_b_adj = mu_a, mu_b
+            if no_phase:
+                rho_adj = rho
+                # restore mu
+                # actually apply_phase_adjustments already changed them, we shouldn't have called it
+                pass 
+            if no_nb:
+                dist_type = predictor.ModelDistribution.POISSON
+                alpha_a = 0.0
+                alpha_b = 0.0
+            if no_dc:
+                rho_adj = 0.0
             
             config = predictor.MatchModelConfig(
                 dist_type=dist_type,
@@ -350,6 +376,10 @@ def main():
     parser = argparse.ArgumentParser(description="Backtesting Suite for World Cup 2026 Predictor v4")
     parser.add_argument("--csv", type=str, default=None, help="Path to the historical match data CSV")
     parser.add_argument("--details", action="store_true", default=False, help="Show per-match detailed results")
+    parser.add_argument("--no-context", action="store_true", help="Ablation: disable context")
+    parser.add_argument("--no-phase", action="store_true", help="Ablation: disable phase adjustment")
+    parser.add_argument("--no-nb", action="store_true", help="Ablation: disable negative binomial")
+    parser.add_argument("--no-dc", action="store_true", help="Ablation: disable dixon coles")
     args = parser.parse_args()
     
     data = None

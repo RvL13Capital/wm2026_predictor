@@ -192,7 +192,8 @@ SQUAD_MARKET_VALUES = {
     "Czechia":      {"value_m":  192, "change_pct":  1.0},  
     "Nigeria":      {"value_m":  160, "change_pct":  3.0},  # Value varies by call-up
     "Egypt":        {"value_m":  160, "change_pct":  1.0},
-    "Paraguay":     {"value_m":  154, "change_pct":  3.0},  
+    "Paraguay":     {"value_m":  154, "change_pct":  3.0},
+    "Uruguay":      {"value_m":  480, "change_pct":  4.0},  # Bielsa boost, Valverde peaks
     # Tier 4: <€200M
     "South Korea":  {"value_m":  142, "change_pct":  1.5},  # Son still anchoring
     "DR Congo":     {"value_m":  142, "change_pct":  4.0},  # AFCON run boosted
@@ -1419,6 +1420,8 @@ def format_results(results: dict) -> str:
         lines.append(f"  📅 Timestamp: {results['provenance']['timestamp']}")
         lines.append(f"  🌱 Seed: {results['provenance']['seed']}")
         lines.append(f"  ⚙️  Cmd: {results['provenance']['command']}")
+        if "commit" in results['provenance']:
+            lines.append(f"  🔗 Commit: {results['provenance']['commit']}")
     lines.append("═" * 62)
     
     # ── Group winners ──
@@ -1621,10 +1624,17 @@ def main():
     
     # Inject provenance metadata
     from datetime import datetime, timezone
+    import subprocess
+    try:
+        commit_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD'], stderr=subprocess.STDOUT).decode('utf-8').strip()
+    except Exception:
+        commit_hash = "unknown"
+        
     results["provenance"] = {
         "command": " ".join(sys.argv),
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "seed": args.seed if args.seed else "random",
+        "commit": commit_hash,
     }
     
     # Output
