@@ -7,7 +7,7 @@ import math
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import predictor
-import solver
+import predictor
 try:
     import backtest
 except ImportError:
@@ -122,7 +122,7 @@ class TestAdversarialC2(unittest.TestCase):
         """Verify that passing a list of dicts (instead of list of lists or dict of dicts) causes a KeyError in the solver's list-processing path."""
         grid = [{0: 0.5}, {1: 0.5}]
         # This will not raise KeyError anymore
-        sorted_tips, sorted_scores, outcomes = solver.solve_optimal_tip_from_grid(grid, max_tip=2)
+        sorted_tips, sorted_scores, outcomes = predictor.solve_optimal_tip_from_grid(grid, max_tip=2)
         self.assertIsNotNone(sorted_tips)
 
     def test_solver_nan_in_grid_propagation(self):
@@ -131,7 +131,7 @@ class TestAdversarialC2(unittest.TestCase):
             0: {0: float('nan'), 1: 0.5},
             1: {0: 0.2, 1: 0.3}
         }
-        sorted_tips, sorted_scores, outcomes = solver.solve_optimal_tip_from_grid(grid, max_tip=1)
+        sorted_tips, sorted_scores, outcomes = predictor.solve_optimal_tip_from_grid(grid, max_tip=1)
         # Check that NaN propagated to outcomes and some EVs
         self.assertTrue(math.isnan(outcomes[0]) or math.isnan(outcomes[1]) or math.isnan(outcomes[2]))
         

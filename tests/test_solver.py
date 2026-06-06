@@ -5,7 +5,7 @@ import sys
 # Ensure project root is in the path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from solver import get_points, solve_optimal_tip_from_grid
+from predictor import get_points, solve_optimal_tip_from_grid
 
 class TestSolver(unittest.TestCase):
 
