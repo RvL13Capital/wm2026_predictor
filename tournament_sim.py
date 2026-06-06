@@ -26,6 +26,7 @@ if _PROJECT_ROOT not in sys.path:
     sys.path.insert(0, _PROJECT_ROOT)
 
 import predictor
+import tournament_bonusfragen as tbf
 
 
 # ===========================================================================
@@ -188,16 +189,46 @@ def predict_match(row: Dict[str, Any]) -> Dict[str, Any]:
     team_b = row["team_b"]
     phase = row.get("phase", "group")
 
-    # 1) Base lambdas from Elo
-    lambda_base_a, lambda_base_b = predictor.estimate_base_lambdas_from_elo(team_a, team_b)
+    # 1) Base lambdas from Elo + Injuries + Squad Value
+    elo_a = predictor.WORLD_CUP_2026_TEAMS.get(team_a, {}).get("elo", 1500)
+    elo_b = predictor.WORLD_CUP_2026_TEAMS.get(team_b, {}).get("elo", 1500)
+    
+    # Apply injury and squad value adjustments
+    squad_elo_adj = tbf.compute_squad_elo_adjustments()
+    elo_a += squad_elo_adj.get(team_a, 0.0)
+    elo_b += squad_elo_adj.get(team_b, 0.0)
+    elo_a += tbf.INJURY_ELO_ADJUSTMENTS.get(team_a, 0.0)
+    elo_b += tbf.INJURY_ELO_ADJUSTMENTS.get(team_b, 0.0)
+    
+    lambda_base_a = 1.2 + (elo_a - 1700) / 800.0
+    lambda_base_b = 1.2 + (elo_b - 1700) / 800.0
 
     # 2) Context dicts
     ctx_a = _make_context(row, "a")
     ctx_b = _make_context(row, "b")
 
+    # Add host status to ctx from HOST_TEAMS
+    if team_a in tbf.HOST_TEAMS:
+        ctx_a["status_a"] = "host"
+    if team_b in tbf.HOST_TEAMS:
+        ctx_b["status_b"] = "host"
+        
+    # Get stadium elevation and acclimation days if phase is group
+    elevation, accl_a, accl_b = tbf._get_match_elevation(team_a, team_b)
+    ctx_a["elevation"] = elevation
+    ctx_b["elevation"] = elevation
+    ctx_a["accl_days"] = accl_a
+    ctx_b["accl_days"] = accl_b
+
+    # Apply xG form multipliers
+    form_a, form_b = tbf.compute_xg_form_multipliers(team_a, team_b)
+    lambda_base_a *= form_a
+    lambda_base_b *= form_b
+
     # 3) Adjusted lambdas
     lambda_adj_a, lambda_adj_b = predictor.get_adjusted_lambdas(
         lambda_base_a, lambda_base_b, ctx_a, ctx_b
+
     )
 
     # 4) Distribution config

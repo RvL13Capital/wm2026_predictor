@@ -1,81 +1,84 @@
 
 ══════════════════════════════════════════════════════════════
   ⚽ KICKTIPP BONUSFRAGEN — OPTIMALE TIPS
-  🎲 Basierend auf 100,000 Monte-Carlo-Simulationen
-  ⏱  Berechnet in 46.7s
+  🎲 Basierend auf 10,000 Monte-Carlo-Simulationen
+  ⏱  Berechnet in 84.6s
+  📅 Timestamp: 2026-06-06T12:33:53.206424+00:00
+  🌱 Seed: 2026
+  ⚙️  Cmd: tournament_bonusfragen.py --sims 10000 --seed 2026 --odds-snapshot data/polymarket_snapshot_20260605_1230.json --output data/bonusfragen_100k_v3.txt
 ══════════════════════════════════════════════════════════════
 
   ┌─────────────────────────────────────────────────────────┐
   │  GRUPPENSIEGER                                         │
   ├─────────────────────────────────────────────────────────┤
-  │  Gruppe A:  Mexico              54.8%  ██████████████████░░  │
-  │  Gruppe B:  Switzerland         38.7%  ████████████░░░░░░░░  │
-  │  Gruppe C:  Brazil              57.1%  ███████████████████░  │
-  │  Gruppe D:  USA                 49.0%  ████████████████░░░░  │
-  │  Gruppe E:  Germany             54.6%  ██████████████████░░  │
-  │  Gruppe F:  Netherlands         47.5%  ███████████████░░░░░  │
-  │  Gruppe G:  Belgium             56.6%  ██████████████████░░  │
-  │  Gruppe H:  Spain               65.8%  █████████████████████  │
-  │  Gruppe I:  France              62.9%  ████████████████████  │
-  │  Gruppe J:  Argentina           69.1%  ███████████████████████  │
-  │  Gruppe K:  Portugal            54.8%  ██████████████████░░  │
-  │  Gruppe L:  England             62.4%  ████████████████████  │
+  │  Gruppe A:  Mexico              65.4%  █████████████████████  │
+  │  Gruppe B:  Switzerland         42.9%  ██████████████░░░░░░  │
+  │  Gruppe C:  Brazil              58.6%  ███████████████████░  │
+  │  Gruppe D:  Turkey              38.9%  ████████████░░░░░░░░  │
+  │  Gruppe E:  Germany             55.8%  ██████████████████░░  │
+  │  Gruppe F:  Netherlands         46.6%  ███████████████░░░░░  │
+  │  Gruppe G:  Belgium             57.8%  ███████████████████░  │
+  │  Gruppe H:  Spain               76.8%  █████████████████████████  │
+  │  Gruppe I:  France              64.6%  █████████████████████  │
+  │  Gruppe J:  Argentina           72.4%  ████████████████████████  │
+  │  Gruppe K:  Portugal            59.7%  ███████████████████░  │
+  │  Gruppe L:  England             67.7%  ██████████████████████  │
   └─────────────────────────────────────────────────────────┘
 
   ┌─────────────────────────────────────────────────────────┐
   │  HALBFINALE (4 Teams)                                  │
   ├─────────────────────────────────────────────────────────┤
-  │  ★ France              32.7%  ██████████░░░░░░░░░░ ◀ TIP  │
-  │  ★ Spain               31.9%  ██████████░░░░░░░░░░ ◀ TIP  │
-  │  ★ Argentina           30.6%  ██████████░░░░░░░░░░ ◀ TIP  │
-  │  ★ England             26.6%  ████████░░░░░░░░░░░░ ◀ TIP  │
-  │    Brazil              22.7%  ███████░░░░░░░░░░░░░        │
-  │    Portugal            22.2%  ███████░░░░░░░░░░░░░        │
-  │    Germany             20.9%  ██████░░░░░░░░░░░░░░        │
-  │    Belgium             16.4%  █████░░░░░░░░░░░░░░░        │
+  │  ★ Spain               51.0%  █████████████████░░░ ◀ TIP  │
+  │  ★ France              40.9%  █████████████░░░░░░░ ◀ TIP  │
+  │  ★ Argentina           35.4%  ███████████░░░░░░░░░ ◀ TIP  │
+  │  ★ England             30.7%  ██████████░░░░░░░░░░ ◀ TIP  │
+  │    Portugal            22.3%  ███████░░░░░░░░░░░░░        │
+  │    Germany             21.8%  ███████░░░░░░░░░░░░░        │
+  │    Ecuador             17.0%  █████░░░░░░░░░░░░░░░        │
+  │    Colombia            16.4%  █████░░░░░░░░░░░░░░░        │
   └─────────────────────────────────────────────────────────┘
 
   ┌─────────────────────────────────────────────────────────┐
   │  WELTMEISTER                                           │
   ├─────────────────────────────────────────────────────────┤
-  │  ★ France              13.2%  ██████░░░░░░░░░░░░░░ ◀ TIP  │
-  │    Spain               12.2%  ██████░░░░░░░░░░░░░░        │
-  │    Argentina           11.1%  █████░░░░░░░░░░░░░░░        │
-  │    England              9.1%  ████░░░░░░░░░░░░░░░░        │
-  │    Brazil               7.2%  ███░░░░░░░░░░░░░░░░░        │
-  │    Portugal             6.9%  ███░░░░░░░░░░░░░░░░░        │
-  │    Germany              5.7%  ██░░░░░░░░░░░░░░░░░░        │
-  │    Netherlands          3.9%  █░░░░░░░░░░░░░░░░░░░        │
+  │  ★ Spain               21.3%  ██████████░░░░░░░░░░ ◀ TIP  │
+  │    France              14.4%  ███████░░░░░░░░░░░░░        │
+  │    Argentina           11.3%  █████░░░░░░░░░░░░░░░        │
+  │    England             10.3%  █████░░░░░░░░░░░░░░░        │
+  │    Portugal             7.8%  ███░░░░░░░░░░░░░░░░░        │
+  │    Brazil               5.5%  ██░░░░░░░░░░░░░░░░░░        │
+  │    Germany              4.5%  ██░░░░░░░░░░░░░░░░░░        │
+  │    Netherlands          2.8%  █░░░░░░░░░░░░░░░░░░░        │
   └─────────────────────────────────────────────────────────┘
 
   ┌─────────────────────────────────────────────────────────┐
-  │  TORSCHÜTZENKÖNIG-MANNSCHAFT                           │
+  │  TORSCHÜTZENKÖNIG-MANNSCHAFT (Golden Boot)              │
   ├─────────────────────────────────────────────────────────┤
-  │  ★ France            8.5%  (Ø 10.6 Tore)      ◀ TIP  │
-  │    Spain             8.5%  (Ø 10.5 Tore)             │
-  │    Argentina         8.0%  (Ø 10.4 Tore)             │
-  │    Brazil            6.3%  (Ø 9.3 Tore)             │
-  │    Portugal          6.0%  (Ø 9.4 Tore)             │
-  │    England           5.9%  (Ø 9.8 Tore)             │
+  │  ★ France           23.6%  (Mbappé)     Ø10.8g ◀ TIP  │
+  │    Portugal         14.5%  (Ronaldo)    Ø8.9g        │
+  │    Norway           11.2%  (Haaland)    Ø7.1g        │
+  │    England          11.1%  (Kane)       Ø8.7g        │
+  │    Ecuador           6.0%  (Valencia)   Ø7.2g        │
+  │    Argentina         4.3%  (Lautaro)    Ø9.3g        │
   └─────────────────────────────────────────────────────────┘
 
   ╔═════════════════════════════════════════════════════════╗
   ║  📋 ZUSAMMENFASSUNG — DEINE TIPS                      ║
   ╠═════════════════════════════════════════════════════════╣
-  ║  Gruppe A:    Mexico               (55%)         ║
-  ║  Gruppe B:    Switzerland          (39%)         ║
-  ║  Gruppe C:    Brazil               (57%)         ║
-  ║  Gruppe D:    USA                  (49%)         ║
-  ║  Gruppe E:    Germany              (55%)         ║
+  ║  Gruppe A:    Mexico               (65%)         ║
+  ║  Gruppe B:    Switzerland          (43%)         ║
+  ║  Gruppe C:    Brazil               (59%)         ║
+  ║  Gruppe D:    Turkey               (39%)         ║
+  ║  Gruppe E:    Germany              (56%)         ║
   ║  Gruppe F:    Netherlands          (47%)         ║
-  ║  Gruppe G:    Belgium              (57%)         ║
-  ║  Gruppe H:    Spain                (66%)         ║
-  ║  Gruppe I:    France               (63%)         ║
-  ║  Gruppe J:    Argentina            (69%)         ║
-  ║  Gruppe K:    Portugal             (55%)         ║
-  ║  Gruppe L:    England              (62%)         ║
+  ║  Gruppe G:    Belgium              (58%)         ║
+  ║  Gruppe H:    Spain                (77%)         ║
+  ║  Gruppe I:    France               (65%)         ║
+  ║  Gruppe J:    Argentina            (72%)         ║
+  ║  Gruppe K:    Portugal             (60%)         ║
+  ║  Gruppe L:    England              (68%)         ║
   ║                                                         ║
-  ║  Halbfinale: France, Spain, Argentina, England          ║
-  ║  Weltmeister: France                                     ║
-  ║  Torschützen: France                                     ║
+  ║  Halbfinale: Spain, France, Argentina, England          ║
+  ║  Weltmeister: Spain                                      ║
+  ║  Torschützen: France (Mbappé)                            ║
   ╚═════════════════════════════════════════════════════════╝

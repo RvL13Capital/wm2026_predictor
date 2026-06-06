@@ -178,6 +178,7 @@ SQUAD_MARKET_VALUES = {
     "Croatia":      {"value_m":  388, "change_pct": -6.0},  # Modrić 40 + cheekbone fracture, aging midfield
     "USA":          {"value_m":  386, "change_pct":  5.0},  # Pulisic solid; but injuries to Cardoso/Richards
     "Ecuador":      {"value_m":  376, "change_pct": 10.0},  # System-level re-pricing (Pacho €80M, Hincapié €50M)
+    "Sweden":       {"value_m":  350, "change_pct": -2.0},
     "Switzerland":  {"value_m":  333, "change_pct": -1.0},  # Xhaka aging
     "Colombia":     {"value_m":  298, "change_pct":  4.2},  # Young squad rising
     "Japan":        {"value_m":  281, "change_pct":  5.5},  # European-based core thriving
@@ -185,10 +186,12 @@ SQUAD_MARKET_VALUES = {
     "Algeria":      {"value_m":  257, "change_pct":  0.5},  
     "Ghana":        {"value_m":  238, "change_pct": -4.0},  # Squad rebuilding
     "Canada":       {"value_m":  204, "change_pct":  7.0},  # David/Davies peak values
+    "Scotland":     {"value_m":  200, "change_pct":  1.0},
     "Cameroon":     {"value_m":  197, "change_pct": -2.0},  
     "Mexico":       {"value_m":  194, "change_pct":  0.5},  # Liga MX-heavy, stable
     "Czechia":      {"value_m":  192, "change_pct":  1.0},  
     "Nigeria":      {"value_m":  160, "change_pct":  3.0},  # Value varies by call-up
+    "Egypt":        {"value_m":  160, "change_pct":  1.0},
     "Paraguay":     {"value_m":  154, "change_pct":  3.0},  
     # Tier 4: <€200M
     "South Korea":  {"value_m":  142, "change_pct":  1.5},  # Son still anchoring
@@ -201,6 +204,7 @@ SQUAD_MARKET_VALUES = {
     "Uzbekistan":   {"value_m":   48, "change_pct":  3.0},  # WC debutant
     "South Africa": {"value_m":   45, "change_pct":  3.0},  
     "Saudi Arabia": {"value_m":   41, "change_pct": -5.0},  # SPL imports don't lift NT
+    "New Zealand":  {"value_m":   40, "change_pct":  0.0},
     "Iran":         {"value_m":   34, "change_pct":  0.0},  # Domestic-heavy
     "Panama":       {"value_m":   35, "change_pct":  1.0},  
     "Costa Rica":   {"value_m":   29, "change_pct": -2.0},  
@@ -290,15 +294,18 @@ XG_STRENGTH = {
     # Tier 6: Balanced mid-table
     "Switzerland":  {"attack_str": 0.95, "defend_str": 0.80},
     "Denmark":      {"attack_str": 1.00, "defend_str": 0.80},
+    "Sweden":       {"attack_str": 1.05, "defend_str": 0.90},
     "Austria":      {"attack_str": 1.05, "defend_str": 0.85},  # Rangnick pressing but drops deep vs top teams
     "USA":          {"attack_str": 0.95, "defend_str": 0.85},  # Home advantage will help separately
     "Senegal":      {"attack_str": 0.95, "defend_str": 0.80},
     "Japan":        {"attack_str": 1.00, "defend_str": 0.85},  # Mitoma OUT = reduced threat
     "Ivory Coast":  {"attack_str": 1.05, "defend_str": 0.85},  # Beat France but one match ≠ consistency
     "Mexico":       {"attack_str": 0.90, "defend_str": 0.85},
+    "Scotland":     {"attack_str": 0.95, "defend_str": 0.85},
     "South Korea":  {"attack_str": 0.95, "defend_str": 0.90},  # Son 33y — still good but slowing
     "Algeria":      {"attack_str": 0.90, "defend_str": 0.85},
     "Nigeria":      {"attack_str": 0.95, "defend_str": 0.90},
+    "Egypt":        {"attack_str": 0.95, "defend_str": 0.80},
     "Cameroon":     {"attack_str": 0.95, "defend_str": 0.95},
     "Ghana":        {"attack_str": 0.85, "defend_str": 1.00},
     "Australia":    {"attack_str": 0.85, "defend_str": 0.95},
@@ -318,6 +325,7 @@ XG_STRENGTH = {
     "Iraq":         {"attack_str": 0.75, "defend_str": 1.00},
     "Qatar":        {"attack_str": 0.70, "defend_str": 1.00},
     "Jordan":       {"attack_str": 0.75, "defend_str": 0.90},
+    "New Zealand":  {"attack_str": 0.80, "defend_str": 1.00},
     "Jamaica":      {"attack_str": 0.80, "defend_str": 1.05},
 }
 
@@ -1311,8 +1319,10 @@ def run_monte_carlo(n_sims: int = 10000, market_probs: dict = None,
                 else:
                     star_goals[team] = 0
             # Team whose star striker scored the most individual goals
-            top_team = max(star_goals.items(), key=lambda x: x[1])
-            top_scorer_team_counts[top_team[0]] += 1
+            max_goals = max(star_goals.values())
+            top_teams = [t for t, g in star_goals.items() if g == max_goals]
+            top_team = rng.choice(top_teams)
+            top_scorer_team_counts[top_team] += 1
 
         
         # Progress
@@ -1354,13 +1364,27 @@ def run_monte_carlo(n_sims: int = 10000, market_probs: dict = None,
         "probabilities": {t: round(c / sf_total, 4) for t, c in sf_sorted[:8]},
     }
     
-    # Champion
-    champ_sorted = champion_counts.most_common()
-    results["champion"] = {
-        "tip": champ_sorted[0][0],
-        "probability": round(champ_sorted[0][1] / n_sims, 4),
-        "all": {t: round(c / n_sims, 4) for t, c in champ_sorted if c / n_sims > 0.005},
-    }
+    # Champion (with optional Shrinkage to Market Odds 50/50)
+    if market_probs:
+        blended_champ = {}
+        for team in predictor.WORLD_CUP_2026_TEAMS:
+            mc_prob = champion_counts[team] / n_sims
+            mkt_prob = market_probs.get(team, mc_prob)
+            blended_champ[team] = (mc_prob + mkt_prob) / 2.0
+            
+        champ_sorted = sorted(blended_champ.items(), key=lambda x: x[1], reverse=True)
+        results["champion"] = {
+            "tip": champ_sorted[0][0],
+            "probability": round(champ_sorted[0][1], 4),
+            "all": {t: round(c, 4) for t, c in champ_sorted if c > 0.005},
+        }
+    else:
+        champ_sorted = champion_counts.most_common()
+        results["champion"] = {
+            "tip": champ_sorted[0][0],
+            "probability": round(champ_sorted[0][1] / n_sims, 4),
+            "all": {t: round(c / n_sims, 4) for t, c in champ_sorted if c / n_sims > 0.005},
+        }
     
     # Top scorer team
     ts_sorted = top_scorer_team_counts.most_common()
@@ -1391,6 +1415,10 @@ def format_results(results: dict) -> str:
     lines.append("  ⚽ KICKTIPP BONUSFRAGEN — OPTIMALE TIPS")
     lines.append(f"  🎲 Basierend auf {results['n_sims']:,} Monte-Carlo-Simulationen")
     lines.append(f"  ⏱  Berechnet in {results['elapsed_seconds']:.1f}s")
+    if "provenance" in results:
+        lines.append(f"  📅 Timestamp: {results['provenance']['timestamp']}")
+        lines.append(f"  🌱 Seed: {results['provenance']['seed']}")
+        lines.append(f"  ⚙️  Cmd: {results['provenance']['command']}")
     lines.append("═" * 62)
     
     # ── Group winners ──
@@ -1568,6 +1596,15 @@ def main():
         except Exception as e:
             print(f"⚠ Polymarket fetch failed: {e}. Using Elo only.", file=sys.stderr)
     
+    # Normalize market_probs keys to ensure exact matching with GROUPS
+    if market_probs:
+        normalized_probs = {}
+        for k, v in market_probs.items():
+            k_lower = k.lower().strip()
+            mapped = predictor.TEAM_NAME_MAPPING.get(k_lower, k)
+            normalized_probs[mapped] = v
+        market_probs = normalized_probs
+
     if not args.quiet:
         src = "Polymarket + Elo blend" if market_probs else "Elo ratings only"
         print(f"🏆 Starting {args.sims:,} tournament simulations ({src})...", file=sys.stderr)
@@ -1581,6 +1618,14 @@ def main():
         apply_injuries=not args.no_injuries,
         apply_squad_value=not args.no_squad_value
     )
+    
+    # Inject provenance metadata
+    from datetime import datetime, timezone
+    results["provenance"] = {
+        "command": " ".join(sys.argv),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "seed": args.seed if args.seed else "random",
+    }
     
     # Output
     if args.json:
