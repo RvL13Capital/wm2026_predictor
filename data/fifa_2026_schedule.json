@@ -1,0 +1,938 @@
+[
+  {
+    "match_id": 1,
+    "date": "2026-06-11",
+    "time": "20:00",
+    "venue": "Mexico City",
+    "phase": "GROUP",
+    "team_a_slot": "A1",
+    "team_b_slot": "A2"
+  },
+  {
+    "match_id": 2,
+    "date": "2026-06-11",
+    "time": "15:00",
+    "venue": "Guadalajara",
+    "phase": "GROUP",
+    "team_a_slot": "A3",
+    "team_b_slot": "A4"
+  },
+  {
+    "match_id": 3,
+    "date": "2026-06-12",
+    "time": "20:00",
+    "venue": "Vancouver",
+    "phase": "GROUP",
+    "team_a_slot": "B1",
+    "team_b_slot": "B2"
+  },
+  {
+    "match_id": 4,
+    "date": "2026-06-12",
+    "time": "15:00",
+    "venue": "Seattle",
+    "phase": "GROUP",
+    "team_a_slot": "B3",
+    "team_b_slot": "B4"
+  },
+  {
+    "match_id": 5,
+    "date": "2026-06-12",
+    "time": "20:00",
+    "venue": "Los Angeles",
+    "phase": "GROUP",
+    "team_a_slot": "D1",
+    "team_b_slot": "D2"
+  },
+  {
+    "match_id": 6,
+    "date": "2026-06-12",
+    "time": "15:00",
+    "venue": "Seattle",
+    "phase": "GROUP",
+    "team_a_slot": "D3",
+    "team_b_slot": "D4"
+  },
+  {
+    "match_id": 7,
+    "date": "2026-06-13",
+    "time": "20:00",
+    "venue": "Los Angeles",
+    "phase": "GROUP",
+    "team_a_slot": "C1",
+    "team_b_slot": "C2"
+  },
+  {
+    "match_id": 8,
+    "date": "2026-06-13",
+    "time": "15:00",
+    "venue": "San Francisco",
+    "phase": "GROUP",
+    "team_a_slot": "C3",
+    "team_b_slot": "C4"
+  },
+  {
+    "match_id": 9,
+    "date": "2026-06-13",
+    "time": "20:00",
+    "venue": "Houston",
+    "phase": "GROUP",
+    "team_a_slot": "E1",
+    "team_b_slot": "E2"
+  },
+  {
+    "match_id": 10,
+    "date": "2026-06-13",
+    "time": "15:00",
+    "venue": "Dallas",
+    "phase": "GROUP",
+    "team_a_slot": "E3",
+    "team_b_slot": "E4"
+  },
+  {
+    "match_id": 11,
+    "date": "2026-06-14",
+    "time": "20:00",
+    "venue": "Dallas",
+    "phase": "GROUP",
+    "team_a_slot": "F1",
+    "team_b_slot": "F2"
+  },
+  {
+    "match_id": 12,
+    "date": "2026-06-14",
+    "time": "15:00",
+    "venue": "Monterrey",
+    "phase": "GROUP",
+    "team_a_slot": "F3",
+    "team_b_slot": "F4"
+  },
+  {
+    "match_id": 13,
+    "date": "2026-06-14",
+    "time": "20:00",
+    "venue": "Atlanta",
+    "phase": "GROUP",
+    "team_a_slot": "G1",
+    "team_b_slot": "G2"
+  },
+  {
+    "match_id": 14,
+    "date": "2026-06-14",
+    "time": "15:00",
+    "venue": "Miami",
+    "phase": "GROUP",
+    "team_a_slot": "G3",
+    "team_b_slot": "G4"
+  },
+  {
+    "match_id": 15,
+    "date": "2026-06-15",
+    "time": "20:00",
+    "venue": "Miami",
+    "phase": "GROUP",
+    "team_a_slot": "H1",
+    "team_b_slot": "H2"
+  },
+  {
+    "match_id": 16,
+    "date": "2026-06-15",
+    "time": "15:00",
+    "venue": "Atlanta",
+    "phase": "GROUP",
+    "team_a_slot": "H3",
+    "team_b_slot": "H4"
+  },
+  {
+    "match_id": 17,
+    "date": "2026-06-15",
+    "time": "20:00",
+    "venue": "New Jersey",
+    "phase": "GROUP",
+    "team_a_slot": "I1",
+    "team_b_slot": "I2"
+  },
+  {
+    "match_id": 18,
+    "date": "2026-06-15",
+    "time": "15:00",
+    "venue": "Philadelphia",
+    "phase": "GROUP",
+    "team_a_slot": "I3",
+    "team_b_slot": "I4"
+  },
+  {
+    "match_id": 19,
+    "date": "2026-06-16",
+    "time": "20:00",
+    "venue": "Boston",
+    "phase": "GROUP",
+    "team_a_slot": "J1",
+    "team_b_slot": "J2"
+  },
+  {
+    "match_id": 20,
+    "date": "2026-06-16",
+    "time": "15:00",
+    "venue": "New Jersey",
+    "phase": "GROUP",
+    "team_a_slot": "J3",
+    "team_b_slot": "J4"
+  },
+  {
+    "match_id": 21,
+    "date": "2026-06-16",
+    "time": "20:00",
+    "venue": "Toronto",
+    "phase": "GROUP",
+    "team_a_slot": "K1",
+    "team_b_slot": "K2"
+  },
+  {
+    "match_id": 22,
+    "date": "2026-06-16",
+    "time": "15:00",
+    "venue": "Philadelphia",
+    "phase": "GROUP",
+    "team_a_slot": "K3",
+    "team_b_slot": "K4"
+  },
+  {
+    "match_id": 23,
+    "date": "2026-06-16",
+    "time": "20:00",
+    "venue": "Guadalajara",
+    "phase": "GROUP",
+    "team_a_slot": "A1",
+    "team_b_slot": "A3"
+  },
+  {
+    "match_id": 24,
+    "date": "2026-06-16",
+    "time": "15:00",
+    "venue": "Mexico City",
+    "phase": "GROUP",
+    "team_a_slot": "A4",
+    "team_b_slot": "A2"
+  },
+  {
+    "match_id": 25,
+    "date": "2026-06-17",
+    "time": "20:00",
+    "venue": "Philadelphia",
+    "phase": "GROUP",
+    "team_a_slot": "L1",
+    "team_b_slot": "L2"
+  },
+  {
+    "match_id": 26,
+    "date": "2026-06-17",
+    "time": "15:00",
+    "venue": "Boston",
+    "phase": "GROUP",
+    "team_a_slot": "L3",
+    "team_b_slot": "L4"
+  },
+  {
+    "match_id": 27,
+    "date": "2026-06-17",
+    "time": "20:00",
+    "venue": "Seattle",
+    "phase": "GROUP",
+    "team_a_slot": "B1",
+    "team_b_slot": "B3"
+  },
+  {
+    "match_id": 28,
+    "date": "2026-06-17",
+    "time": "15:00",
+    "venue": "Vancouver",
+    "phase": "GROUP",
+    "team_a_slot": "B4",
+    "team_b_slot": "B2"
+  },
+  {
+    "match_id": 29,
+    "date": "2026-06-17",
+    "time": "20:00",
+    "venue": "Seattle",
+    "phase": "GROUP",
+    "team_a_slot": "D1",
+    "team_b_slot": "D3"
+  },
+  {
+    "match_id": 30,
+    "date": "2026-06-17",
+    "time": "15:00",
+    "venue": "Los Angeles",
+    "phase": "GROUP",
+    "team_a_slot": "D4",
+    "team_b_slot": "D2"
+  },
+  {
+    "match_id": 31,
+    "date": "2026-06-18",
+    "time": "20:00",
+    "venue": "San Francisco",
+    "phase": "GROUP",
+    "team_a_slot": "C1",
+    "team_b_slot": "C3"
+  },
+  {
+    "match_id": 32,
+    "date": "2026-06-18",
+    "time": "15:00",
+    "venue": "Los Angeles",
+    "phase": "GROUP",
+    "team_a_slot": "C4",
+    "team_b_slot": "C2"
+  },
+  {
+    "match_id": 33,
+    "date": "2026-06-18",
+    "time": "20:00",
+    "venue": "Dallas",
+    "phase": "GROUP",
+    "team_a_slot": "E1",
+    "team_b_slot": "E3"
+  },
+  {
+    "match_id": 34,
+    "date": "2026-06-18",
+    "time": "15:00",
+    "venue": "Houston",
+    "phase": "GROUP",
+    "team_a_slot": "E4",
+    "team_b_slot": "E2"
+  },
+  {
+    "match_id": 35,
+    "date": "2026-06-19",
+    "time": "20:00",
+    "venue": "Monterrey",
+    "phase": "GROUP",
+    "team_a_slot": "F1",
+    "team_b_slot": "F3"
+  },
+  {
+    "match_id": 36,
+    "date": "2026-06-19",
+    "time": "15:00",
+    "venue": "Dallas",
+    "phase": "GROUP",
+    "team_a_slot": "F4",
+    "team_b_slot": "F2"
+  },
+  {
+    "match_id": 37,
+    "date": "2026-06-19",
+    "time": "20:00",
+    "venue": "Miami",
+    "phase": "GROUP",
+    "team_a_slot": "G1",
+    "team_b_slot": "G3"
+  },
+  {
+    "match_id": 38,
+    "date": "2026-06-19",
+    "time": "15:00",
+    "venue": "Atlanta",
+    "phase": "GROUP",
+    "team_a_slot": "G4",
+    "team_b_slot": "G2"
+  },
+  {
+    "match_id": 39,
+    "date": "2026-06-20",
+    "time": "20:00",
+    "venue": "Atlanta",
+    "phase": "GROUP",
+    "team_a_slot": "H1",
+    "team_b_slot": "H3"
+  },
+  {
+    "match_id": 40,
+    "date": "2026-06-20",
+    "time": "15:00",
+    "venue": "Miami",
+    "phase": "GROUP",
+    "team_a_slot": "H4",
+    "team_b_slot": "H2"
+  },
+  {
+    "match_id": 41,
+    "date": "2026-06-20",
+    "time": "20:00",
+    "venue": "Philadelphia",
+    "phase": "GROUP",
+    "team_a_slot": "I1",
+    "team_b_slot": "I3"
+  },
+  {
+    "match_id": 42,
+    "date": "2026-06-20",
+    "time": "15:00",
+    "venue": "New Jersey",
+    "phase": "GROUP",
+    "team_a_slot": "I4",
+    "team_b_slot": "I2"
+  },
+  {
+    "match_id": 43,
+    "date": "2026-06-21",
+    "time": "20:00",
+    "venue": "New Jersey",
+    "phase": "GROUP",
+    "team_a_slot": "J1",
+    "team_b_slot": "J3"
+  },
+  {
+    "match_id": 44,
+    "date": "2026-06-21",
+    "time": "15:00",
+    "venue": "Boston",
+    "phase": "GROUP",
+    "team_a_slot": "J4",
+    "team_b_slot": "J2"
+  },
+  {
+    "match_id": 45,
+    "date": "2026-06-21",
+    "time": "20:00",
+    "venue": "Philadelphia",
+    "phase": "GROUP",
+    "team_a_slot": "K1",
+    "team_b_slot": "K3"
+  },
+  {
+    "match_id": 46,
+    "date": "2026-06-21",
+    "time": "15:00",
+    "venue": "Toronto",
+    "phase": "GROUP",
+    "team_a_slot": "K4",
+    "team_b_slot": "K2"
+  },
+  {
+    "match_id": 47,
+    "date": "2026-06-21",
+    "time": "20:00",
+    "venue": "Mexico City",
+    "phase": "GROUP",
+    "team_a_slot": "A4",
+    "team_b_slot": "A1"
+  },
+  {
+    "match_id": 48,
+    "date": "2026-06-21",
+    "time": "15:00",
+    "venue": "Guadalajara",
+    "phase": "GROUP",
+    "team_a_slot": "A2",
+    "team_b_slot": "A3"
+  },
+  {
+    "match_id": 49,
+    "date": "2026-06-22",
+    "time": "20:00",
+    "venue": "Boston",
+    "phase": "GROUP",
+    "team_a_slot": "L1",
+    "team_b_slot": "L3"
+  },
+  {
+    "match_id": 50,
+    "date": "2026-06-22",
+    "time": "15:00",
+    "venue": "Philadelphia",
+    "phase": "GROUP",
+    "team_a_slot": "L4",
+    "team_b_slot": "L2"
+  },
+  {
+    "match_id": 51,
+    "date": "2026-06-22",
+    "time": "20:00",
+    "venue": "Vancouver",
+    "phase": "GROUP",
+    "team_a_slot": "B4",
+    "team_b_slot": "B1"
+  },
+  {
+    "match_id": 52,
+    "date": "2026-06-22",
+    "time": "15:00",
+    "venue": "Seattle",
+    "phase": "GROUP",
+    "team_a_slot": "B2",
+    "team_b_slot": "B3"
+  },
+  {
+    "match_id": 53,
+    "date": "2026-06-22",
+    "time": "20:00",
+    "venue": "Los Angeles",
+    "phase": "GROUP",
+    "team_a_slot": "D4",
+    "team_b_slot": "D1"
+  },
+  {
+    "match_id": 54,
+    "date": "2026-06-22",
+    "time": "15:00",
+    "venue": "Seattle",
+    "phase": "GROUP",
+    "team_a_slot": "D2",
+    "team_b_slot": "D3"
+  },
+  {
+    "match_id": 55,
+    "date": "2026-06-23",
+    "time": "20:00",
+    "venue": "Los Angeles",
+    "phase": "GROUP",
+    "team_a_slot": "C4",
+    "team_b_slot": "C1"
+  },
+  {
+    "match_id": 56,
+    "date": "2026-06-23",
+    "time": "15:00",
+    "venue": "San Francisco",
+    "phase": "GROUP",
+    "team_a_slot": "C2",
+    "team_b_slot": "C3"
+  },
+  {
+    "match_id": 57,
+    "date": "2026-06-23",
+    "time": "20:00",
+    "venue": "Houston",
+    "phase": "GROUP",
+    "team_a_slot": "E4",
+    "team_b_slot": "E1"
+  },
+  {
+    "match_id": 58,
+    "date": "2026-06-23",
+    "time": "15:00",
+    "venue": "Dallas",
+    "phase": "GROUP",
+    "team_a_slot": "E2",
+    "team_b_slot": "E3"
+  },
+  {
+    "match_id": 59,
+    "date": "2026-06-24",
+    "time": "20:00",
+    "venue": "Dallas",
+    "phase": "GROUP",
+    "team_a_slot": "F4",
+    "team_b_slot": "F1"
+  },
+  {
+    "match_id": 60,
+    "date": "2026-06-24",
+    "time": "15:00",
+    "venue": "Monterrey",
+    "phase": "GROUP",
+    "team_a_slot": "F2",
+    "team_b_slot": "F3"
+  },
+  {
+    "match_id": 61,
+    "date": "2026-06-24",
+    "time": "20:00",
+    "venue": "Atlanta",
+    "phase": "GROUP",
+    "team_a_slot": "G4",
+    "team_b_slot": "G1"
+  },
+  {
+    "match_id": 62,
+    "date": "2026-06-24",
+    "time": "15:00",
+    "venue": "Miami",
+    "phase": "GROUP",
+    "team_a_slot": "G2",
+    "team_b_slot": "G3"
+  },
+  {
+    "match_id": 63,
+    "date": "2026-06-25",
+    "time": "20:00",
+    "venue": "Miami",
+    "phase": "GROUP",
+    "team_a_slot": "H4",
+    "team_b_slot": "H1"
+  },
+  {
+    "match_id": 64,
+    "date": "2026-06-25",
+    "time": "15:00",
+    "venue": "Atlanta",
+    "phase": "GROUP",
+    "team_a_slot": "H2",
+    "team_b_slot": "H3"
+  },
+  {
+    "match_id": 65,
+    "date": "2026-06-25",
+    "time": "20:00",
+    "venue": "New Jersey",
+    "phase": "GROUP",
+    "team_a_slot": "I4",
+    "team_b_slot": "I1"
+  },
+  {
+    "match_id": 66,
+    "date": "2026-06-25",
+    "time": "15:00",
+    "venue": "Philadelphia",
+    "phase": "GROUP",
+    "team_a_slot": "I2",
+    "team_b_slot": "I3"
+  },
+  {
+    "match_id": 67,
+    "date": "2026-06-26",
+    "time": "20:00",
+    "venue": "Boston",
+    "phase": "GROUP",
+    "team_a_slot": "J4",
+    "team_b_slot": "J1"
+  },
+  {
+    "match_id": 68,
+    "date": "2026-06-26",
+    "time": "15:00",
+    "venue": "New Jersey",
+    "phase": "GROUP",
+    "team_a_slot": "J2",
+    "team_b_slot": "J3"
+  },
+  {
+    "match_id": 69,
+    "date": "2026-06-26",
+    "time": "20:00",
+    "venue": "Toronto",
+    "phase": "GROUP",
+    "team_a_slot": "K4",
+    "team_b_slot": "K1"
+  },
+  {
+    "match_id": 70,
+    "date": "2026-06-26",
+    "time": "15:00",
+    "venue": "Philadelphia",
+    "phase": "GROUP",
+    "team_a_slot": "K2",
+    "team_b_slot": "K3"
+  },
+  {
+    "match_id": 71,
+    "date": "2026-06-27",
+    "time": "20:00",
+    "venue": "Philadelphia",
+    "phase": "GROUP",
+    "team_a_slot": "L4",
+    "team_b_slot": "L1"
+  },
+  {
+    "match_id": 72,
+    "date": "2026-06-27",
+    "time": "15:00",
+    "venue": "Boston",
+    "phase": "GROUP",
+    "team_a_slot": "L2",
+    "team_b_slot": "L3"
+  },
+  {
+    "match_id": 73,
+    "date": "2026-06-28",
+    "time": "18:00",
+    "venue": "Los Angeles",
+    "phase": "R32",
+    "slot_a": 0,
+    "slot_b": 1
+  },
+  {
+    "match_id": 74,
+    "date": "2026-06-28",
+    "time": "18:00",
+    "venue": "Seattle",
+    "phase": "R32",
+    "slot_a": 2,
+    "slot_b": 3
+  },
+  {
+    "match_id": 75,
+    "date": "2026-06-28",
+    "time": "18:00",
+    "venue": "Dallas",
+    "phase": "R32",
+    "slot_a": 4,
+    "slot_b": 5
+  },
+  {
+    "match_id": 76,
+    "date": "2026-06-29",
+    "time": "18:00",
+    "venue": "Houston",
+    "phase": "R32",
+    "slot_a": 6,
+    "slot_b": 7
+  },
+  {
+    "match_id": 77,
+    "date": "2026-06-29",
+    "time": "18:00",
+    "venue": "Atlanta",
+    "phase": "R32",
+    "slot_a": 8,
+    "slot_b": 9
+  },
+  {
+    "match_id": 78,
+    "date": "2026-06-29",
+    "time": "18:00",
+    "venue": "Miami",
+    "phase": "R32",
+    "slot_a": 10,
+    "slot_b": 11
+  },
+  {
+    "match_id": 79,
+    "date": "2026-06-30",
+    "time": "18:00",
+    "venue": "New Jersey",
+    "phase": "R32",
+    "slot_a": 12,
+    "slot_b": 13
+  },
+  {
+    "match_id": 80,
+    "date": "2026-06-30",
+    "time": "18:00",
+    "venue": "Boston",
+    "phase": "R32",
+    "slot_a": 14,
+    "slot_b": 15
+  },
+  {
+    "match_id": 81,
+    "date": "2026-06-30",
+    "time": "18:00",
+    "venue": "Mexico City",
+    "phase": "R32",
+    "slot_a": 16,
+    "slot_b": 17
+  },
+  {
+    "match_id": 82,
+    "date": "2026-07-01",
+    "time": "18:00",
+    "venue": "Monterrey",
+    "phase": "R32",
+    "slot_a": 18,
+    "slot_b": 19
+  },
+  {
+    "match_id": 83,
+    "date": "2026-07-01",
+    "time": "18:00",
+    "venue": "San Francisco",
+    "phase": "R32",
+    "slot_a": 20,
+    "slot_b": 21
+  },
+  {
+    "match_id": 84,
+    "date": "2026-07-01",
+    "time": "18:00",
+    "venue": "Vancouver",
+    "phase": "R32",
+    "slot_a": 22,
+    "slot_b": 23
+  },
+  {
+    "match_id": 85,
+    "date": "2026-07-02",
+    "time": "18:00",
+    "venue": "Kansas City",
+    "phase": "R32",
+    "slot_a": 24,
+    "slot_b": 25
+  },
+  {
+    "match_id": 86,
+    "date": "2026-07-02",
+    "time": "18:00",
+    "venue": "Philadelphia",
+    "phase": "R32",
+    "slot_a": 26,
+    "slot_b": 27
+  },
+  {
+    "match_id": 87,
+    "date": "2026-07-02",
+    "time": "18:00",
+    "venue": "Toronto",
+    "phase": "R32",
+    "slot_a": 28,
+    "slot_b": 29
+  },
+  {
+    "match_id": 88,
+    "date": "2026-07-03",
+    "time": "18:00",
+    "venue": "New Jersey",
+    "phase": "R32",
+    "slot_a": 30,
+    "slot_b": 31
+  },
+  {
+    "match_id": 89,
+    "date": "2026-07-04",
+    "time": "20:00",
+    "venue": "Los Angeles",
+    "phase": "R16",
+    "slot_a": 0,
+    "slot_b": 1
+  },
+  {
+    "match_id": 90,
+    "date": "2026-07-04",
+    "time": "20:00",
+    "venue": "Houston",
+    "phase": "R16",
+    "slot_a": 2,
+    "slot_b": 3
+  },
+  {
+    "match_id": 91,
+    "date": "2026-07-05",
+    "time": "20:00",
+    "venue": "Dallas",
+    "phase": "R16",
+    "slot_a": 4,
+    "slot_b": 5
+  },
+  {
+    "match_id": 92,
+    "date": "2026-07-05",
+    "time": "20:00",
+    "venue": "Seattle",
+    "phase": "R16",
+    "slot_a": 6,
+    "slot_b": 7
+  },
+  {
+    "match_id": 93,
+    "date": "2026-07-06",
+    "time": "20:00",
+    "venue": "New Jersey",
+    "phase": "R16",
+    "slot_a": 8,
+    "slot_b": 9
+  },
+  {
+    "match_id": 94,
+    "date": "2026-07-06",
+    "time": "20:00",
+    "venue": "Atlanta",
+    "phase": "R16",
+    "slot_a": 10,
+    "slot_b": 11
+  },
+  {
+    "match_id": 95,
+    "date": "2026-07-07",
+    "time": "20:00",
+    "venue": "Philadelphia",
+    "phase": "R16",
+    "slot_a": 12,
+    "slot_b": 13
+  },
+  {
+    "match_id": 96,
+    "date": "2026-07-07",
+    "time": "20:00",
+    "venue": "Miami",
+    "phase": "R16",
+    "slot_a": 14,
+    "slot_b": 15
+  },
+  {
+    "match_id": 97,
+    "date": "2026-07-09",
+    "time": "20:00",
+    "venue": "Los Angeles",
+    "phase": "QF",
+    "slot_a": 0,
+    "slot_b": 1
+  },
+  {
+    "match_id": 98,
+    "date": "2026-07-09",
+    "time": "20:00",
+    "venue": "Kansas City",
+    "phase": "QF",
+    "slot_a": 2,
+    "slot_b": 3
+  },
+  {
+    "match_id": 99,
+    "date": "2026-07-10",
+    "time": "20:00",
+    "venue": "Boston",
+    "phase": "QF",
+    "slot_a": 4,
+    "slot_b": 5
+  },
+  {
+    "match_id": 100,
+    "date": "2026-07-10",
+    "time": "20:00",
+    "venue": "Miami",
+    "phase": "QF",
+    "slot_a": 6,
+    "slot_b": 7
+  },
+  {
+    "match_id": 101,
+    "date": "2026-07-14",
+    "time": "20:00",
+    "venue": "Dallas",
+    "phase": "SF",
+    "slot_a": 0,
+    "slot_b": 1
+  },
+  {
+    "match_id": 102,
+    "date": "2026-07-15",
+    "time": "20:00",
+    "venue": "Atlanta",
+    "phase": "SF",
+    "slot_a": 2,
+    "slot_b": 3
+  },
+  {
+    "match_id": 103,
+    "date": "2026-07-18",
+    "time": "16:00",
+    "venue": "Miami",
+    "phase": "THIRD",
+    "slot_a": 0,
+    "slot_b": 1
+  },
+  {
+    "match_id": 104,
+    "date": "2026-07-19",
+    "time": "15:00",
+    "venue": "New Jersey",
+    "phase": "FINAL",
+    "slot_a": 0,
+    "slot_b": 1
+  }
+]

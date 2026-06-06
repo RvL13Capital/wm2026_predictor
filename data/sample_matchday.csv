@@ -1,0 +1,5 @@
+team_a,team_b,phase,elevation,temp,humidity,status_a,status_b,fan_pct_a,fan_pct_b,rest_days_a,rest_days_b,travel_miles_a,travel_miles_b,tz_crossed_a,tz_crossed_b,direction_a,direction_b,accl_days_a,accl_days_b,heat_accl_days_a,heat_accl_days_b,alpha_a,alpha_b,rho
+USA,England,group,10.0,28.0,65.0,True Home,Neutral,0.75,0.25,7.0,5.0,0.0,3500.0,0,5,None,West,14.0,7.0,14.0,7.0,0.05,0.05,-0.05
+Mexico,Argentina,group,2240.0,22.0,45.0,Co-Host,Neutral,0.70,0.30,7.0,5.0,0.0,2000.0,0,2,None,None,30.0,10.0,0.0,0.0,0.10,0.05,-0.08
+Germany,Japan,group,5.0,30.0,70.0,Neutral,Neutral,0.55,0.45,5.0,5.0,4000.0,5500.0,6,8,West,East,10.0,10.0,5.0,5.0,0.05,0.05,-0.05
+France,Brazil,group,15.0,26.0,60.0,Neutral,Neutral,0.45,0.55,5.0,5.0,3800.0,800.0,5,1,West,None,7.0,14.0,7.0,14.0,0.10,0.10,-0.10

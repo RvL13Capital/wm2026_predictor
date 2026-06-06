@@ -1,0 +1,202 @@
+{
+  "n_sims": 100000,
+  "elapsed_seconds": 51.5,
+  "group_winners": {
+    "A": {
+      "tip": "Mexico",
+      "probability": 0.5491,
+      "all": {
+        "Mexico": 0.5491,
+        "South Korea": 0.1984,
+        "Czechia": 0.1645,
+        "South Africa": 0.088
+      }
+    },
+    "B": {
+      "tip": "Switzerland",
+      "probability": 0.3872,
+      "all": {
+        "Switzerland": 0.3872,
+        "Canada": 0.3845,
+        "Qatar": 0.1311,
+        "Bosnia": 0.0971
+      }
+    },
+    "C": {
+      "tip": "Brazil",
+      "probability": 0.5543,
+      "all": {
+        "Brazil": 0.5543,
+        "Morocco": 0.3101,
+        "Scotland": 0.0964,
+        "Haiti": 0.0392
+      }
+    },
+    "D": {
+      "tip": "USA",
+      "probability": 0.4697,
+      "all": {
+        "USA": 0.4697,
+        "Turkey": 0.2202,
+        "Australia": 0.1555,
+        "Paraguay": 0.1546
+      }
+    },
+    "E": {
+      "tip": "Germany",
+      "probability": 0.5433,
+      "all": {
+        "Germany": 0.5433,
+        "Ecuador": 0.2403,
+        "Ivory Coast": 0.1782,
+        "Curaçao": 0.0382
+      }
+    },
+    "F": {
+      "tip": "Netherlands",
+      "probability": 0.4627,
+      "all": {
+        "Netherlands": 0.4627,
+        "Japan": 0.3125,
+        "Sweden": 0.1657,
+        "Tunisia": 0.0591
+      }
+    },
+    "G": {
+      "tip": "Belgium",
+      "probability": 0.5658,
+      "all": {
+        "Belgium": 0.5658,
+        "Iran": 0.1882,
+        "Egypt": 0.1642,
+        "New Zealand": 0.0818
+      }
+    },
+    "H": {
+      "tip": "Spain",
+      "probability": 0.6541,
+      "all": {
+        "Spain": 0.6541,
+        "Uruguay": 0.2658,
+        "Saudi Arabia": 0.0491,
+        "Cape Verde": 0.031
+      }
+    },
+    "I": {
+      "tip": "France",
+      "probability": 0.6289,
+      "all": {
+        "France": 0.6289,
+        "Norway": 0.209,
+        "Senegal": 0.1269,
+        "Iraq": 0.0352
+      }
+    },
+    "J": {
+      "tip": "Argentina",
+      "probability": 0.6842,
+      "all": {
+        "Argentina": 0.6842,
+        "Austria": 0.185,
+        "Algeria": 0.0819,
+        "Jordan": 0.0489
+      }
+    },
+    "K": {
+      "tip": "Portugal",
+      "probability": 0.5482,
+      "all": {
+        "Portugal": 0.5482,
+        "Colombia": 0.3292,
+        "DR Congo": 0.0713,
+        "Uzbekistan": 0.0513
+      }
+    },
+    "L": {
+      "tip": "England",
+      "probability": 0.619,
+      "all": {
+        "England": 0.619,
+        "Croatia": 0.2416,
+        "Ghana": 0.0808,
+        "Panama": 0.0586
+      }
+    }
+  },
+  "semifinalists": {
+    "tips": [
+      "France",
+      "Spain",
+      "Argentina",
+      "England"
+    ],
+    "probabilities": {
+      "France": 0.3304,
+      "Spain": 0.3164,
+      "Argentina": 0.2988,
+      "England": 0.2646,
+      "Portugal": 0.2238,
+      "Brazil": 0.2158,
+      "Germany": 0.2092,
+      "Belgium": 0.166
+    }
+  },
+  "champion": {
+    "tip": "France",
+    "probability": 0.1345,
+    "all": {
+      "France": 0.1345,
+      "Spain": 0.1224,
+      "Argentina": 0.1089,
+      "England": 0.0911,
+      "Portugal": 0.0707,
+      "Brazil": 0.0667,
+      "Germany": 0.0579,
+      "Netherlands": 0.0355,
+      "Belgium": 0.0352,
+      "Mexico": 0.0321,
+      "USA": 0.0274,
+      "Colombia": 0.0236,
+      "Morocco": 0.0213,
+      "Uruguay": 0.0211,
+      "Norway": 0.0181,
+      "Japan": 0.0163,
+      "Switzerland": 0.0141,
+      "Croatia": 0.0129,
+      "Canada": 0.0122,
+      "Ecuador": 0.011,
+      "Austria": 0.0077,
+      "Senegal": 0.0072,
+      "Turkey": 0.0066,
+      "Ivory Coast": 0.0059
+    }
+  },
+  "top_scorer_team": {
+    "tip": "France",
+    "probability": 0.0874,
+    "avg_goals": {
+      "France": 10.6,
+      "Spain": 10.4,
+      "Argentina": 10.2,
+      "England": 9.7,
+      "Portugal": 9.5,
+      "Germany": 9.3,
+      "Brazil": 9.1,
+      "Belgium": 8.9,
+      "Mexico": 8.7,
+      "USA": 8.5
+    },
+    "all": {
+      "France": 0.0874,
+      "Spain": 0.0839,
+      "Argentina": 0.0774,
+      "Portugal": 0.0611,
+      "Brazil": 0.0584,
+      "England": 0.0581,
+      "Germany": 0.0571,
+      "Mexico": 0.0451,
+      "Belgium": 0.043,
+      "USA": 0.0405
+    }
+  }
+}
