@@ -1,0 +1,65 @@
+phase,team_a,team_b,goals_a,goals_b,npxg_a,npxg_b
+GROUP,Denmark,Tunisia,0,0,1.567,1.06
+GROUP,Japan,Spain,2,1,1.158,0.858
+GROUP,Serbia,Switzerland,2,3,1.189,3.104
+GROUP,Australia,Denmark,1,0,0.47,0.737
+GROUP,Brazil,Serbia,2,0,2.124,0.163
+GROUP,Cameroon,Serbia,3,3,2.07,1.738
+GROUP,Saudi Arabia,Mexico,1,2,1.076,2.322
+GROUP,Wales,England,0,3,0.208,2.915
+GROUP,South Korea,Portugal,2,1,1.399,0.974
+GROUP,Spain,Germany,1,1,0.64,1.147
+GROUP,Poland,Argentina,0,2,0.198,2.293
+GROUP,Mexico,Poland,0,0,0.529,0.354
+GROUP,France,Denmark,2,1,1.934,0.889
+GROUP,Ecuador,Senegal,1,2,1.002,0.924
+GROUP,Belgium,Canada,1,0,0.67,1.763
+GROUP,Brazil,Switzerland,1,0,0.923,0.289
+GROUP,Portugal,Uruguay,2,0,0.43,1.217
+GROUP,England,Iran,6,2,1.987,0.672
+GROUP,England,USA,0,0,0.461,0.514
+GROUP,Wales,Iran,0,2,0.616,1.454
+GROUP,Netherlands,Ecuador,1,1,0.104,1.651
+GROUP,Tunisia,France,1,0,0.298,0.477
+GROUP,Canada,Morocco,1,2,1.096,0.426
+GROUP,Morocco,Croatia,0,0,0.363,0.85
+GROUP,Iran,USA,0,1,0.921,1.17
+GROUP,France,Australia,4,1,3.17,0.323
+GROUP,Cameroon,Brazil,1,0,0.383,2.378
+GROUP,Croatia,Canada,4,1,2.61,0.287
+GROUP,USA,Wales,1,1,0.602,0.612
+GROUP,Belgium,Morocco,0,2,0.643,0.991
+GROUP,Germany,Japan,1,2,1.985,1.249
+GROUP,Senegal,Netherlands,0,2,0.691,1.124
+GROUP,Qatar,Ecuador,0,2,0.304,0.371
+GROUP,Uruguay,South Korea,0,0,0.417,0.493
+GROUP,Tunisia,Australia,0,1,1.052,0.359
+GROUP,Argentina,Mexico,2,0,0.325,0.206
+GROUP,Switzerland,Cameroon,1,0,1.427,0.613
+GROUP,Spain,Costa Rica,7,0,1.978,0.0
+GROUP,Costa Rica,Germany,2,4,1.035,4.316
+GROUP,Ghana,Uruguay,0,2,0.609,1.637
+GROUP,Netherlands,Qatar,2,0,1.714,0.144
+GROUP,Japan,Costa Rica,0,1,0.774,0.199
+GROUP,Croatia,Belgium,0,0,0.695,2.382
+GROUP,Poland,Saudi Arabia,2,0,1.734,1.188
+GROUP,Portugal,Ghana,3,2,1.313,0.78
+GROUP,South Korea,Ghana,2,3,1.368,1.181
+GROUP,Argentina,Saudi Arabia,1,2,1.708,0.153
+GROUP,Qatar,Senegal,1,3,0.96,0.903
+R16,Netherlands,USA,3,1,1.482,1.652
+R16,England,Senegal,3,0,1.02,0.973
+R16,Argentina,Australia,2,1,1.482,0.426
+R16,France,Poland,3,1,1.126,0.81
+R16,Japan,Croatia,1,1,1.069,0.854
+R16,Morocco,Spain,0,0,0.57,0.495
+R16,Brazil,South Korea,4,1,2.478,0.345
+R16,Portugal,Switzerland,6,1,2.284,1.272
+QF,Netherlands,Argentina,2,2,0.57,1.156
+QF,England,France,1,2,0.786,0.839
+QF,Croatia,Brazil,1,1,0.633,1.816
+QF,Morocco,Portugal,1,0,0.972,0.744
+SF,Argentina,Croatia,3,0,1.081,0.41
+SF,France,Morocco,2,0,2.002,1.23
+THIRD,Croatia,Morocco,2,1,0.849,0.991
+FINAL,Argentina,France,3,3,1.975,0.706

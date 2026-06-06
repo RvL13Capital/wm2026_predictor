@@ -1,0 +1,65 @@
+phase,team_a,team_b,goals_a,goals_b
+GROUP,Russia,Saudi Arabia,5,0
+GROUP,Egypt,Uruguay,0,1
+GROUP,Russia,Egypt,3,1
+GROUP,Uruguay,Saudi Arabia,1,0
+GROUP,Uruguay,Russia,3,0
+GROUP,Saudi Arabia,Egypt,2,1
+GROUP,Morocco,Iran,0,1
+GROUP,Portugal,Spain,3,3
+GROUP,Portugal,Morocco,1,0
+GROUP,Iran,Spain,0,1
+GROUP,Iran,Portugal,1,1
+GROUP,Spain,Morocco,2,2
+GROUP,France,Australia,2,1
+GROUP,Peru,Denmark,0,1
+GROUP,Denmark,Australia,1,1
+GROUP,France,Peru,1,0
+GROUP,Denmark,France,0,0
+GROUP,Australia,Peru,0,2
+GROUP,Argentina,Iceland,1,1
+GROUP,Croatia,Nigeria,2,0
+GROUP,Argentina,Croatia,0,3
+GROUP,Nigeria,Iceland,2,0
+GROUP,Nigeria,Argentina,1,2
+GROUP,Iceland,Croatia,1,2
+GROUP,Costa Rica,Serbia,0,1
+GROUP,Brazil,Switzerland,1,1
+GROUP,Brazil,Costa Rica,2,0
+GROUP,Serbia,Switzerland,1,2
+GROUP,Serbia,Brazil,0,2
+GROUP,Switzerland,Costa Rica,2,2
+GROUP,Germany,Mexico,0,1
+GROUP,Sweden,South Korea,1,0
+GROUP,South Korea,Mexico,1,2
+GROUP,Germany,Sweden,2,1
+GROUP,South Korea,Germany,2,0
+GROUP,Mexico,Sweden,0,3
+GROUP,Belgium,Panama,3,0
+GROUP,Tunisia,England,1,2
+GROUP,Belgium,Tunisia,5,2
+GROUP,England,Panama,6,1
+GROUP,England,Belgium,0,1
+GROUP,Panama,Tunisia,1,2
+GROUP,Colombia,Japan,1,2
+GROUP,Poland,Senegal,1,2
+GROUP,Japan,Senegal,2,2
+GROUP,Poland,Colombia,0,3
+GROUP,Japan,Poland,0,1
+GROUP,Senegal,Colombia,0,1
+R16,France,Argentina,4,3
+R16,Uruguay,Portugal,2,1
+R16,Spain,Russia,1,1
+R16,Croatia,Denmark,1,1
+R16,Brazil,Mexico,2,0
+R16,Belgium,Japan,3,2
+R16,Sweden,Switzerland,1,0
+R16,England,Colombia,1,1
+QF,Uruguay,France,0,2
+QF,Brazil,Belgium,1,2
+QF,Sweden,England,0,2
+QF,Russia,Croatia,2,2
+SF,France,Belgium,1,0
+SF,Croatia,England,2,1
+THIRD,Belgium,England,2,0
+FINAL,France,Croatia,4,2

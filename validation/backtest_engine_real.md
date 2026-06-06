@@ -1,5 +1,14 @@
 # F9 Validation: Ablation Study & Backtest Analysis
 
+> ⚠️ **SUPERSEDED IN PART (2026-06-06).** The ablation diagnosis in Sections 1–3 (real WC2022
+> data) stands. **Section 4's conclusion is withdrawn**: it kept the engine on the basis of a
+> Monte-Carlo simulation driven by the model's *own* probabilities — a circular argument that
+> cannot validate the model (this is exactly finding F9). The honest out-of-sample verdict is in
+> [`F9_OUT_OF_SAMPLE.md`](F9_OUT_OF_SAMPLE.md): across 2014+2018+2022 (192 real matches) the
+> optimized model ties the baseline exactly (291–291) on points, is statistically indistinguishable
+> on calibration, and a non-penalty-xG check finds the core λ over-scales favorites while the
+> context layer adds no bias-invariant signal — R4 is **not** met on real data.
+
 **Auftrag:** Ermitteln, warum das optimierte Modell in der WM 2022 Backtest-Suite gegen die Baseline-Poisson-Engine verliert (104 vs 99 Kicktipp-Punkte).
 
 **Ergebnis:** Das optimierte Modell ist *theoretisch besser kalibriert*, verliert aber im kleinen Sample-Size-Szenario von WM 2022 (N=64) Kicktipp-Punkte aufgrund deterministischer "Über-Bestrafungen" durch Kontext-Parameter (Reise, Jetlag) bei Upset-Matches.
@@ -35,7 +44,16 @@ Negative Binomialverteilungen (Overdispersion) streuen die Torschusswahrscheinli
 
 ## 4. Fazit & Handlungsentscheidung
 
-Die Baseline gewinnt auf dem WM 2022 Dataset *zufällig* (aufgrund von 2-3 konkreten Matches, in denen die Kontext-Strafe ein "Upsets" verhinderte, das in Wirklichkeit passierte). 
-Mathematisch bleibt das erweiterte Kontext- und Dixon-Coles Modell über zehntausende Spiele überlegen (wie in der Monte-Carlo Simulation bewiesen), da externe Faktoren nachweisbar einen realen Bias im Fußball erzeugen (Home Advantage, Altitude, etc.).
+**[WITHDRAWN — see banner at top.]** The original text argued the baseline "won by chance" on
+WC2022 and that the extended model "remains mathematically superior over tens of thousands of games,
+as proven in the Monte-Carlo simulation." That defense is circular: a MC simulation that samples
+outcomes from the model's own probability grids measures self-consistency, not real-world accuracy.
 
-**Die Engine v4 bleibt unverändert.** Wir opfern nicht die probabilistische Integrität für "Overfitting" an das kleine N=64 Sample von 2022.
+**Honest replacement (2026-06-06).** Out-of-sample per-match Kicktipp backtests across 2014 + 2018 +
+2022 (192 real matches, pre-tournament Elo, no lookahead) show the optimized model **ties the baseline
+exactly, 291–291**; Dixon-Coles + Negative Binomial never change the EV-optimal tip, and on calibration
+(Brier/RPS/log-loss) the difference is statistically indistinguishable from zero (paired bootstrap, all
+95% CIs span 0). A lower-variance non-penalty-xG check (StatsBomb, 2018+2022) finds the core Elo→λ has
+real margin skill (npxG-margin r≈+0.57) but **over-scales favorites**, while the context layer's
+apparent gain is a bias artifact that vanishes on the bias-invariant margin. **R4 is not met on real
+data.** Full analysis and recommendations: [`F9_OUT_OF_SAMPLE.md`](F9_OUT_OF_SAMPLE.md).
