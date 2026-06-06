@@ -263,6 +263,8 @@ TEAM_NAME_MAPPING = {
     "schottland": "Scotland",
     "england": "England",
     "kroatien": "Croatia",
+    "congo dr": "DR Congo",
+    "dr congo": "DR Congo",
     "belgien": "Belgium",
     "ägypten": "Egypt",
     "aegypten": "Egypt",
@@ -1736,7 +1738,8 @@ def predict_single_match(row: dict, pts_exact: int = 4, pts_diff: int = 3,
                 )
                 odds_source = "manual"
         except (ValueError, TypeError) as e:
-            pass  # Silently fall back to Elo-only if odds parsing fails
+            import sys
+            print(f"⚠ Warning: Odds parsing failed for {row.get('team_a')} vs {row.get('team_b')} ({e}). Falling back to Elo-only.", file=sys.stderr)
     
     # Build context dicts
     def ctx(suffix):

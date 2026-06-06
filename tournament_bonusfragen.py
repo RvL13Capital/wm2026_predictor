@@ -958,6 +958,29 @@ def get_best_third_place_teams(all_group_standings: dict) -> List[str]:
     return thirds[:8]
 
 
+_PEN_WIN_CACHE = {}
+
+
+def _penalty_win_prob(team_a: str, team_b: str) -> float:
+    """P(team A wins a shootout) from predictor.penalty_shootout_distribution, driven by
+    team-specific PENALTY_STRENGTH *conversion rates* (NOT Elo). The distribution is keyed
+    by (pen_a, pen_b) tuples, so P(A wins) = Σ p where pen_a > pen_b. Memoized."""
+    base = predictor.CONSTANTS["pen_conversion_rate"]
+    base_sd = predictor.CONSTANTS["pen_sudden_death_conversion"]
+    max_sd = int(predictor.CONSTANTS["pen_max_sudden_death_rounds"])
+    conv_a = base * predictor.PENALTY_STRENGTH.get(team_a, 1.0)
+    conv_b = base * predictor.PENALTY_STRENGTH.get(team_b, 1.0)
+    key = (round(conv_a, 4), round(conv_b, 4))
+    if key not in _PEN_WIN_CACHE:
+        sd_a = base_sd * (conv_a / base)
+        sd_b = base_sd * (conv_b / base)
+        dist = predictor.penalty_shootout_distribution(conv_a, conv_b, sd_a, sd_b, max_sd)
+        total = sum(dist.values())
+        p_a = sum(p for (pa, pb), p in dist.items() if pa > pb)
+        _PEN_WIN_CACHE[key] = (p_a / total) if total > 0 else 0.5
+    return _PEN_WIN_CACHE[key]
+
+
 def _simulate_ko_match(team_a: str, team_b: str, phase: str,
                         host_teams: set, ko_cache: dict, rng: random.Random,
                         elevation: float = 0.0,
@@ -1019,14 +1042,10 @@ def _simulate_ko_match(team_a: str, team_b: str, phase: str,
         elif gb > ga:
             winner = team_b
         else:
-            # Still drawn → Penalty Shootout
-            # Empirical: WC penalty shootouts are nearly 50/50.
-            # Elo difference explains <10% of variance.
-            # Max edge: 55/45 (dampening factor 1200 instead of 400)
-            elo_diff = (eff_elo_a - eff_elo_b) / 1200.0
-            p_a_pens = 1.0 / (1.0 + 10 ** (-elo_diff))
-            # Clamp to [0.40, 0.60] — no team has >60% in shootouts
-            p_a_pens = max(0.40, min(0.60, p_a_pens))
+            # Still drawn → Penalty Shootout. penalty_shootout_distribution takes conversion
+            # PROBABILITIES (not Elo) and returns a {(pen_a,pen_b): p} distribution — the prior
+            # call passed Elo and read a nonexistent "p_a_win" key, crashing every shootout.
+            p_a_pens = _penalty_win_prob(team_a, team_b)
             winner = team_a if rng.random() < p_a_pens else team_b
     
     return winner, ga, gb
@@ -1647,6 +1666,9 @@ def main():
     import subprocess
     try:
         commit_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD'], stderr=subprocess.STDOUT).decode('utf-8').strip()
+        is_dirty = subprocess.call(['git', 'diff', '--quiet']) != 0
+        if is_dirty:
+            commit_hash += " (dirty)"
     except Exception:
         commit_hash = "unknown"
         
