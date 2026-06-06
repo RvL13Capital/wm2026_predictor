@@ -1,0 +1,188 @@
+Loaded 24 matches from data/matchday1.csv
+
+Match 1: Mexico vs South Africa [GROUP]
+  λ_base: 1.240 / 0.644  →  λ_adj: 1.375 / 0.604
+  P(Home)=55.1%  P(Draw)=29.1%  P(Away)=15.8%
+  ★ Optimal tip: 1:0  (EV = 1.562 pts)
+  MC (1,000 sims): μ=1.615  σ=1.583  P(0)=43.8%  P(2)=27.6%  P(3)=8.1%  P(4)=20.5%
+
+Match 2: South Korea vs Czechia [GROUP]
+  λ_base: 1.022 / 1.024  →  λ_adj: 1.038 / 1.040
+  P(Home)=34.2%  P(Draw)=31.5%  P(Away)=34.3%
+  ★ Optimal tip: 0:1  (EV = 1.016 pts)
+  MC (1,000 sims): μ=0.923  σ=1.458  P(0)=68.9%  P(2)=12.5%  P(3)=7.1%  P(4)=11.5%
+
+Match 3: Canada vs Bosnia [GROUP]
+  λ_base: 1.346 / 0.849  →  λ_adj: 1.346 / 0.849
+  P(Home)=47.7%  P(Draw)=29.3%  P(Away)=23.0%
+  ★ Optimal tip: 1:0  (EV = 1.345 pts)
+  MC (1,000 sims): μ=1.405  σ=1.513  P(0)=49.5%  P(2)=24.4%  P(3)=12.7%  P(4)=13.4%
+
+Match 4: Qatar vs Switzerland [GROUP]
+  λ_base: 0.514 / 1.393  →  λ_adj: 0.514 / 1.393
+  P(Home)=13.1%  P(Draw)=28.6%  P(Away)=58.3%
+  ★ Optimal tip: 0:1  (EV = 1.652 pts)
+  MC (1,000 sims): μ=1.720  σ=1.558  P(0)=39.5%  P(2)=30.3%  P(3)=9.4%  P(4)=20.8%
+
+Match 5: USA vs Paraguay [GROUP]
+  λ_base: 0.998 / 1.045  →  λ_adj: 0.998 / 1.045
+  P(Home)=32.9%  P(Draw)=31.8%  P(Away)=35.3%
+  ★ Optimal tip: 0:1  (EV = 1.048 pts)
+  MC (1,000 sims): μ=1.034  σ=1.479  P(0)=64.3%  P(2)=15.2%  P(3)=9.0%  P(4)=11.5%
+
+Match 6: Australia vs Turkey [GROUP]
+  λ_base: 0.977 / 1.561  →  λ_adj: 0.977 / 1.561
+  P(Home)=23.1%  P(Draw)=26.6%  P(Away)=50.3%
+  ★ Optimal tip: 0:1  (EV = 1.362 pts)
+  MC (1,000 sims): μ=1.308  σ=1.470  P(0)=51.9%  P(2)=24.4%  P(3)=12.8%  P(4)=10.9%
+
+Match 7: Brazil vs Morocco [GROUP]
+  λ_base: 1.134 / 0.997  →  λ_adj: 1.134 / 0.997
+  P(Home)=38.0%  P(Draw)=30.9%  P(Away)=31.1%
+  ★ Optimal tip: 1:0  (EV = 1.108 pts)
+  MC (1,000 sims): μ=1.089  σ=1.502  P(0)=62.4%  P(2)=16.5%  P(3)=8.5%  P(4)=12.6%
+
+Match 8: Haiti vs Scotland [GROUP]
+  λ_base: 0.660 / 1.287  →  λ_adj: 0.660 / 1.287
+  P(Home)=18.5%  P(Draw)=30.4%  P(Away)=51.1%
+  ★ Optimal tip: 0:1  (EV = 1.467 pts)
+  MC (1,000 sims): μ=1.491  σ=1.602  P(0)=49.2%  P(2)=22.4%  P(3)=9.3%  P(4)=19.1%
+
+Match 9: Germany vs Curaçao [GROUP]
+  λ_base: 1.902 / 0.535  →  λ_adj: 1.902 / 0.535
+  P(Home)=69.8%  P(Draw)=21.1%  P(Away)=9.1%
+  ★ Optimal tip: 1:0  (EV = 1.820 pts)
+  MC (1,000 sims): μ=1.846  σ=1.348  P(0)=28.3%  P(2)=45.3%  P(3)=11.6%  P(4)=14.8%
+
+Match 10: Ivory Coast vs Ecuador [GROUP]
+  λ_base: 0.957 / 1.386  →  λ_adj: 0.957 / 1.386
+  P(Home)=25.3%  P(Draw)=28.5%  P(Away)=46.2%
+  ★ Optimal tip: 0:1  (EV = 1.287 pts)
+  MC (1,000 sims): μ=1.315  σ=1.552  P(0)=54.6%  P(2)=19.1%  P(3)=11.9%  P(4)=14.4%
+
+Match 11: Netherlands vs Japan [GROUP]
+  λ_base: 1.319 / 1.153  →  λ_adj: 1.319 / 1.153
+  P(Home)=39.8%  P(Draw)=28.4%  P(Away)=31.9%
+  ★ Optimal tip: 1:0  (EV = 1.115 pts)
+  MC (1,000 sims): μ=1.127  σ=1.496  P(0)=60.8%  P(2)=16.1%  P(3)=11.9%  P(4)=11.2%
+
+Match 12: Sweden vs Tunisia [GROUP]
+  λ_base: 0.964 / 0.788  →  λ_adj: 0.964 / 0.788
+  P(Home)=37.6%  P(Draw)=34.6%  P(Away)=27.9%
+  ★ Optimal tip: 1:0  (EV = 1.145 pts)
+  MC (1,000 sims): μ=1.206  σ=1.604  P(0)=60.8%  P(2)=14.5%  P(3)=7.2%  P(4)=17.5%
+
+Match 13: Belgium vs Egypt [GROUP]
+  λ_base: 1.277 / 1.136  →  λ_adj: 1.277 / 1.136
+  P(Home)=39.0%  P(Draw)=28.8%  P(Away)=32.2%
+  ★ Optimal tip: 1:0  (EV = 1.102 pts)
+  MC (1,000 sims): μ=1.017  σ=1.434  P(0)=63.6%  P(2)=17.0%  P(3)=9.9%  P(4)=9.5%
+
+Match 14: Iran vs New Zealand [GROUP]
+  λ_base: 0.995 / 0.664  →  λ_adj: 0.995 / 0.664
+  P(Home)=41.7%  P(Draw)=35.1%  P(Away)=23.2%
+  ★ Optimal tip: 1:0  (EV = 1.271 pts)
+  MC (1,000 sims): μ=1.235  σ=1.601  P(0)=59.4%  P(2)=15.8%  P(3)=7.3%  P(4)=17.5%
+
+Match 15: Spain vs Cape Verde [GROUP]
+  λ_base: 2.092 / 0.665  →  λ_adj: 2.092 / 0.665
+  P(Home)=70.2%  P(Draw)=19.7%  P(Away)=10.2%
+  ★ Optimal tip: 1:0  (EV = 1.777 pts)
+  MC (1,000 sims): μ=1.805  σ=1.327  P(0)=28.9%  P(2)=45.8%  P(3)=12.3%  P(4)=13.0%
+
+Match 16: Saudi Arabia vs Uruguay [GROUP]
+  λ_base: 0.640 / 1.206  →  λ_adj: 0.640 / 1.206
+  P(Home)=19.1%  P(Draw)=31.7%  P(Away)=49.2%
+  ★ Optimal tip: 0:1  (EV = 1.436 pts)
+  MC (1,000 sims): μ=1.456  σ=1.584  P(0)=49.8%  P(2)=23.0%  P(3)=9.2%  P(4)=18.0%
+
+Match 17: France vs Senegal [GROUP]
+  λ_base: 1.774 / 1.089  →  λ_adj: 1.774 / 1.089
+  P(Home)=52.9%  P(Draw)=24.5%  P(Away)=22.7%
+  ★ Optimal tip: 2:1  (EV = 1.386 pts)
+  MC (1,000 sims): μ=1.354  σ=1.441  P(0)=49.0%  P(2)=27.6%  P(3)=13.4%  P(4)=10.0%
+
+Match 18: Iraq vs Norway [GROUP]
+  λ_base: 0.820 / 1.882  →  λ_adj: 0.820 / 1.882
+  P(Home)=15.2%  P(Draw)=22.8%  P(Away)=61.9%
+  ★ Optimal tip: 0:1  (EV = 1.607 pts)
+  MC (1,000 sims): μ=1.624  σ=1.414  P(0)=37.7%  P(2)=37.2%  P(3)=12.4%  P(4)=12.7%
+
+Match 19: Argentina vs Algeria [GROUP]
+  λ_base: 1.706 / 0.807  →  λ_adj: 1.706 / 0.807
+  P(Home)=58.2%  P(Draw)=24.9%  P(Away)=16.9%
+  ★ Optimal tip: 1:0  (EV = 1.550 pts)
+  MC (1,000 sims): μ=1.493  σ=1.467  P(0)=44.4%  P(2)=30.1%  P(3)=12.9%  P(4)=12.6%
+
+Match 20: Austria vs Jordan [GROUP]
+  λ_base: 1.302 / 0.743  →  λ_adj: 1.302 / 0.743
+  P(Home)=49.2%  P(Draw)=30.1%  P(Away)=20.7%
+  ★ Optimal tip: 1:0  (EV = 1.405 pts)
+  MC (1,000 sims): μ=1.385  σ=1.530  P(0)=50.6%  P(2)=24.6%  P(3)=9.9%  P(4)=14.9%
+
+Match 21: Portugal vs DR Congo [GROUP]
+  λ_base: 1.724 / 0.745  →  λ_adj: 1.724 / 0.745
+  P(Home)=60.3%  P(Draw)=24.5%  P(Away)=15.3%
+  ★ Optimal tip: 1:0  (EV = 1.603 pts)
+  MC (1,000 sims): μ=1.638  σ=1.454  P(0)=38.7%  P(2)=34.4%  P(3)=12.6%  P(4)=14.3%
+
+Match 22: Uzbekistan vs Colombia [GROUP]
+  λ_base: 0.779 / 1.625  →  λ_adj: 0.748 / 1.777
+  P(Home)=14.7%  P(Draw)=23.8%  P(Away)=61.4%
+  ★ Optimal tip: 0:1  (EV = 1.621 pts)
+  MC (1,000 sims): μ=1.608  σ=1.436  P(0)=39.1%  P(2)=35.0%  P(3)=12.8%  P(4)=13.1%
+
+Match 23: England vs Croatia [GROUP]
+  λ_base: 1.196 / 0.944  →  λ_adj: 1.196 / 0.944
+  P(Home)=41.1%  P(Draw)=30.6%  P(Away)=28.3%
+  ★ Optimal tip: 1:0  (EV = 1.186 pts)
+  MC (1,000 sims): μ=1.125  σ=1.524  P(0)=61.7%  P(2)=15.4%  P(3)=9.9%  P(4)=13.0%
+
+Match 24: Ghana vs Panama [GROUP]
+  λ_base: 0.732 / 0.926  →  λ_adj: 0.732 / 0.926
+  P(Home)=26.7%  P(Draw)=35.6%  P(Away)=37.7%
+  ★ Optimal tip: 0:1  (EV = 1.160 pts)
+  MC (1,000 sims): μ=1.228  σ=1.619  P(0)=60.5%  P(2)=13.7%  P(3)=7.8%  P(4)=18.0%
+
+  #  Match                                 Tip      EV    MC μ    MC σ    P(0)    P(2)    P(3)    P(4)
+------------------------------------------------------------------------------------------------------
+  1  Mexico vs South Africa              1: 0   1.562   1.615   1.583   43.8%   27.6%    8.1%   20.5%
+  2  South Korea vs Czechia              0: 1   1.016   0.923   1.458   68.9%   12.5%    7.1%   11.5%
+  3  Canada vs Bosnia                    1: 0   1.345   1.405   1.513   49.5%   24.4%   12.7%   13.4%
+  4  Qatar vs Switzerland                0: 1   1.652   1.720   1.558   39.5%   30.3%    9.4%   20.8%
+  5  USA vs Paraguay                     0: 1   1.048   1.034   1.479   64.3%   15.2%    9.0%   11.5%
+  6  Australia vs Turkey                 0: 1   1.362   1.308   1.470   51.9%   24.4%   12.8%   10.9%
+  7  Brazil vs Morocco                   1: 0   1.108   1.089   1.502   62.4%   16.5%    8.5%   12.6%
+  8  Haiti vs Scotland                   0: 1   1.467   1.491   1.602   49.2%   22.4%    9.3%   19.1%
+  9  Germany vs Curaçao                  1: 0   1.820   1.846   1.348   28.3%   45.3%   11.6%   14.8%
+ 10  Ivory Coast vs Ecuador              0: 1   1.287   1.315   1.552   54.6%   19.1%   11.9%   14.4%
+ 11  Netherlands vs Japan                1: 0   1.115   1.127   1.496   60.8%   16.1%   11.9%   11.2%
+ 12  Sweden vs Tunisia                   1: 0   1.145   1.206   1.604   60.8%   14.5%    7.2%   17.5%
+ 13  Belgium vs Egypt                    1: 0   1.102   1.017   1.434   63.6%   17.0%    9.9%    9.5%
+ 14  Iran vs New Zealand                 1: 0   1.271   1.235   1.601   59.4%   15.8%    7.3%   17.5%
+ 15  Spain vs Cape Verde                 1: 0   1.777   1.805   1.327   28.9%   45.8%   12.3%   13.0%
+ 16  Saudi Arabia vs Uruguay             0: 1   1.436   1.456   1.584   49.8%   23.0%    9.2%   18.0%
+ 17  France vs Senegal                   2: 1   1.386   1.354   1.441   49.0%   27.6%   13.4%   10.0%
+ 18  Iraq vs Norway                      0: 1   1.607   1.624   1.414   37.7%   37.2%   12.4%   12.7%
+ 19  Argentina vs Algeria                1: 0   1.550   1.493   1.467   44.4%   30.1%   12.9%   12.6%
+ 20  Austria vs Jordan                   1: 0   1.405   1.385   1.530   50.6%   24.6%    9.9%   14.9%
+ 21  Portugal vs DR Congo                1: 0   1.603   1.638   1.454   38.7%   34.4%   12.6%   14.3%
+ 22  Uzbekistan vs Colombia              0: 1   1.621   1.608   1.436   39.1%   35.0%   12.8%   13.1%
+ 23  England vs Croatia                  1: 0   1.186   1.125   1.524   61.7%   15.4%    9.9%   13.0%
+ 24  Ghana vs Panama                     0: 1   1.160   1.228   1.619   60.5%   13.7%    7.8%   18.0%
+
+============================================================
+TOURNAMENT SUMMARY
+============================================================
+  Matches:              24
+  Total EV (analytic):  33.028 pts
+  Total MC mean:        33.047 pts
+  Total MC std:         7.068 pts
+
+  Confidence intervals (Monte Carlo):
+     5th percentile:   21 pts
+    25th percentile:   28 pts
+    50th percentile:   33 pts  (median)
+    75th percentile:   38 pts
+    95th percentile:   45 pts
+============================================================
