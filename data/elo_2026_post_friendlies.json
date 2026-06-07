@@ -1,0 +1,210 @@
+{
+  "Spain": {
+    "elo": 2155.8,
+    "rank": 1
+  },
+  "Argentina": {
+    "elo": 2114.2,
+    "rank": 2
+  },
+  "France": {
+    "elo": 2063.8,
+    "rank": 3
+  },
+  "England": {
+    "elo": 2021.5,
+    "rank": 4
+  },
+  "Brazil": {
+    "elo": 1993.7,
+    "rank": 5
+  },
+  "Portugal": {
+    "elo": 1989.6,
+    "rank": 6
+  },
+  "Colombia": {
+    "elo": 1978.8,
+    "rank": 7
+  },
+  "Ecuador": {
+    "elo": 1937.1,
+    "rank": 8
+  },
+  "Germany": {
+    "elo": 1936.5,
+    "rank": 9
+  },
+  "Netherlands": {
+    "elo": 1928.5,
+    "rank": 10
+  },
+  "Norway": {
+    "elo": 1924.2,
+    "rank": 11
+  },
+  "Turkey": {
+    "elo": 1919.7,
+    "rank": 12
+  },
+  "Belgium": {
+    "elo": 1911.0,
+    "rank": 13
+  },
+  "Japan": {
+    "elo": 1910.5,
+    "rank": 14
+  },
+  "Switzerland": {
+    "elo": 1898.9,
+    "rank": 15
+  },
+  "Croatia": {
+    "elo": 1892.5,
+    "rank": 16
+  },
+  "Uruguay": {
+    "elo": 1892.0,
+    "rank": 17
+  },
+  "Mexico": {
+    "elo": 1891.9,
+    "rank": 18
+  },
+  "Denmark": {
+    "elo": 1864.5,
+    "rank": 19
+  },
+  "Senegal": {
+    "elo": 1853.2,
+    "rank": 20
+  },
+  "Paraguay": {
+    "elo": 1835.0,
+    "rank": 21
+  },
+  "Austria": {
+    "elo": 1834.7,
+    "rank": 22
+  },
+  "Morocco": {
+    "elo": 1829.4,
+    "rank": 23
+  },
+  "Canada": {
+    "elo": 1813.0,
+    "rank": 24
+  },
+  "Scotland": {
+    "elo": 1785.3,
+    "rank": 25
+  },
+  "Australia": {
+    "elo": 1771.3,
+    "rank": 26
+  },
+  "Iran": {
+    "elo": 1765.5,
+    "rank": 27
+  },
+  "South Korea": {
+    "elo": 1765.3,
+    "rank": 28
+  },
+  "Czechia": {
+    "elo": 1762.5,
+    "rank": 29
+  },
+  "Algeria": {
+    "elo": 1743.5,
+    "rank": 30
+  },
+  "USA": {
+    "elo": 1741.8,
+    "rank": 31
+  },
+  "Panama": {
+    "elo": 1726.2,
+    "rank": 32
+  },
+  "Sweden": {
+    "elo": 1708.7,
+    "rank": 33
+  },
+  "Uzbekistan": {
+    "elo": 1706.5,
+    "rank": 34
+  },
+  "Cameroon": {
+    "elo": 1700.0,
+    "rank": 35
+  },
+  "Ivory Coast": {
+    "elo": 1694.2,
+    "rank": 36
+  },
+  "Jordan": {
+    "elo": 1676.8,
+    "rank": 37
+  },
+  "Egypt": {
+    "elo": 1662.7,
+    "rank": 38
+  },
+  "DR Congo": {
+    "elo": 1660.5,
+    "rank": 39
+  },
+  "Costa Rica": {
+    "elo": 1636.2,
+    "rank": 40
+  },
+  "Tunisia": {
+    "elo": 1620.8,
+    "rank": 41
+  },
+  "Iraq": {
+    "elo": 1618.7,
+    "rank": 42
+  },
+  "Cape Verde": {
+    "elo": 1604.5,
+    "rank": 43
+  },
+  "Bosnia": {
+    "elo": 1597.6,
+    "rank": 44
+  },
+  "Haiti": {
+    "elo": 1567.9,
+    "rank": 45
+  },
+  "Saudi Arabia": {
+    "elo": 1563.9,
+    "rank": 46
+  },
+  "New Zealand": {
+    "elo": 1562.8,
+    "rank": 47
+  },
+  "Jamaica": {
+    "elo": 1527.0,
+    "rank": 48
+  },
+  "Ghana": {
+    "elo": 1516.7,
+    "rank": 49
+  },
+  "South Africa": {
+    "elo": 1514.9,
+    "rank": 50
+  },
+  "Curaçao": {
+    "elo": 1434.5,
+    "rank": 51
+  },
+  "Qatar": {
+    "elo": 1421.2,
+    "rank": 52
+  }
+}

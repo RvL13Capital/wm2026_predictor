@@ -12,7 +12,7 @@ QF_BRACKET / SF_BRACKET); KO matches advance the higher-win-probability side, a.
 most-likely score is a draw. Bonusfragen %s are from this session's 20k MC run.
 Output: report/wm2026_bracket.html
 """
-import os, sys, html, random
+import os, sys, html, json, random
 from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import predictor
@@ -22,6 +22,21 @@ import schedule_context
 from stadium_data import STADIUM_DATA, haversine_distance
 
 ELO = predictor.WORLD_CUP_2026_TEAMS
+
+
+def apply_friendly_elo():
+    """Override team Elo in place with the June-2026 warm-up friendlies (data/elo_2026_post_friendlies.json,
+    produced by update_elo_friendlies.py). Canonical bracket = latest data; set WM2026_NO_FRIENDLY_ELO=1 to
+    use pre-friendly ratings. Returns a short note for the subtitle, or '' if not applied."""
+    fpath = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "elo_2026_post_friendlies.json")
+    if os.environ.get("WM2026_NO_FRIENDLY_ELO") == "1" or not os.path.exists(fpath):
+        return ""
+    with open(fpath, encoding="utf-8") as f:
+        post = json.load(f)
+    for t, d in post.items():
+        if t in predictor.WORLD_CUP_2026_TEAMS:
+            predictor.WORLD_CUP_2026_TEAMS[t]["elo"] = d["elo"]
+    return "ratings incl. June-2026 warm-up friendlies"
 
 # Bonusfragen probabilities from this session's 20,000-sim run (run_monte_carlo, seed 42)
 BF = {
@@ -329,6 +344,9 @@ def main():
     champ_lbl = "THIS SIMULATION" if MODE == "simulate" else "WELTMEISTER"
     sub_lead = {"modal": "Most-likely scorelines",
                 "simulate": "One simulated tournament · upsets included"}.get(MODE, "Sampled scorelines · favourites advance")
+    friendly_note = apply_friendly_elo()   # canonical = post-friendly ratings (set WM2026_NO_FRIENDLY_ELO=1 to skip)
+    if friendly_note:
+        sub_lead += " · " + friendly_note
     # Realistic goal level (~2.6/match) for lifelike SAMPLED scores; favourites still advance in the KO, so the
     # champion follows the probabilities (no dice). ρ=0 (no draw-boost) + slight overdispersion. Brackets only.
     predictor.CONSTANTS["elo_baseline_goals"] = 1.35
