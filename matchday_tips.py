@@ -93,37 +93,34 @@ def run_matchday(md: int, n_simulations: int, seed: int, market_probs: dict = No
             row["form_a"] = str(form_a)
             row["form_b"] = str(form_b)
             
-            # Inject market odds if provided.
-            # AUDIT (2026-06): market_probs are OUTRIGHT tournament-winner probabilities
-            # (Polymarket has no per-match markets yet), NOT 1x2 match odds. The sqrt bridge
-            # below is a weak proxy — path-contaminated and noise-floored for non-favourites —
-            # so we cap its blend weight LOW. Real 1x2 match markets (days away) should be routed
-            # through predictor.odds_to_lambdas at full weight instead of this synthesis.
+            # --- REAL MATCH ODDS INTEGRATION (1X2) ---
+            # market_probs is keyed "TeamA|TeamB" -> {"1": dec, "X": dec, "2": dec} (raw decimal
+            # odds, vig intact). predictor strips the FLB via the Power method + KL solver, so we
+            # blend at full 0.80. No synthesis, no sqrt: the clean wisdom-of-crowds path.
             if market_probs:
-                p_a = market_probs.get(team_a)
-                p_b = market_probs.get(team_b)
-                if p_a is not None and p_b is not None:
-                    import math
-                    s_a = math.sqrt(max(p_a, 0.001))
-                    s_b = math.sqrt(max(p_b, 0.001))
-                    p_a_win_raw = s_a / (s_a + s_b)
-                    p_b_win_raw = s_b / (s_a + s_b)
-                    mismatch = abs(p_a_win_raw - p_b_win_raw)
-                    p_draw = 0.27 * (1.0 - mismatch)
-                    rem = 1.0 - p_draw
-                    p_home = p_a_win_raw * rem
-                    p_away = p_b_win_raw * rem
-                    # BUGFIX: predictor reads odds_home/odds_draw/odds_away. These were
-                    # odds_1/odds_x/odds_2, which it silently ignored — the blend NEVER fired.
-                    row["odds_home"] = str(round(1.0 / max(p_home, 0.01), 2))
-                    row["odds_draw"] = str(round(1.0 / max(p_draw, 0.01), 2))
-                    row["odds_away"] = str(round(1.0 / max(p_away, 0.01), 2))
-                    # DISABLED (weight 0): the key bug above is fixed so REAL 1x2 markets will
-                    # blend — but the outright->match sqrt bridge corrupts even at 0.20 (it swung
-                    # Qatar's λ +115%, sqrt inflates floor-value minnows). Re-enable with a real
-                    # per-match line + a proper bridge, not tournament outrights.
-                    row["market_weight"] = "0.0"
-            
+                ta = predictor.TEAM_NAME_MAPPING.get(team_a.lower(), team_a)
+                tb = predictor.TEAM_NAME_MAPPING.get(team_b.lower(), team_b)
+                key_fwd = f"{ta}|{tb}"
+                key_rev = f"{tb}|{ta}"
+                odds_data = None
+                is_reversed = False
+                if key_fwd in market_probs:
+                    odds_data = market_probs[key_fwd]
+                elif key_rev in market_probs:
+                    odds_data = market_probs[key_rev]
+                    is_reversed = True
+                if odds_data and "1" in odds_data and "2" in odds_data and "X" in odds_data:
+                    if not is_reversed:
+                        row["odds_home"] = str(odds_data["1"])
+                        row["odds_draw"] = str(odds_data["X"])
+                        row["odds_away"] = str(odds_data["2"])
+                    else:
+                        # market lists the teams the other way round -> swap home/away
+                        row["odds_home"] = str(odds_data["2"])
+                        row["odds_draw"] = str(odds_data["X"])
+                        row["odds_away"] = str(odds_data["1"])
+                    row["market_weight"] = "0.80"   # reactivated: real 1x2 line, not outrights
+
             # Use predictor's full pipeline
             # Injecting squad and injury adjustments
             elo_a = predictor.WORLD_CUP_2026_TEAMS.get(team_a, {}).get("elo", 1500)
@@ -296,12 +293,19 @@ if __name__ == "__main__":
     if args.odds_snapshot:
         with open(args.odds_snapshot, "r") as f:
             snapshot = json.load(f)
-        # Snapshots nest the team→prob map under "probabilities"; the prior code used the
-        # whole dict, so market_probs.get(team) was always None (market silently ignored).
+
         raw = snapshot.get("probabilities", snapshot)
-        market_probs = {predictor.TEAM_NAME_MAPPING.get(str(k).lower().strip(), k): v
-                        for k, v in raw.items()}
-        print(f"📊 Loaded {len(market_probs)} market probabilities from {args.odds_snapshot}",
+        market_probs = {}
+        aliases = {"united states": "usa", "us": "usa", "korea republic": "south korea"}
+        for k, v in raw.items():
+            if "|" in k:                              # match-specific "TeamA|TeamB" key
+                parts = k.split("|")
+                ta_key = aliases.get(parts[0].lower().strip(), parts[0].lower().strip())
+                tb_key = aliases.get(parts[1].lower().strip(), parts[1].lower().strip())
+                t1 = predictor.TEAM_NAME_MAPPING.get(ta_key, parts[0].strip())
+                t2 = predictor.TEAM_NAME_MAPPING.get(tb_key, parts[1].strip())
+                market_probs[f"{t1}|{t2}"] = v
+        print(f"Loaded {len(market_probs)} match-specific 1X2 markets from {args.odds_snapshot}",
               file=sys.stderr)
 
     res = run_matchday(args.md, args.simulations, args.seed, market_probs)

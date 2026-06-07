@@ -327,137 +327,69 @@ class PolymarketClient:
         
         return teams
     
-    def derive_match_probabilities(self, team_a: str, team_b: str,
-                                     draw_factor: float = 0.27) -> Optional[MatchOdds]:
+    def get_match_1x2_probabilities(self) -> dict:
         """
-        Derive match probabilities from tournament winner odds.
-        
-        This is an APPROXIMATION: if team A has 16% tournament win probability
-        and team B has 8%, team A is roughly 2x stronger. We convert this
-        relative strength into match 1x2 probabilities using a Bradley-Terry model.
-        
-        Args:
-            team_a: Home team name
-            team_b: Away team name  
-            draw_factor: Estimated draw probability (default 27% for WC matches)
-        
-        Returns:
-            MatchOdds or None if teams not found
+        Fetch all active 1X2 match markets from Polymarket and return raw decimal odds.
+        Returns a schema ready for the matchday loop:
+        { "probabilities": { "Germany|Japan": {"1": 1.45, "X": 4.80, "2": 7.50} } }
         """
-        try:
-            probs = self.get_wc_winner_probabilities()
-        except RuntimeError:
-            return None
-        
-        # Find teams (fuzzy match)
-        p_a = self._find_team_prob(team_a, probs)
-        p_b = self._find_team_prob(team_b, probs)
-        
-        if p_a is None or p_b is None:
-            return None
-        
-        # Bradley-Terry model: P(A beats B) ∝ strength_A / (strength_A + strength_B)
-        # Use tournament win probability as a proxy for team strength
-        # Apply sqrt to compress extreme ratios (Brazil 8.3% vs New Zealand 0.05%)
-        import math
-        s_a = math.sqrt(max(p_a, 0.001))
-        s_b = math.sqrt(max(p_b, 0.001))
-        
-        p_a_beats_b = s_a / (s_a + s_b)
-        p_b_beats_a = s_b / (s_a + s_b)
-        
-        # Inject draw probability (compress win probs to make room)
-        p_home = p_a_beats_b * (1.0 - draw_factor)
-        p_away = p_b_beats_a * (1.0 - draw_factor)
-        p_draw = draw_factor
-        
-        return MatchOdds(
-            p_home=round(p_home, 4),
-            p_draw=round(p_draw, 4),
-            p_away=round(p_away, 4),
-            source="polymarket",
-            bookmaker="polymarket_derived",
-        )
-    
-    def find_match_odds(self, team_a: str, team_b: str) -> Optional[MatchOdds]:
-        """
-        Search Polymarket for match-specific odds, falling back to 
-        tournament-derived probabilities if no match market exists.
-        """
-        # First, try direct match market search
-        try:
-            markets = self._request("markets", {
-                "limit": 50,
-                "active": "true",
-                "closed": "false",
-            })
-            
-            for market in markets:
-                question = market.get("question", "").lower()
-                # Check if it's a match market (e.g., "Who will win Germany vs Japan?")
-                if team_a.lower() in question and team_b.lower() in question:
-                    if "win the 2026" not in question:  # Skip tournament winner
-                        prices = market.get("outcomePrices", "[]")
-                        if isinstance(prices, str):
-                            prices = json.loads(prices)
-                        outcomes = market.get("outcomes", "[]")
-                        if isinstance(outcomes, str):
-                            outcomes = json.loads(outcomes)
-                        
-                        if len(prices) >= 2 and len(outcomes) >= 2:
-                            # Map outcomes to teams
-                            odds_dict = {}
-                            for i, outcome in enumerate(outcomes):
-                                odds_dict[outcome.lower()] = float(prices[i])
-                            
-                            p_home = odds_dict.get(team_a.lower(), 0)
-                            p_away = odds_dict.get(team_b.lower(), 0)
-                            p_draw = odds_dict.get("draw", odds_dict.get("tie", 0))
-                            
-                            if p_home > 0 and p_away > 0:
-                                total = p_home + p_draw + p_away
-                                return MatchOdds(
-                                    p_home=p_home / total,
-                                    p_draw=p_draw / total,
-                                    p_away=p_away / total,
-                                    source="polymarket",
-                                    bookmaker="polymarket",
-                                )
-        except RuntimeError:
-            pass
-        
-        # Fallback: derive from tournament winner probabilities
-        return self.derive_match_probabilities(team_a, team_b)
-    
-    @staticmethod
-    def _find_team_prob(team_name: str, probs: Dict[str, float]) -> Optional[float]:
-        """Fuzzy match team name against Polymarket team names."""
-        name_lower = team_name.lower().strip()
-        
-        # Direct match
-        for k, v in probs.items():
-            if k.lower() == name_lower:
-                return v
-        
-        # Partial match
-        for k, v in probs.items():
-            if name_lower in k.lower() or k.lower() in name_lower:
-                return v
-        
-        # Common aliases
-        aliases = {
-            "usa": "united states", "us": "united states",
-            "korea": "south korea", "korea republic": "south korea",
-            "türkiye": "turkiye", "turkey": "turkiye",
-            "ivory coast": "côte d'ivoire",
-            "czech republic": "czechia",
-        }
-        mapped = aliases.get(name_lower, name_lower)
-        for k, v in probs.items():
-            if mapped in k.lower() or k.lower() in mapped:
-                return v
-        
-        return None
+        markets = self._request("markets", {
+            "limit": 500,
+            "active": "true",
+            "closed": "false"
+        })
+
+        matches = {}
+        for m in markets:
+            q = m.get("question", "").replace("  ", " ").strip()
+
+            # Filter for match markets (Polymarket typically uses " vs " or " vs. ")
+            if " vs " not in q.lower() and " vs. " not in q.lower():
+                continue
+            # Skip outrights, group winners, or "to advance" props
+            if "win the 2026" in q.lower() or "group" in q.lower() or "advance" in q.lower() or "qualify" in q.lower():
+                continue
+
+            prices = m.get("outcomePrices", "[]")
+            outcomes = m.get("outcomes", "[]")
+            if isinstance(prices, str): prices = json.loads(prices)
+            if isinstance(outcomes, str): outcomes = json.loads(outcomes)
+
+            if len(prices) >= 2 and len(outcomes) >= 2:
+                outcomes_lower = [o.lower() for o in outcomes]
+
+                # Identify a 3-way match market by finding the draw/tie outcome
+                draw_idx = -1
+                if "draw" in outcomes_lower: draw_idx = outcomes_lower.index("draw")
+                elif "tie" in outcomes_lower: draw_idx = outcomes_lower.index("tie")
+
+                if draw_idx == -1:
+                    continue
+
+                # Identify the teams (exclude the draw/tie outcome)
+                teams = [(i, o) for i, o in enumerate(outcomes) if i != draw_idx]
+                if len(teams) >= 2:
+                    t1_idx, team_a = teams[0]
+                    t2_idx, team_b = teams[1]
+
+                    try:
+                        # Polymarket prices are implied probabilities (0-1).
+                        p1 = float(prices[t1_idx])
+                        p2 = float(prices[t2_idx])
+                        px = float(prices[draw_idx])
+
+                        # Convert to decimal odds (protect against zero-division noise)
+                        if p1 > 0.005 and p2 > 0.005 and px > 0.005:
+                            key = f"{team_a.strip()}|{team_b.strip()}"
+                            matches[key] = {
+                                "1": round(1.0 / p1, 3),
+                                "X": round(1.0 / px, 3),
+                                "2": round(1.0 / p2, 3)
+                            }
+                    except (ValueError, TypeError, IndexError):
+                        continue
+
+        return {"source": "polymarket_matches_1x2", "probabilities": matches}
 
 
 # ==============================================================================
@@ -511,15 +443,8 @@ class OddsClient:
             except Exception as e:
                 print(f"⚠ Odds API error: {e}")
         
-        if preferred_source in ("polymarket", "auto"):
-            try:
-                result = self.polymarket.find_match_odds(team_a, team_b)
-                if result:
-                    self._cache[cache_key] = result
-                    return result
-            except Exception as e:
-                print(f"⚠ Polymarket error: {e}")
-        
+        # per-match Polymarket lookup removed: bulk fetch via get_match_1x2_probabilities().
+
         return None
     
     @staticmethod
@@ -613,3 +538,10 @@ class OddsTracker:
                 if movement:
                     results.append(movement)
         return results
+
+
+if __name__ == "__main__":
+    # Wednesday: python3 odds_client.py > data/polymarket_match_odds.json
+    client = PolymarketClient()
+    res = client.get_match_1x2_probabilities()
+    print(json.dumps(res, indent=2))
