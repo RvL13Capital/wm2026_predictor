@@ -11,6 +11,15 @@ import predictor
 import tournament_bonusfragen as tbf
 import schedule_context
 
+# --- Strategic-flag thresholds (READ-ONLY advisory; does NOT change the EV tip) ---
+# Cells the 144-match backtest (WC 2014-22) showed the NB grid OVER-predicts in-sample
+# (1-1 0.61x, 3-1 0.72x, 1-3 0.60x actual/model) -> treat as soft "traps", not certainty.
+BACKTEST_TRAPS = {(1, 1), (3, 1), (1, 3)}
+# ...and UNDER-predicts (2-1 1.34x, 1-2 1.63x) -> live differential value on a near-tie.
+BACKTEST_VALUE = {(2, 1), (1, 2)}
+EV_PLATEAU = 0.05   # EV gap below which #1 and #2 are effectively tied (display heuristic, not fitted)
+
+
 def run_matchday(md: int, n_simulations: int, seed: int, market_probs: dict = None) -> List[Dict[str, Any]]:
     """Generate tips for a specific matchday using the FULL STACK."""
     match_results = []
@@ -217,6 +226,7 @@ def run_matchday(md: int, n_simulations: int, seed: int, market_probs: dict = No
                 "grid": grid,
                 "optimal_tip": optimal_tip,
                 "ev": max_ev,
+                "top_tips": result.get("top_tips", []),
                 "mc": mc_stats
             })
             
@@ -254,6 +264,25 @@ def print_results(results: List[Dict[str, Any]], args: argparse.Namespace):
         
         lines.append(f"  ★ Optimal tip: {res['optimal_tip'][0]}:{res['optimal_tip'][1]}  (EV = {res['ev']:.3f} pts)")
         total_ev += res["ev"]
+
+        # READ-ONLY strategic flag: surface the EV margin + in-sample bias (does NOT change the tip)
+        tt = res.get("top_tips") or []
+        if len(tt) >= 2:
+            top = tuple(int(x) for x in tt[0]["tip"].split(":"))
+            alt = tuple(int(x) for x in tt[1]["tip"].split(":"))
+            delta = tt[0]["ev"] - tt[1]["ev"]
+            lines.append(f"     runner-up: {alt[0]}:{alt[1]} (EV {tt[1]['ev']:.3f})  |  margin Δ {delta:.3f}")
+            if delta >= EV_PLATEAU:
+                lines.append(f"     [+] STRONG SIGNAL — engine confident; lock in {top[0]}:{top[1]}.")
+            elif top in BACKTEST_TRAPS and alt in BACKTEST_VALUE:
+                lines.append(f"     [!] FLAT EV PLATEAU (Δ {delta:.3f} < {EV_PLATEAU}): {top[0]}:{top[1]} is an in-sample "
+                             f"over-pick, {alt[0]}:{alt[1]} under-picked — effectively tied.")
+                if getattr(args, "trailing", False):
+                    lines.append(f"     [>] TRAILING the pool → lean {alt[0]}:{alt[1]}: ~0 EV cost, more differential variance.")
+                else:
+                    lines.append(f"     [>] LEVEL/AHEAD → lean {top[0]}:{top[1]}: matches the high-ownership consensus, lower variance.")
+            else:
+                lines.append(f"     [i] low confidence — {top[0]}:{top[1]} and {alt[0]}:{alt[1]} effectively tied (Δ {delta:.3f}).")
         
         if res["mc"]:
             mc = res["mc"]
@@ -286,6 +315,7 @@ if __name__ == "__main__":
     parser.add_argument("--seed", type=int, default=42, help="RNG seed")
     parser.add_argument("--output", type=str, help="Output file")
     parser.add_argument("--odds-snapshot", type=str, help="Path to Polymarket JSON snapshot")
+    parser.add_argument("--trailing", action="store_true", help="Pool game-theory: you are behind the leader -- lean contrarian on flat EV plateaus")
     
     args = parser.parse_args()
     
