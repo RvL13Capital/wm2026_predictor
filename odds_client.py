@@ -321,7 +321,7 @@ class PolymarketClient:
                 last = e
                 if e.code not in (429, 500, 502, 503, 504):
                     break                                    # 4xx (bad query) — don't hammer
-                wait = float(e.headers.get("Retry-After", 0) or 0) or (2 ** attempt)
+                wait = min(30.0, float(e.headers.get("Retry-After", 0) or 0) or (2 ** attempt))
                 if attempt < self.MAX_RETRIES - 1:
                     print(f"[odds] HTTP {e.code} from /{endpoint}; backoff {wait:.0f}s", file=sys.stderr)
                     time.sleep(wait)
@@ -505,15 +505,22 @@ class PolymarketClient:
         if totals:
             totals.sort(key=lambda d: d["line"])
             data["totals"] = totals
-            # E[goals] = sum_k P(N > k+0.5) over the consecutive ladder from 0.5 (a lower bound: it
-            # ignores the small mass above the top line). Polymarket O/U prices already sum to 1.
-            mt, expect = 0.0, 0.5
+            # E[goals] = sum_k P(N > k+0.5) over the consecutive ladder from 0.5, PLUS a geometric
+            # extrapolation of the tail above the top listed line. Without the tail term E[N] is a
+            # lower bound — badly biased for high-scoring games (a top line of O/U 5.5 can still
+            # carry P(over)=0.28), which would over-state the model-vs-market gap on exactly those
+            # games. The geometric tail lands within ~0.05 of a Poisson fit. O/U prices sum to 1/line.
+            rungs, expect = [], 0.5
             for t in totals:
                 if abs(t["line"] - expect) < 1e-9:
-                    mt += t["over"]; expect += 1.0
+                    rungs.append(t["over"]); expect += 1.0
                 else:
                     break
-            if mt > 0:
+            if rungs:
+                mt = sum(rungs)
+                if len(rungs) >= 2 and rungs[-2] > 0:            # tail from the last two rungs' decay
+                    r = min(0.95, rungs[-1] / rungs[-2])
+                    mt += rungs[-1] * r / (1.0 - r) if r < 1.0 else 0.0
                 data["market_total"] = round(mt, 3)
         if spreads:
             data["spreads"] = spreads
