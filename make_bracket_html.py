@@ -132,13 +132,14 @@ def predict_ko(a, b, venue, team_loc, date):
     grid = predictor.predict_single_match(row)["grid"]
     pa, pb = win_probs(grid)
     win = a if pa >= pb else b
+    conf = (pa if win == a else pb) / (pa + pb) if (pa + pb) > 0 else 0.5   # win-share of the tie
     best, ga, gb = -1.0, (1 if win == a else 0), (0 if win == a else 1)
     for ka, gr in grid.items():
         for kb, p in gr.items():
             x, y = int(ka), int(kb)
             if x != y and ((x > y) == (win == a)) and p > best:
                 best, ga, gb = p, x, y
-    return {"a": a, "b": b, "ga": ga, "gb": gb, "win": win, "et": False, "venue": venue}
+    return {"a": a, "b": b, "ga": ga, "gb": gb, "win": win, "et": False, "venue": venue, "conf": conf}
 
 
 def build_ko(table, thirds_assigned):
@@ -235,6 +236,8 @@ h2{color:#fff;font-size:17px;margin:30px 0 14px;border-left:4px solid #f4c430;pa
 .m .t.lose{color:#8a97a8}
 .m .t .sc{font-variant-numeric:tabular-nums;font-weight:700}
 .m .et{font-size:9px;color:#9c5a00;text-align:right;padding:0 9px 3px}
+.m .cf{font-size:9.5px;color:#16635a;font-weight:700;text-align:right;padding:1px 9px 0}
+.champ-box .cfin{font-size:10px;font-weight:700;margin-top:4px;opacity:.8}
 .fin .m{border:2px solid #f4c430;background:#fffdf5}
 .champ-col{justify-content:center;align-items:center;min-width:150px}
 .champ-box{background:linear-gradient(135deg,#f4c430,#e0a800);color:#3a2c00;border-radius:12px;padding:18px 14px;
@@ -257,9 +260,11 @@ def match_html(m, extra=""):
         return f'<div class="t {"win" if is_win else "lose"}"><span>{esc(team)}</span><span class="sc">{sc}</span></div>'
     v = m.get("venue", "")
     tag = " ⛰" if v in ALT_VENUES else ""              # altitude venue marker
+    conf = m.get("conf")
+    cf = f'<div class="cf">{esc(m["win"])} to advance · {conf*100:.0f}%</div>' if conf is not None else ""
     ven = f'<div class="et">@ {esc(v)}{tag}</div>' if v else ""
     return (f'<div class="m {extra}">{row(m["a"], m["ga"], m["win"]==m["a"])}'
-            f'{row(m["b"], m["gb"], m["win"]==m["b"])}{ven}</div>')
+            f'{row(m["b"], m["gb"], m["win"]==m["b"])}{cf}{ven}</div>')
 
 
 def main():
@@ -335,7 +340,7 @@ def main():
     P.append("<div class='round fin'><div class='rh'>Final</div>" + match_html(ko["FINAL"][0]) + "</div>")
     P.append("<div class='round champ-col'><div class='rh'>Champion</div>"
              f"<div class='champ-box'><div class='crown'>🏆</div><div class='lbl'>WELTMEISTER</div>"
-             f"<div class='nm'>{esc(champ)}</div></div></div>")
+             f"<div class='nm'>{esc(champ)}</div><div class='cfin'>wins final · {ko['FINAL'][0]['conf']*100:.0f}%</div></div></div>")
     P.append("</div>")
 
     P.append("<footer>Predicted, not actual. Scores are the model's single most-likely result, factoring in "

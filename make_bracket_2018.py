@@ -34,13 +34,14 @@ def predict_ko(a, b):
     grid = grid_of(a, b)
     pa, pb = win_probs(grid)
     win = a if pa >= pb else b
+    conf = (pa if win == a else pb) / (pa + pb) if (pa + pb) > 0 else 0.5   # win-share of the tie
     best, ga, gb = -1.0, (1 if win == a else 0), (0 if win == a else 1)
     for ka, gr in grid.items():
         for kb, p in gr.items():
             x, y = int(ka), int(kb)
             if x != y and ((x > y) == (win == a)) and p > best:
                 best, ga, gb = p, x, y
-    return {"a": a, "b": b, "ga": ga, "gb": gb, "win": win}
+    return {"a": a, "b": b, "ga": ga, "gb": gb, "win": win, "conf": conf}
 
 
 def group_games():
@@ -155,7 +156,7 @@ def main():
     P.append("<div class='round fin'><div class='rh'>Final</div>" + match_html(ko["FINAL"][0]) + "</div>")
     P.append("<div class='round champ-col'><div class='rh'>Champion</div>"
              f"<div class='champ-box'><div class='crown'>🏆</div><div class='lbl'>PREDICTED</div>"
-             f"<div class='nm'>{esc(champ)}</div></div></div>")
+             f"<div class='nm'>{esc(champ)}</div><div class='cfin'>wins final · {ko['FINAL'][0]['conf']*100:.0f}%</div></div></div>")
     P.append("</div>")
 
     P.append("<footer>Pre-tournament forecast from June-2018 Elo (no lookahead); 2018 has no venue/style "
