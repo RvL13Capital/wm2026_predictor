@@ -93,7 +93,12 @@ def run_matchday(md: int, n_simulations: int, seed: int, market_probs: dict = No
             row["form_a"] = str(form_a)
             row["form_b"] = str(form_b)
             
-            # Inject market odds if provided
+            # Inject market odds if provided.
+            # AUDIT (2026-06): market_probs are OUTRIGHT tournament-winner probabilities
+            # (Polymarket has no per-match markets yet), NOT 1x2 match odds. The sqrt bridge
+            # below is a weak proxy — path-contaminated and noise-floored for non-favourites —
+            # so we cap its blend weight LOW. Real 1x2 match markets (days away) should be routed
+            # through predictor.odds_to_lambdas at full weight instead of this synthesis.
             if market_probs:
                 p_a = market_probs.get(team_a)
                 p_b = market_probs.get(team_b)
@@ -108,9 +113,16 @@ def run_matchday(md: int, n_simulations: int, seed: int, market_probs: dict = No
                     rem = 1.0 - p_draw
                     p_home = p_a_win_raw * rem
                     p_away = p_b_win_raw * rem
-                    row["odds_1"] = str(round(1.0 / max(p_home, 0.01), 2))
-                    row["odds_x"] = str(round(1.0 / max(p_draw, 0.01), 2))
-                    row["odds_2"] = str(round(1.0 / max(p_away, 0.01), 2))
+                    # BUGFIX: predictor reads odds_home/odds_draw/odds_away. These were
+                    # odds_1/odds_x/odds_2, which it silently ignored — the blend NEVER fired.
+                    row["odds_home"] = str(round(1.0 / max(p_home, 0.01), 2))
+                    row["odds_draw"] = str(round(1.0 / max(p_draw, 0.01), 2))
+                    row["odds_away"] = str(round(1.0 / max(p_away, 0.01), 2))
+                    # DISABLED (weight 0): the key bug above is fixed so REAL 1x2 markets will
+                    # blend — but the outright->match sqrt bridge corrupts even at 0.20 (it swung
+                    # Qatar's λ +115%, sqrt inflates floor-value minnows). Re-enable with a real
+                    # per-match line + a proper bridge, not tournament outrights.
+                    row["market_weight"] = "0.0"
             
             # Use predictor's full pipeline
             # Injecting squad and injury adjustments
