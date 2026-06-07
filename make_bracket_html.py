@@ -111,17 +111,77 @@ def sample_win(grid, rng, fav_a):
     return cells[-1][1], cells[-1][2]
 
 
+# --- MD3 collusion ("Biscotto") model ---------------------------------------
+# Poisson is blind to game theory. When a mutual Matchday-3 draw mathematically
+# GUARANTEES both teams finish top-2, real matches collapse toward a low-event
+# draw (cf. Gijon 1982). We fire ONLY on that lock -- not the loose "both on 4
+# points" rule, which a third team on 3 can still break -- and bias the MD3 grid
+# toward the draw. The magnitude is a modelling assumption; set the target to
+# 0.0 to disable the whole mechanism.
+MD3_COLLUSION_DRAW_TARGET = 0.45   # target P(draw) when a draw locks both teams in
+
+
+def _interim_points(group_games_so_far, teams):
+    """Points per team from the group games played so far (3 win / 1 draw)."""
+    pts = {t: 0 for t in teams}
+    for _md, a, b, x, y, _c in group_games_so_far:
+        if x > y:   pts[a] += 3
+        elif y > x: pts[b] += 3
+        else:       pts[a] += 1; pts[b] += 1
+    return pts
+
+
+def _draw_locks_both(a, b, pts, teams):
+    """True iff an a-b draw guarantees BOTH finish top-2 whatever the other MD3
+    match does (pure points lock, ignoring tiebreaks): the other two teams can each
+    gain at most +3, while a and b each gain +1, so the lower drawer must still clear them."""
+    others = [t for t in teams if t not in (a, b)]
+    if not others:
+        return False
+    return max(pts[t] for t in others) + 3 <= min(pts[a], pts[b])
+
+
+def _bias_grid_to_draw(grid, target):
+    """Rescale a score grid so P(draw) == target, preserving the conditional shape
+    within the diagonal and within the off-diagonal. Never lowers an already-higher draw."""
+    p_draw = sum(grid[g].get(g, 0.0) for g in grid)
+    if p_draw <= 0.0 or p_draw >= 1.0 or target <= p_draw:
+        return grid
+    fd = target / p_draw
+    fo = (1.0 - target) / (1.0 - p_draw)
+    return {x: {y: v * (fd if x == y else fo) for y, v in row.items()}
+            for x, row in grid.items()}
+
+
 # ---- Group stage: all 72 games as most-likely scorelines (full matchday model) ----
 def group_games():
     team2grp = {t: g for g, ts in tbf.GROUPS.items() for t in ts}
     games = {g: [] for g in tbf.GROUPS}
-    for md in (1, 2, 3):
+
+    def _record(md, r, grid):
+        ga, gb = sample(grid, RNG) if RNG else modal(grid)   # sampled (varied) or most-likely
+        pa, pb = win_probs(grid); pd = max(0.0, 1 - pa - pb)
+        conf = pa if ga > gb else (pb if gb > ga else pd)    # P(this result's direction)
+        games[team2grp[r["team_a"]]].append((md, r["team_a"], r["team_b"], ga, gb, conf))
+
+    # MD1 + MD2 first, so real standings exist before MD3 is decided.
+    for md in (1, 2):
         for r in mt.run_matchday(md, 0, 42):
-            grid = r["grid"]
-            ga, gb = sample(grid, RNG) if RNG else modal(grid)   # sampled (varied) or most-likely
-            pa, pb = win_probs(grid); pd = max(0.0, 1 - pa - pb)
-            conf = pa if ga > gb else (pb if gb > ga else pd)   # P(this result's direction)
-            games[team2grp[r["team_a"]]].append((md, r["team_a"], r["team_b"], ga, gb, conf))
+            _record(md, r, r["grid"])
+
+    # Freeze standings after MD1+MD2 — the two MD3 games in a group kick off
+    # simultaneously, so neither may "see" the other's just-sampled result.
+    interim = {g: _interim_points(games[g], tbf.GROUPS[g]) for g in tbf.GROUPS}
+
+    # MD3: if a mutual draw locks both teams through, bias the grid toward the draw.
+    for r in mt.run_matchday(3, 0, 42):
+        g = team2grp[r["team_a"]]
+        grid = r["grid"]
+        if MD3_COLLUSION_DRAW_TARGET > 0.0 and _draw_locks_both(
+                r["team_a"], r["team_b"], interim[g], tbf.GROUPS[g]):
+            grid = _bias_grid_to_draw(grid, MD3_COLLUSION_DRAW_TARGET)
+        _record(3, r, grid)
+
     for g in games:
         games[g].sort()
     return games
