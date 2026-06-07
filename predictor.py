@@ -324,6 +324,27 @@ TEAM_NAME_MAPPING = {
     "cabo verde": "Cape Verde",
 }
 
+
+# --- AUTO-LOAD DYNAMIC ELO (single source of truth across every script) -------
+# Bug fix: make_bracket_html applied data/elo_2026_post_friendlies.json, but matchday_tips
+# (the LIVE tip generator) did not — it ran on stale hardcoded ratings (France was off by 18).
+# Overlaying at import time guarantees predictor / matchday_tips / bracket all use the same
+# freshest Elo. Set WM2026_NO_FRIENDLY_ELO=1 to fall back to the hardcoded pre-friendly dict.
+def _load_dynamic_elos():
+    import os, json
+    fpath = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "elo_2026_post_friendlies.json")
+    if os.path.exists(fpath) and os.environ.get("WM2026_NO_FRIENDLY_ELO") != "1":
+        try:
+            with open(fpath, "r", encoding="utf-8") as f:
+                post = json.load(f)
+            for t, d in post.items():
+                t_clean = TEAM_NAME_MAPPING.get(t.strip().lower(), t.strip())
+                if t_clean in WORLD_CUP_2026_TEAMS:
+                    WORLD_CUP_2026_TEAMS[t_clean]["elo"] = float(d["elo"])
+        except Exception:
+            pass
+_load_dynamic_elos()
+
 # ==============================================================================
 # PENALTY SHOOTOUT STRENGTH (team-specific conversion rate modifier)
 # ==============================================================================
@@ -1107,12 +1128,12 @@ def get_adjusted_lambdas(
     if math.isnan(exponent_A) or math.isinf(exponent_A):
         exponent_A = 0.0
     else:
-        exponent_A = max(-20.0, min(20.0, exponent_A))
+        exponent_A = max(-1.0, min(1.0, exponent_A))   # safety cap (was ±20): real WC2026 altitude extreme is ~0.59, so ±1 never clips legit physics
         
     if math.isnan(exponent_B) or math.isinf(exponent_B):
         exponent_B = 0.0
     else:
-        exponent_B = max(-20.0, min(20.0, exponent_B))
+        exponent_B = max(-1.0, min(1.0, exponent_B))   # NB: the proposed ±0.35 WOULD clip Azteca's 0.587 — too tight
         
     if math.isnan(lambda_A_base) or math.isinf(lambda_A_base) or lambda_A_base < 0.0:
         lambda_A_base = 0.0
