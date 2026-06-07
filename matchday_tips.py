@@ -18,6 +18,7 @@ BACKTEST_TRAPS = {(1, 1), (3, 1), (1, 3)}
 # ...and UNDER-predicts (2-1 1.34x, 1-2 1.63x) -> live differential value on a near-tie.
 BACKTEST_VALUE = {(2, 1), (1, 2)}
 EV_PLATEAU = 0.05   # EV gap below which #1 and #2 are effectively tied (display heuristic, not fitted)
+MIN_MARKET_LIQUIDITY = 1000.0   # USD; a tagged market below this is noise -> skip the blend, fall back to Elo
 
 
 def run_matchday(md: int, n_simulations: int, seed: int, market_probs: dict = None) -> List[Dict[str, Any]]:
@@ -118,7 +119,10 @@ def run_matchday(md: int, n_simulations: int, seed: int, market_probs: dict = No
                 elif key_rev in market_probs:
                     odds_data = market_probs[key_rev]
                     is_reversed = True
-                if odds_data and "1" in odds_data and "2" in odds_data and "X" in odds_data:
+                # liquidity guard: a thin/illiquid market is noise — skip the blend, fall back to Elo.
+                # (a manual override with no "liquidity" key is trusted and always blends.)
+                if odds_data and "1" in odds_data and "2" in odds_data and "X" in odds_data \
+                        and float(odds_data.get("liquidity", float("inf"))) >= MIN_MARKET_LIQUIDITY:
                     if not is_reversed:
                         row["odds_home"] = str(odds_data["1"])
                         row["odds_draw"] = str(odds_data["X"])

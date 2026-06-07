@@ -17,6 +17,7 @@ Usage:
 
 import json
 import os
+import sys
 import time
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -258,6 +259,21 @@ class OddsAPIClient:
 # POLYMARKET CLIENT
 # ==============================================================================
 
+THIN_LIQUIDITY = 5000.0   # USD; below this a Polymarket match line is thin -> warn (override w/ a sharp book)
+
+
+def _num(m, *keys):
+    """First parseable float among m[keys], else 0.0 (Polymarket sends some numbers as strings)."""
+    for k in keys:
+        v = m.get(k)
+        try:
+            if v is not None:
+                return float(v)
+        except (TypeError, ValueError):
+            pass
+    return 0.0
+
+
 class PolymarketClient:
     """
     Fetches probabilities from Polymarket prediction markets.
@@ -327,67 +343,68 @@ class PolymarketClient:
         
         return teams
     
-    def get_match_1x2_probabilities(self) -> dict:
+    def get_match_1x2_probabilities(self, min_liquidity: float = 0.0, markets=None) -> dict:
         """
-        Fetch all active 1X2 match markets from Polymarket and return raw decimal odds.
-        Returns a schema ready for the matchday loop:
-        { "probabilities": { "Germany|Japan": {"1": 1.45, "X": 4.80, "2": 7.50} } }
+        Fetch active 1X2 match markets from Polymarket as raw decimal odds, each TAGGED with its
+        USD liquidity/volume so thin (noisy) markets are visible and can be overridden by hand.
+        Markets below `min_liquidity` are dropped outright. Schema:
+        { "probabilities": { "Germany|Japan": {"1":1.45,"X":4.80,"2":7.50,"liquidity":..,"volume":..} } }
+        (Pass markets=[...] to parse a fixture list offline, e.g. for tests.)
         """
-        markets = self._request("markets", {
-            "limit": 500,
-            "active": "true",
-            "closed": "false"
-        })
+        if markets is None:
+            markets = self._request("markets", {"limit": 500, "active": "true", "closed": "false"})
 
-        matches = {}
+        matches, dropped = {}, []
         for m in markets:
             q = m.get("question", "").replace("  ", " ").strip()
-
-            # Filter for match markets (Polymarket typically uses " vs " or " vs. ")
             if " vs " not in q.lower() and " vs. " not in q.lower():
                 continue
-            # Skip outrights, group winners, or "to advance" props
-            if "win the 2026" in q.lower() or "group" in q.lower() or "advance" in q.lower() or "qualify" in q.lower():
+            if any(s in q.lower() for s in ("win the 2026", "group", "advance", "qualify")):
                 continue
 
             prices = m.get("outcomePrices", "[]")
             outcomes = m.get("outcomes", "[]")
             if isinstance(prices, str): prices = json.loads(prices)
             if isinstance(outcomes, str): outcomes = json.loads(outcomes)
+            if len(prices) < 2 or len(outcomes) < 2:
+                continue
 
-            if len(prices) >= 2 and len(outcomes) >= 2:
-                outcomes_lower = [o.lower() for o in outcomes]
+            outcomes_lower = [o.lower() for o in outcomes]
+            draw_idx = (outcomes_lower.index("draw") if "draw" in outcomes_lower else
+                        outcomes_lower.index("tie") if "tie" in outcomes_lower else -1)
+            if draw_idx == -1:
+                continue
+            teams = [(i, o) for i, o in enumerate(outcomes) if i != draw_idx]
+            if len(teams) < 2:
+                continue
+            t1_idx, team_a = teams[0]
+            t2_idx, team_b = teams[1]
+            try:
+                p1, p2, px = float(prices[t1_idx]), float(prices[t2_idx]), float(prices[draw_idx])
+            except (ValueError, TypeError, IndexError):
+                continue
+            if not (p1 > 0.005 and p2 > 0.005 and px > 0.005):
+                continue
 
-                # Identify a 3-way match market by finding the draw/tie outcome
-                draw_idx = -1
-                if "draw" in outcomes_lower: draw_idx = outcomes_lower.index("draw")
-                elif "tie" in outcomes_lower: draw_idx = outcomes_lower.index("tie")
+            liq = _num(m, "liquidityNum", "liquidity", "liquidityClob")
+            vol = _num(m, "volumeNum", "volume", "volumeClob")
+            key = f"{team_a.strip()}|{team_b.strip()}"
+            if min_liquidity > 0.0 and liq < min_liquidity:
+                dropped.append((key, liq)); continue
+            matches[key] = {
+                "1": round(1.0 / p1, 3), "X": round(1.0 / px, 3), "2": round(1.0 / p2, 3),
+                "liquidity": round(liq, 2), "volume": round(vol, 2),
+            }
 
-                if draw_idx == -1:
-                    continue
-
-                # Identify the teams (exclude the draw/tie outcome)
-                teams = [(i, o) for i, o in enumerate(outcomes) if i != draw_idx]
-                if len(teams) >= 2:
-                    t1_idx, team_a = teams[0]
-                    t2_idx, team_b = teams[1]
-
-                    try:
-                        # Polymarket prices are implied probabilities (0-1).
-                        p1 = float(prices[t1_idx])
-                        p2 = float(prices[t2_idx])
-                        px = float(prices[draw_idx])
-
-                        # Convert to decimal odds (protect against zero-division noise)
-                        if p1 > 0.005 and p2 > 0.005 and px > 0.005:
-                            key = f"{team_a.strip()}|{team_b.strip()}"
-                            matches[key] = {
-                                "1": round(1.0 / p1, 3),
-                                "X": round(1.0 / px, 3),
-                                "2": round(1.0 / p2, 3)
-                            }
-                    except (ValueError, TypeError, IndexError):
-                        continue
+        # operator-facing summary on stderr: which markets are thin enough to override?
+        thin = sorted(((k, v["liquidity"]) for k, v in matches.items() if v["liquidity"] < THIN_LIQUIDITY),
+                      key=lambda kv: kv[1])
+        print(f"[odds] {len(matches)} 1X2 markets parsed"
+              + (f"; {len(dropped)} dropped < ${min_liquidity:,.0f}" if min_liquidity > 0 else "")
+              + (f"; {len(thin)} THIN (< ${THIN_LIQUIDITY:,.0f}) -- override these with a sharp book:" if thin else ""),
+              file=sys.stderr)
+        for k, liq in thin:
+            print(f"[odds]   THIN {k}  ${liq:,.0f}", file=sys.stderr)
 
         return {"source": "polymarket_matches_1x2", "probabilities": matches}
 
@@ -541,7 +558,8 @@ class OddsTracker:
 
 
 if __name__ == "__main__":
-    # Wednesday: python3 odds_client.py > data/polymarket_match_odds.json
+    # Wednesday: python3 odds_client.py [min_liquidity_usd] > data/polymarket_match_odds.json
+    min_liq = float(sys.argv[1]) if len(sys.argv) > 1 else 0.0
     client = PolymarketClient()
-    res = client.get_match_1x2_probabilities()
+    res = client.get_match_1x2_probabilities(min_liquidity=min_liq)
     print(json.dumps(res, indent=2))
