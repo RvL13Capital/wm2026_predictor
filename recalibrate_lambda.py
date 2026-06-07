@@ -12,7 +12,7 @@ Output: validation/recalibration.txt
 import os, sys, math, csv
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import predictor
-from predictor import MatchModelConfig, ModelDistribution, generate_joint_grid, sign, solve_optimal_tip_from_grid, get_grid_val
+from predictor import MatchModelConfig, ModelDistribution, generate_joint_grid, sign, solve_optimal_tip_from_grid, get_grid_val, get_points
 from make_bracket_html import modal
 import backtest_wm2014 as w14, backtest_wm2018 as w18, backtest_wm2022 as w22
 
@@ -59,6 +59,16 @@ def agg(ci, years):
 def agg_ll(ci, years):
     return sum(llcell[(ci, y)] for y in years)
 
+def fold_points(cfg, year):
+    """Total Kicktipp points (4-3-2) the EV-OPTIMAL tip earns vs the actual results —
+    i.e. the real payoff of running predictor.py with this config, not modal-hit vanity."""
+    tot = 0
+    for diff, ga, gb in M[year]:
+        tips, _, _ = solve_optimal_tip_from_grid(grid_for(diff, *cfg), max_tip=6, pts_exact=4, pts_diff=3, pts_tend=2)
+        tx, ty = tips[0][0]
+        tot += get_points(tx, ty, ga, gb, 4, 3, 2)
+    return tot
+
 di = configs.index(DEFAULT)
 N = sum(len(M[y]) for y in YEARS)
 
@@ -66,11 +76,14 @@ N = sum(len(M[y]) for y in YEARS)
 best_ci = max(range(len(configs)), key=lambda ci: agg(ci, YEARS)[0])
 # LOTO selection by LOG-LIKELIHOOD (proper scoring rule — uses the full density,
 # not the discontinuous exact-hit count that rewards historical finishing luck)
-loto_ex = loto_dr = 0; picks = []
+loto_ex = loto_dr = 0; picks = []; fold_rows = []
 for h in YEARS:
     train = [y for y in YEARS if y != h]
     bci = max(range(len(configs)), key=lambda ci: agg_ll(ci, train))
     e, d, n = cell[(bci, h)]; loto_ex += e; loto_dr += d; picks.append((h, configs[bci]))
+    # held-out NLL (proper score) AND actual Kicktipp payoff: default vs LL-selected config
+    fold_rows.append((h, configs[bci], -llcell[(di, h)], -llcell[(bci, h)],
+                      fold_points(DEFAULT, h), fold_points(configs[bci], h)))
 
 # EV-tip accuracy for a config (heavier; only for a couple of configs)
 def evtip(cfg):
@@ -114,6 +127,17 @@ emit(f"\nEV-optimal tip accuracy (for reference — the points-maximising submis
 for label, cfg in [("default", DEFAULT), (f"best {configs[best_ci]}", configs[best_ci])]:
     ex, dr = evtip(cfg)
     emit(f"  {label:<28}: exact {ex} ({100*ex/N:.0f}%)  tendency {100*dr/N:.0f}%")
+
+emit(f"\nHELD-OUT LOG-LOSS vs KICKTIPP-EV PAYOFF (per fold — the real North Star):")
+emit(f"  {'fold':<5} {'LL-selected config':<28} {'ΣNLL  def → sel':>18} {'Kicktipp pts def → sel':>24}")
+t_lld = t_lls = 0.0; t_pd = t_ps = 0
+for (h, c, lld, lls, pd, ps) in fold_rows:
+    cfgs = f"bg{c[0]} sf{c[1]} ρ{c[2]} α{c[3]}"
+    emit(f"  {h:<5} {cfgs:<28} {lld:>7.1f} → {lls:<7.1f} {pd:>10d} → {ps:<10d}")
+    t_lld += lld; t_lls += lls; t_pd += pd; t_ps += ps
+emit(f"  {'ALL':<5} {'':<28} {t_lld:>7.1f} → {t_lls:<7.1f} {t_pd:>10d} → {t_ps:<10d}")
+emit(f"  per match: NLL {t_lld/N:.3f} → {t_lls/N:.3f}   |   Kicktipp pts {t_pd/N:.3f} → {t_ps/N:.3f}   (net {t_ps-t_pd:+d} pts / {N})")
+emit(f"  ↳ does tighter calibration actually pay in Kicktipp points? {'YES' if t_ps > t_pd else ('NEUTRAL' if t_ps == t_pd else 'NO')} on this sample.")
 
 emit(f"\nλ scale fit directly to non-penalty xG (2018+2022):")
 emit(f"  baseline_goals {bg_fit:.2f} (default 1.35) · scale_factor {sf_fit:.0f} (default 1600)")
