@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 """
-Predict the 2014 World Cup from PRE-tournament (point-in-time) Elo and check it against what
-actually happened. 2014 is the old 32-team format (8 groups → Round of 16). No venue/style
-data exists for 2014 in this repo (stadium_data + XG_STRENGTH are 2026-specific), so this is
-the pure probability engine on June-2014 Elo — i.e. an honest pre-tournament forecast, no
+Predict the 2022 World Cup from PRE-tournament (point-in-time) Elo and check it against what
+actually happened. 2022 is the old 32-team format (8 groups → Round of 16). No venue/style
+data exists for 2022 in this repo (stadium_data + XG_STRENGTH are 2026-specific), so this is
+the pure probability engine on June-2022 Elo — i.e. an honest pre-tournament forecast, no
 lookahead. Group scores are most-likely results; standings derive from them; knockouts are
-decisive (favourite by win-probability). Output: report/wm2014_bracket.html
+decisive (favourite by win-probability). Output: report/wm2022_bracket.html
 """
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import predictor
-import backtest_wm2014 as w14
+import backtest_wm2022 as w14
 from make_bracket_html import CSS, esc, modal, win_probs, match_html
 
-ELO = w14.PRE_WM2014_ELO
-GROUPS = w14.WM2014_GROUPS
+ELO = w14.PRE_WM2022_ELO
+GROUPS = w14.WM2022_GROUPS
 MD = [(1, 0, 1), (1, 2, 3), (2, 0, 2), (2, 1, 3), (3, 0, 3), (3, 1, 2)]
 
 
@@ -76,11 +76,11 @@ def build_ko(table):
     def res(slot):
         return table[slot[2:]][0][0] if slot.startswith("W_") else table[slot[2:]][1][0]
     r = {}
-    r16 = [predict_ko(res(A), res(B)) for A, B in w14.R16_BRACKET]; r["R16"] = r16
+    r16 = [predict_ko(res(A), res(B)) for A, B in w14.R16_BRACKET_2022]; r["R16"] = r16
     w = [m["win"] for m in r16]
-    qf = [predict_ko(w[i], w[j]) for i, j in w14.QF_BRACKET]; r["QF"] = qf
+    qf = [predict_ko(w[i], w[j]) for i, j in w14.QF_BRACKET_2022]; r["QF"] = qf
     wq = [m["win"] for m in qf]
-    sf = [predict_ko(wq[i], wq[j]) for i, j in w14.SF_BRACKET]; r["SF"] = sf
+    sf = [predict_ko(wq[i], wq[j]) for i, j in w14.SF_BRACKET_2022]; r["SF"] = sf
     ws = [m["win"] for m in sf]
     r["FINAL"] = [predict_ko(ws[0], ws[1])]
     r["CHAMP"] = r["FINAL"][0]["win"]
@@ -101,14 +101,14 @@ def main():
 
     P = ["<!doctype html><html lang='en'><head><meta charset='utf-8'>"
          "<meta name='viewport' content='width=device-width,initial-scale=1'>"
-         f"<title>World Cup 2014 — Model Prediction vs Actual</title><style>{CSS}"
+         f"<title>World Cup 2022 — Model Prediction vs Actual</title><style>{CSS}"
          ".cmp{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}"
          ".cmp .big{font-size:22px;font-weight:900}.ok{color:#0f5132}.no{color:#b02a37}"
          ".grp .x{float:right;font-size:11px;font-weight:800}"
          "</style></head><body>"]
     res_txt = "✓ correct" if champ_ok else "✗ — actual winner was " + esc(w14.ACTUAL_CHAMPION)
-    P.append("<header><div class='wrap'><h1>FIFA WORLD CUP 2014 — MODEL PREDICTION vs ACTUAL</h1>"
-             "<div class='sub'>Pre-tournament (June 2014) Elo · most-likely scorelines · no lookahead · "
+    P.append("<header><div class='wrap'><h1>FIFA WORLD CUP 2022 — MODEL PREDICTION vs ACTUAL</h1>"
+             "<div class='sub'>Pre-tournament (June 2022) Elo · most-likely scorelines · no lookahead · "
              "hindsight check against the real outcome</div>"
              f"<div class='champ-banner'><span class='crown'>👑</span><div><span>Predicted champion</span><br>"
              f"<b>{esc(champ)}</b></div><span>&nbsp;·&nbsp;{res_txt}</span></div></div></header>")
@@ -162,18 +162,18 @@ def main():
              f"<div class='nm'>{esc(champ)}</div><div class='cfin'>wins final · {ko['FINAL'][0]['conf']*100:.0f}%</div></div></div>")
     P.append("</div>")
 
-    P.append("<footer>Pre-tournament forecast from June-2014 Elo (no lookahead); 2014 has no venue/style "
+    P.append("<footer>Pre-tournament forecast from June-2022 Elo (no lookahead); 2022 has no venue/style "
              "data in this repo, so this is the pure probability engine on point-in-time ratings. The "
              "hindsight check shows how a chalk-by-rating forecast fares against a real, upset-heavy World Cup.</footer>")
     P.append("</div></body></html>")
 
     os.makedirs("report", exist_ok=True)
-    with open("report/wm2014_bracket.html", "w", encoding="utf-8") as f:
+    with open("report/wm2022_bracket.html", "w", encoding="utf-8") as f:
         f.write("".join(P))
     print(f"predicted champion: {champ}  (actual: {w14.ACTUAL_CHAMPION}, {'HIT' if champ_ok else 'MISS'})")
     print(f"group winners correct: {gw_hits}/8 | semifinalists correct: {sf_hits}/4")
     print("predicted group winners:", pred_gw)
-    print("✓ wrote report/wm2014_bracket.html")
+    print("✓ wrote report/wm2022_bracket.html")
 
 
 if __name__ == "__main__":

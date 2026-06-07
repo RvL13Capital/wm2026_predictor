@@ -49,8 +49,11 @@ def group_games():
     for g, ts in GROUPS.items():
         gl = []
         for md, i, j in MD:
-            x, y = predict_group(ts[i], ts[j])
-            gl.append((md, ts[i], ts[j], x, y))
+            grid = grid_of(ts[i], ts[j])
+            x, y = modal(grid)
+            pa, pb = win_probs(grid); pd = max(0.0, 1 - pa - pb)
+            conf = pa if x > y else (pb if y > x else pd)   # P(predicted direction)
+            gl.append((md, ts[i], ts[j], x, y, conf))
         games[g] = sorted(gl)
     return games
 
@@ -59,7 +62,7 @@ def standings(games):
     table = {}
     for g, gl in games.items():
         st = {t: {"pts": 0, "gf": 0, "ga": 0} for t in GROUPS[g]}
-        for _, a, b, x, y in gl:
+        for _, a, b, x, y, _c in gl:
             st[a]["gf"] += x; st[a]["ga"] += y; st[b]["gf"] += y; st[b]["ga"] += x
             if x > y: st[a]["pts"] += 3
             elif y > x: st[b]["pts"] += 3
@@ -137,12 +140,12 @@ def main():
                 cls, tag = "adv", "<span class='tag r'>R-UP</span>"
             rows += f"<tr class='{cls}'><td class='pos'>{pos}</td><td>{esc(team)}{tag}</td><td class='pts'>{pts}</td></tr>"
         fx, last = "", None
-        for md, a, b, x, y in games[g]:
+        for md, a, b, x, y, conf in games[g]:
             if md != last:
                 fx += f"<div class='mdl'>Matchday {md}</div>"; last = md
             wa = "fw" if x > y else ("dr" if x == y else "")
             wb = "fw" if y > x else ("dr" if x == y else "")
-            fx += (f"<div class='fx'><span class='ta {wa}'>{esc(a)}</span><span class='s'>{x}&ndash;{y}</span>"
+            fx += (f"<div class='fx'><span class='ta {wa}'>{esc(a)}</span><span class='s'>{x}&ndash;{y}<i>{conf*100:.0f}%</i></span>"
                    f"<span class='tb {wb}'>{esc(b)}</span></div>")
         P.append(f"<div class='grp'><div class='gh'>Group {g}</div><table>{rows}</table>"
                  f"<div class='fixtures'>{fx}</div></div>")

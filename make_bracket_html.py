@@ -63,8 +63,11 @@ def group_games():
     games = {g: [] for g in tbf.GROUPS}
     for md in (1, 2, 3):
         for r in mt.run_matchday(md, 0, 42):
-            ga, gb = modal(r["grid"])
-            games[team2grp[r["team_a"]]].append((md, r["team_a"], r["team_b"], ga, gb))
+            grid = r["grid"]
+            ga, gb = modal(grid)
+            pa, pb = win_probs(grid); pd = max(0.0, 1 - pa - pb)
+            conf = pa if ga > gb else (pb if gb > ga else pd)   # P(predicted direction)
+            games[team2grp[r["team_a"]]].append((md, r["team_a"], r["team_b"], ga, gb, conf))
     for g in games:
         games[g].sort()
     return games
@@ -75,7 +78,7 @@ def standings_from_games(games):
     table = {}
     for g, gl in games.items():
         st = {t: {"pts": 0, "gf": 0, "ga": 0} for t in tbf.GROUPS[g]}
-        for _, a, b, x, y in gl:
+        for _, a, b, x, y, _c in gl:
             st[a]["gf"] += x; st[a]["ga"] += y; st[b]["gf"] += y; st[b]["ga"] += x
             if x > y: st[a]["pts"] += 3
             elif y > x: st[b]["pts"] += 3
@@ -224,6 +227,7 @@ h2{color:#fff;font-size:17px;margin:30px 0 14px;border-left:4px solid #f4c430;pa
 .fx .ta{text-align:right}.fx .tb{text-align:left}
 .fx .s{font-variant-numeric:tabular-nums;font-weight:700;color:#1b3a5b;white-space:nowrap}
 .fx .fw{font-weight:800;color:#0f5132}.fx .dr{color:#9c5a00}
+.fx .s i{display:block;font-style:normal;font-size:8px;color:#9aa7b8;font-weight:600;line-height:1.1}
 /* bracket */
 .bracket{display:flex;gap:18px;align-items:stretch;background:#fff;border-radius:12px;padding:20px 16px;
  box-shadow:0 4px 14px rgba(0,0,0,.25);overflow-x:auto}
@@ -316,13 +320,13 @@ def main():
             rows += (f"<tr class='{cls}'><td class='pos'>{pos}</td><td>{esc(team)}{tag}</td>"
                      f"<td class='pts'>{pts}</td></tr>")
         fx, last_md = "", None
-        for md, a, b, x, y in games[g]:
+        for md, a, b, x, y, conf in games[g]:
             if md != last_md:
                 fx += f"<div class='mdl'>Matchday {md}</div>"; last_md = md
             wa = "fw" if x > y else ("dr" if x == y else "")
             wb = "fw" if y > x else ("dr" if x == y else "")
             fx += (f"<div class='fx'><span class='ta {wa}'>{esc(a)}</span>"
-                   f"<span class='s'>{x}&ndash;{y}</span><span class='tb {wb}'>{esc(b)}</span></div>")
+                   f"<span class='s'>{x}&ndash;{y}<i>{conf*100:.0f}%</i></span><span class='tb {wb}'>{esc(b)}</span></div>")
         P.append(f"<div class='grp'><div class='gh'>Group {g}</div><table>{rows}</table>"
                  f"<div class='fixtures'>{fx}</div></div>")
     P.append("</div>")
