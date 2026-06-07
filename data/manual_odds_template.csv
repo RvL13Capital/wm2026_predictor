@@ -1,0 +1,7 @@
+team_a,team_b,odds_home,odds_draw,odds_away
+# Fallback when Polymarket is empty/thin. Enter a sharp book's 3-way DECIMAL odds (Pinnacle).
+# Team names match the GROUPS (e.g. South Korea / USA / DR Congo); common aliases are handled.
+# One row per match. Delete or # out rows you are not overriding. Then:
+#   python3 build_manual_odds.py data/manual_odds.csv data/polymarket_match_odds.json > data/match_odds.json
+Mexico,South Africa,1.40,4.50,8.00
+South Korea,Czechia,2.45,3.30,2.95
