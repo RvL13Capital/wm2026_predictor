@@ -81,6 +81,15 @@ def run_matchday(md: int, n_simulations: int, seed: int, market_probs: dict = No
                 
             # Apply form multipliers
             form_a, form_b = tbf.compute_xg_form_multipliers(team_a, team_b)
+
+            # --- Empirical MD3 caution (the ONLY MD3 effect the backtest survived) ---
+            # validation/md3_regime_backtest.py: across 48 real MD3 matches (2014-2022),
+            # goals ran ~0.84-0.87x of base expectation in EVERY bucket — a universal
+            # "decisive group game is cagey" effect, not regime game-theory. So: one flat trim.
+            if md == 3:
+                form_a *= 0.87
+                form_b *= 0.87
+
             row["form_a"] = str(form_a)
             row["form_b"] = str(form_b)
             
