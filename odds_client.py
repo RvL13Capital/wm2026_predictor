@@ -282,32 +282,54 @@ class PolymarketClient:
     IMPORTANT: Requires User-Agent header or Gamma API returns 403.
     
     Data format notes:
-    - Polymarket currently has WC 2026 TOURNAMENT WINNER markets (not match-specific)
-    - Tournament winner probabilities can be used to derive relative team strength
-    - Match-specific markets typically appear closer to match day
+    - Per-match 1X2 games live under the **fifa-world-cup** tag as events titled "A vs. B", each
+      holding three binary Yes/No legs (home-win / draw / away-win). See _extract_game_1x2.
+    - The 'world-cup' tag carries ONLY outrights/group/player props -- never the match games.
+    - get_wc_winner_probabilities() still reads the tournament-winner outright (bracket equity).
     """
     
     GAMMA_URL = "https://gamma-api.polymarket.com"
     USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"
-    
+    MAX_RETRIES = 4
+
     def _request(self, endpoint: str, params: dict = None) -> list:
-        """Make request to Gamma API with proper headers."""
+        """
+        GET the Gamma API with a User-Agent (required — 403 without) and retry/backoff.
+
+        Gamma's documented limits are generous (/events 500 req/10s, /markets 300 req/10s) and it
+        THROTTLES (queues) rather than returning 429, so our ~5 paged /events calls never approach
+        the cap. But a daily cron still meets transient 5xx/timeouts — so back off and retry
+        (honoring Retry-After) instead of crashing the operational loop.
+        """
         if not HAS_URLLIB:
             raise RuntimeError("urllib not available")
-        
+
         url = f"{self.GAMMA_URL}/{endpoint}"
         if params:
             url += "?" + urllib.parse.urlencode(params)
-        
+
         req = urllib.request.Request(url)
         req.add_header("Accept", "application/json")
         req.add_header("User-Agent", self.USER_AGENT)
-        
-        try:
-            with urllib.request.urlopen(req, timeout=10) as response:
-                return json.loads(response.read().decode())
-        except (urllib.error.URLError, urllib.error.HTTPError) as e:
-            raise RuntimeError(f"Polymarket API error: {e}")
+
+        last = None
+        for attempt in range(self.MAX_RETRIES):
+            try:
+                with urllib.request.urlopen(req, timeout=15) as response:
+                    return json.loads(response.read().decode())
+            except urllib.error.HTTPError as e:
+                last = e
+                if e.code not in (429, 500, 502, 503, 504):
+                    break                                    # 4xx (bad query) — don't hammer
+                wait = float(e.headers.get("Retry-After", 0) or 0) or (2 ** attempt)
+                if attempt < self.MAX_RETRIES - 1:
+                    print(f"[odds] HTTP {e.code} from /{endpoint}; backoff {wait:.0f}s", file=sys.stderr)
+                    time.sleep(wait)
+            except urllib.error.URLError as e:
+                last = e
+                if attempt < self.MAX_RETRIES - 1:
+                    time.sleep(2 ** attempt)
+        raise RuntimeError(f"Polymarket API error after {self.MAX_RETRIES} tries: {last}")
     
     def get_wc_winner_probabilities(self) -> Dict[str, float]:
         """
@@ -343,70 +365,218 @@ class PolymarketClient:
         
         return teams
     
-    def get_match_1x2_probabilities(self, min_liquidity: float = 0.0, markets=None) -> dict:
+    @staticmethod
+    def _extract_game_1x2(event) -> Optional[tuple]:
         """
-        Fetch active 1X2 match markets from Polymarket as raw decimal odds, each TAGGED with its
-        USD liquidity/volume so thin (noisy) markets are visible and can be overridden by hand.
-        Markets below `min_liquidity` are dropped outright. Schema:
-        { "probabilities": { "Germany|Japan": {"1":1.45,"X":4.80,"2":7.50,"liquidity":..,"volume":..} } }
-        (Pass markets=[...] to parse a fixture list offline, e.g. for tests.)
+        Pull a 1X2 line out of ONE Polymarket game event.
+
+        A Polymarket soccer game is an event titled "Team A vs. Team B" holding THREE binary
+        Yes/No markets (negRisk group):
+            groupItemTitle "Team A"                 q "Will Team A win on <date>?"      -> P(home)=YES px
+            groupItemTitle "Draw (Team A vs. ...)"  q "Will A vs. B end in a draw?"     -> P(draw)=YES px
+            groupItemTitle "Team B"                 q "Will Team B win on <date>?"      -> P(away)=YES px
+        The 1X2 probabilities are the YES price of each leg (they sum ~1, near vig-free).
+
+        Returns (home, away, odds_home, odds_draw, odds_away, min_leg_liq, sum_leg_vol) or None
+        if the event is not a 3-leg game (this also rejects outrights/props/settled lines, so it
+        doubles as the games filter — no reliance on tags).
         """
-        if markets is None:
-            markets = self._request("markets", {"limit": 500, "active": "true", "closed": "false"})
+        title = (event.get("title") or "").strip()
+        low = title.lower()
+        # The primary moneyline event is exactly "A vs. B". Sibling markets (totals, spreads, exact
+        # score, halftime) are "A vs. B - <Suffix>"; player props are "...Goals H2H: X vs. Y". A
+        # " - " or "h2h" in the title marks a non-moneyline event — reject (no national team name
+        # contains " - "). This isolates the 1X2 line robustly, not by accident of name-matching.
+        if " vs" not in low or "h2h" in low or " - " in title:
+            return None
+        for sep in (" vs. ", " vs "):                       # "A vs. B" (period) or "A vs B"
+            if sep in title:
+                home, away = (s.strip() for s in title.split(sep, 1))
+                break
+        else:
+            return None
 
-        matches, dropped = {}, []
-        for m in markets:
-            q = m.get("question", "").replace("  ", " ").strip()
-            if " vs " not in q.lower() and " vs. " not in q.lower():
-                continue
-            if any(s in q.lower() for s in ("win the 2026", "group", "advance", "qualify")):
-                continue
-
-            prices = m.get("outcomePrices", "[]")
+        legs = {"1": None, "X": None, "2": None}            # (yes_price, liq, vol) per outcome
+        for m in event.get("markets", []):
+            q = (m.get("question") or "").lower()
+            git = (m.get("groupItemTitle") or "").strip()
             outcomes = m.get("outcomes", "[]")
-            if isinstance(prices, str): prices = json.loads(prices)
-            if isinstance(outcomes, str): outcomes = json.loads(outcomes)
-            if len(prices) < 2 or len(outcomes) < 2:
-                continue
-
-            outcomes_lower = [o.lower() for o in outcomes]
-            draw_idx = (outcomes_lower.index("draw") if "draw" in outcomes_lower else
-                        outcomes_lower.index("tie") if "tie" in outcomes_lower else -1)
-            if draw_idx == -1:
-                continue
-            teams = [(i, o) for i, o in enumerate(outcomes) if i != draw_idx]
-            if len(teams) < 2:
-                continue
-            t1_idx, team_a = teams[0]
-            t2_idx, team_b = teams[1]
+            prices = m.get("outcomePrices", "[]")
             try:
-                p1, p2, px = float(prices[t1_idx]), float(prices[t2_idx]), float(prices[draw_idx])
-            except (ValueError, TypeError, IndexError):
+                if isinstance(outcomes, str): outcomes = json.loads(outcomes)
+                if isinstance(prices, str): prices = json.loads(prices)
+            except json.JSONDecodeError:
                 continue
-            if not (p1 > 0.005 and p2 > 0.005 and px > 0.005):
+            if not outcomes or len(outcomes) != len(prices):
                 continue
-
+            try:
+                yes_idx = [str(o).lower() for o in outcomes].index("yes")
+                p_yes = float(prices[yes_idx])
+            except (ValueError, TypeError):
+                continue
             liq = _num(m, "liquidityNum", "liquidity", "liquidityClob")
             vol = _num(m, "volumeNum", "volume", "volumeClob")
-            key = f"{team_a.strip()}|{team_b.strip()}"
-            if min_liquidity > 0.0 and liq < min_liquidity:
-                dropped.append((key, liq)); continue
-            matches[key] = {
-                "1": round(1.0 / p1, 3), "X": round(1.0 / px, 3), "2": round(1.0 / p2, 3),
-                "liquidity": round(liq, 2), "volume": round(vol, 2),
-            }
+
+            if "end in a draw" in q or git.lower().startswith("draw"):
+                slot = "X"
+            else:                                            # a team leg — assign by groupItemTitle/question
+                who = git
+                if not who and q.startswith("will ") and " win" in q:
+                    who = q[5:q.index(" win")].strip()
+                wl = who.lower()
+                slot = "1" if wl == home.lower() else "2" if wl == away.lower() else None
+            if slot and legs[slot] is None:
+                legs[slot] = (p_yes, liq, vol)
+
+        if any(v is None for v in legs.values()):
+            return None
+        (ph, lh, vh), (px, lx, vx), (pa, la, va) = legs["1"], legs["X"], legs["2"]
+        if not (0.0 < ph < 1.0 and 0.0 < px < 1.0 and 0.0 < pa < 1.0):
+            return None                                      # settled/degenerate (e.g. 1/0/0)
+        if not (0.85 <= ph + px + pa <= 1.30):
+            return None                                      # not a sane 3-way moneyline
+        return (home, away,
+                round(1.0 / ph, 3), round(1.0 / px, 3), round(1.0 / pa, 3),
+                round(min(lh, lx, la), 2), round(vh + vx + va, 2))
+
+    @staticmethod
+    def _parse_pair(title):
+        """('A vs. B - <Suffix>') -> ('A','B'); strips any ' - <Suffix>'. None if not a matchup."""
+        base = (title or "").split(" - ", 1)[0].strip()
+        for sep in (" vs. ", " vs "):
+            if sep in base:
+                h, a = (s.strip() for s in base.split(sep, 1))
+                return h, a
+        return None
+
+    @classmethod
+    def _extract_extras(cls, event):
+        """
+        Parse the READ-ONLY derivative markets from a game's sibling events — the totals ladder
+        (O/U 0.5..5.5), Asian spreads (Team -1.5/-2.5), Both-Teams-To-Score, and the exact-score
+        grid. Returns (game_key, data) keyed identically to the 1X2 ("Home|Away"), or None.
+
+        NONE of this feeds the sealed engine. It is captured (a) for the read-only goal-total
+        calibration flag in matchday_tips, and (b) to seed the historical O/U dataset a future,
+        *validated* dispersion blend would need. `market_total` = E[goals] implied by the ladder.
+        """
+        pair = cls._parse_pair(event.get("title"))
+        if not pair:
+            return None
+        home, away = pair
+        totals, spreads, exact, btts = [], [], [], None
+        for m in event.get("markets", []):
+            git = (m.get("groupItemTitle") or "").strip()
+            o = m.get("outcomes", "[]"); p = m.get("outcomePrices", "[]")
+            try:
+                if isinstance(o, str): o = json.loads(o)
+                if isinstance(p, str): p = json.loads(p)
+            except json.JSONDecodeError:
+                continue
+            if not o or len(o) != len(p):
+                continue
+            names = [str(x).lower() for x in o]
+            liq = _num(m, "liquidityNum", "liquidity", "liquidityClob")
+            gl = git.lower()
+            if "over" in names and "under" in names:                       # O/U totals ladder
+                try:
+                    line = float(gl.replace("o/u", "").replace("over/under", "").strip())
+                    totals.append({"line": line, "over": round(float(p[names.index("over")]), 4),
+                                   "liq": round(liq, 2)})
+                except (ValueError, IndexError):
+                    pass
+            elif "(" in git and ")" in git:                                # spread / handicap
+                try:
+                    tm = git[:git.index("(")].strip()
+                    line = float(git[git.index("(") + 1:git.index(")")])
+                    ci = names.index(tm.lower()) if tm.lower() in names else 0
+                    spreads.append({"team": tm, "line": line, "cover": round(float(p[ci]), 4),
+                                    "liq": round(liq, 2)})
+                except (ValueError, IndexError):
+                    pass
+            elif "both teams to score" in gl and "yes" in names:           # BTTS
+                btts = {"yes": round(float(p[names.index("yes")]), 4), "liq": round(liq, 2)}
+            elif gl.startswith("exact score") and "yes" in names:          # exact-score grid
+                sc = git.split(":", 1)[1].strip() if ":" in git else git
+                exact.append({"score": sc, "prob": round(float(p[names.index("yes")]), 4),
+                              "liq": round(liq, 2)})
+
+        data = {}
+        if totals:
+            totals.sort(key=lambda d: d["line"])
+            data["totals"] = totals
+            # E[goals] = sum_k P(N > k+0.5) over the consecutive ladder from 0.5 (a lower bound: it
+            # ignores the small mass above the top line). Polymarket O/U prices already sum to 1.
+            mt, expect = 0.0, 0.5
+            for t in totals:
+                if abs(t["line"] - expect) < 1e-9:
+                    mt += t["over"]; expect += 1.0
+                else:
+                    break
+            if mt > 0:
+                data["market_total"] = round(mt, 3)
+        if spreads:
+            data["spreads"] = spreads
+        if btts:
+            data["btts"] = btts
+        if exact:
+            exact.sort(key=lambda d: -d["prob"])
+            data["exact"] = exact
+        return (f"{home}|{away}", data) if data else None
+
+    def get_match_1x2_probabilities(self, min_liquidity: float = 0.0, events=None) -> dict:
+        """
+        Fetch live World Cup 1X2 match markets from Polymarket as raw decimal odds, each TAGGED with
+        its USD liquidity/volume so thin (noisy) markets are visible and can be overridden by hand.
+
+        The games live under the **fifa-world-cup** tag as per-match EVENTS (NOT the 'world-cup' tag,
+        which carries only outrights/props, and NOT as single 3-outcome markets). Each game event holds
+        three binary Yes/No legs; see _extract_game_1x2. Lines below `min_liquidity` (thinnest leg) are
+        dropped. Schema:
+        { "probabilities": { "Mexico|South Africa": {"1":1.46,"X":4.88,"2":9.52,"liquidity":..,"volume":..} } }
+        (Pass events=[...] to parse a fixture list offline, e.g. for tests.)
+        """
+        if events is None:
+            events, seen = [], set()
+            for off in range(0, 1500, 100):                  # paginate (WC has ~300 game events)
+                page = self._request("events", {
+                    "tag_slug": "fifa-world-cup", "closed": "false",
+                    "limit": 100, "offset": off,
+                })
+                if not page:
+                    break
+                events.extend(e for e in page if e.get("id") not in seen)
+                seen.update(e.get("id") for e in page)
+                if len(page) < 100:                          # last page
+                    break
+
+        matches, extras, dropped = {}, {}, []
+        for e in events:
+            parsed = self._extract_game_1x2(e)               # also rejects outrights/props/settled
+            if parsed:
+                home, away, oh, od, oa, liq, vol = parsed
+                key = f"{home}|{away}"
+                if min_liquidity > 0.0 and liq < min_liquidity:
+                    dropped.append((key, liq)); continue
+                matches[key] = {"1": oh, "X": od, "2": oa, "liquidity": liq, "volume": vol}
+            else:                                            # read-only derivatives (totals/spreads/exact)
+                ex = self._extract_extras(e)
+                if ex:
+                    extras.setdefault(ex[0], {}).update(ex[1])
+        extras = {k: v for k, v in extras.items() if k in matches}   # drop orphans (props w/o a 1X2 game)
 
         # operator-facing summary on stderr: which markets are thin enough to override?
         thin = sorted(((k, v["liquidity"]) for k, v in matches.items() if v["liquidity"] < THIN_LIQUIDITY),
                       key=lambda kv: kv[1])
-        print(f"[odds] {len(matches)} 1X2 markets parsed"
+        print(f"[odds] {len(matches)} 1X2 game markets parsed"
+              + (f"; {len(extras)} with O/U+spread+exact extras" if extras else "")
               + (f"; {len(dropped)} dropped < ${min_liquidity:,.0f}" if min_liquidity > 0 else "")
               + (f"; {len(thin)} THIN (< ${THIN_LIQUIDITY:,.0f}) -- override these with a sharp book:" if thin else ""),
               file=sys.stderr)
         for k, liq in thin:
             print(f"[odds]   THIN {k}  ${liq:,.0f}", file=sys.stderr)
 
-        return {"source": "polymarket_matches_1x2", "probabilities": matches}
+        return {"source": "polymarket_matches_1x2", "probabilities": matches, "extras": extras}
 
 
 # ==============================================================================

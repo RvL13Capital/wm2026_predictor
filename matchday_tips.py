@@ -19,9 +19,11 @@ BACKTEST_TRAPS = {(1, 1), (3, 1), (1, 3)}
 BACKTEST_VALUE = {(2, 1), (1, 2)}
 EV_PLATEAU = 0.05   # EV gap below which #1 and #2 are effectively tied (display heuristic, not fitted)
 MIN_MARKET_LIQUIDITY = 1000.0   # USD; a tagged market below this is noise -> skip the blend, fall back to Elo
+GOAL_TOTAL_FLAG = 0.40   # |model E[goals] - market O/U E[goals]| above which to flag tempo disagreement (advisory)
 
 
-def run_matchday(md: int, n_simulations: int, seed: int, market_probs: dict = None) -> List[Dict[str, Any]]:
+def run_matchday(md: int, n_simulations: int, seed: int, market_probs: dict = None,
+                 market_extras: dict = None) -> List[Dict[str, Any]]:
     """Generate tips for a specific matchday using the FULL STACK."""
     match_results = []
     
@@ -107,6 +109,7 @@ def run_matchday(md: int, n_simulations: int, seed: int, market_probs: dict = No
             # market_probs is keyed "TeamA|TeamB" -> {"1": dec, "X": dec, "2": dec} (raw decimal
             # odds, vig intact). predictor strips the FLB via the Power method + KL solver, so we
             # blend at full 0.80. No synthesis, no sqrt: the clean wisdom-of-crowds path.
+            market_total = None   # market O/U-implied E[goals] (read-only calibration; never blended)
             if market_probs:
                 ta = predictor.TEAM_NAME_MAPPING.get(team_a.lower(), team_a)
                 tb = predictor.TEAM_NAME_MAPPING.get(team_b.lower(), team_b)
@@ -133,6 +136,15 @@ def run_matchday(md: int, n_simulations: int, seed: int, market_probs: dict = No
                         row["odds_draw"] = str(odds_data["X"])
                         row["odds_away"] = str(odds_data["1"])
                     row["market_weight"] = "0.80"   # reactivated: real 1x2 line, not outrights
+
+            # READ-ONLY: market O/U-implied expected total goals, for the calibration flag only.
+            # (Orientation-free — total goals don't depend on home/away — so no swap needed.)
+            if market_extras:
+                ta_e = predictor.TEAM_NAME_MAPPING.get(team_a.lower(), team_a)
+                tb_e = predictor.TEAM_NAME_MAPPING.get(team_b.lower(), team_b)
+                ex = market_extras.get(f"{ta_e}|{tb_e}") or market_extras.get(f"{tb_e}|{ta_e}")
+                if ex:
+                    market_total = ex.get("market_total")
 
             # Use predictor's full pipeline
             # Injecting squad and injury adjustments
@@ -231,6 +243,7 @@ def run_matchday(md: int, n_simulations: int, seed: int, market_probs: dict = No
                 "optimal_tip": optimal_tip,
                 "ev": max_ev,
                 "top_tips": result.get("top_tips", []),
+                "market_total": market_total,
                 "mc": mc_stats
             })
             
@@ -288,6 +301,20 @@ def print_results(results: List[Dict[str, Any]], args: argparse.Namespace):
             else:
                 lines.append(f"     [i] low confidence — {top[0]}:{top[1]} and {alt[0]}:{alt[1]} effectively tied (Δ {delta:.3f}).")
         
+        # READ-ONLY goal-total calibration: market's O/U-implied E[goals] vs our model's (λ_adj sum).
+        # Pure decision-support — the submitted tip is unchanged. A material gap means the market
+        # prices a different game tempo than our context layer; worth a manual look, never auto-applied.
+        mkt_total = res.get("market_total")
+        if mkt_total:
+            model_total = res["lambda_adj_a"] + res["lambda_adj_b"]
+            gd = model_total - mkt_total
+            if abs(gd) >= GOAL_TOTAL_FLAG:
+                arrow = "MORE" if gd > 0 else "FEWER"
+                lines.append(f"     [~] GOALS Δ {gd:+.2f}: model sees {arrow} goals than the market "
+                             f"(model {model_total:.2f} vs O/U {mkt_total:.2f}) — review tempo/context.")
+            else:
+                lines.append(f"     [✓] goals aligned with market O/U (model {model_total:.2f} ≈ {mkt_total:.2f})")
+
         if res["mc"]:
             mc = res["mc"]
             lines.append(f"  MC ({args.simulations:,} sims): μ={mc['mean']:.3f}  σ={mc['std']:.3f}  "
@@ -324,23 +351,41 @@ if __name__ == "__main__":
     args = parser.parse_args()
     
     market_probs = None
+    market_extras = None
     if args.odds_snapshot:
         with open(args.odds_snapshot, "r") as f:
             snapshot = json.load(f)
 
         raw = snapshot.get("probabilities", snapshot)
         market_probs = {}
-        aliases = {"united states": "usa", "us": "usa", "korea republic": "south korea"}
+        # Polymarket name -> engine canonical key. Explicit aliases WIN (taken as the final name);
+        # everything else falls through predictor.TEAM_NAME_MAPPING, then to the raw name. These
+        # cover the Polymarket spellings that the mapping misses ("Korea Republic", "IR Iran",
+        # the accented "Côte d'Ivoire").
+        aliases = {
+            "united states": "USA", "us": "USA", "usa": "USA",
+            "korea republic": "South Korea", "south korea": "South Korea",
+            "ir iran": "Iran",
+            "côte d'ivoire": "Ivory Coast", "cote d'ivoire": "Ivory Coast",
+        }
+        def _canon(name):
+            low = name.strip().lower()
+            if low in aliases:
+                return aliases[low]
+            return predictor.TEAM_NAME_MAPPING.get(low, name.strip())
         for k, v in raw.items():
             if "|" in k:                              # match-specific "TeamA|TeamB" key
-                parts = k.split("|")
-                ta_key = aliases.get(parts[0].lower().strip(), parts[0].lower().strip())
-                tb_key = aliases.get(parts[1].lower().strip(), parts[1].lower().strip())
-                t1 = predictor.TEAM_NAME_MAPPING.get(ta_key, parts[0].strip())
-                t2 = predictor.TEAM_NAME_MAPPING.get(tb_key, parts[1].strip())
-                market_probs[f"{t1}|{t2}"] = v
-        print(f"Loaded {len(market_probs)} match-specific 1X2 markets from {args.odds_snapshot}",
-              file=sys.stderr)
+                a, b = k.split("|", 1)
+                market_probs[f"{_canon(a)}|{_canon(b)}"] = v
+        # read-only derivatives (O/U totals / spreads / exact score), canonicalized the same way
+        market_extras = {}
+        for k, v in snapshot.get("extras", {}).items():
+            if "|" in k:
+                a, b = k.split("|", 1)
+                market_extras[f"{_canon(a)}|{_canon(b)}"] = v
+        print(f"Loaded {len(market_probs)} 1X2 markets"
+              + (f" (+{len(market_extras)} with O/U/exact extras)" if market_extras else "")
+              + f" from {args.odds_snapshot}", file=sys.stderr)
 
-    res = run_matchday(args.md, args.simulations, args.seed, market_probs)
+    res = run_matchday(args.md, args.simulations, args.seed, market_probs, market_extras)
     print_results(res, args)
