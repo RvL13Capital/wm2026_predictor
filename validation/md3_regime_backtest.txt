@@ -1,0 +1,36 @@
+============================================================================================
+MD3 GAME-THEORY REGIME BACKTEST — 48 real MD3 matches (2014/2018/2022, 32-team)
+============================================================================================
+Base = Elo->λ (bg1.35 sf1600) · NB α0.06 · ρ0 · no context · no MD3 modifier.
+'implied form' = actual GPG / expected GPG  (what the data says the λ multiplier SHOULD be).
+
+regime         N |   GPG act/exp  implied |  draw act/exp |  blow act/exp |    hi act/exp
+-----------------------------------------------------------------------------------------
+BISCOTTO       3 |  2.00/2.85      0.70x |   33%/22  % |    0%/19  % |   33%/32  %
+MUST_WIN       3 |  3.00/2.77      1.08x |    0%/24  % |    0%/16  % |   33%/30  %
+DEAD_RUBBER    7 |  2.14/2.79      0.77x |   14%/24  % |   29%/17  % |    0%/31  %
+ASYMMETRIC    12 |  2.75/2.99      0.92x |   17%/20  % |   17%/24  % |   33%/35  %
+STANDARD      23 |  2.39/2.85      0.84x |   17%/22  % |   13%/19  % |   13%/32  %
+
+ASSUMED (production _get_md3_mods) vs IMPLIED (data) symmetric form multiplier:
+  BISCOTTO     assumed 0.60x   implied  0.70x   (3 matches → WEAKER than assumed)
+  MUST_WIN     assumed 1.25x   implied  1.08x   (3 matches → WEAKER than assumed)
+  DEAD_RUBBER  assumed 0.85x   implied  0.77x   (7 matches → MATCHES)
+  ASYMMETRIC   assumed 1.00x   implied  0.92x   (12 matches → MATCHES)
+  STANDARD     assumed 1.00x   implied  0.84x   (23 matches → STRONGER than assumed)
+
+BISCOTTO matches (n=3):
+   2014 F: Nigeria 2-3 Argentina      total 5 (exp 3.0)
+   2014 G: USA 0-1 Germany            total 1 (exp 2.8)
+   2018 C: Denmark 0-0 France         total 0 (exp 2.7)  DRAW
+
+MUST_WIN matches (n=3):
+   2014 F: Bosnia 3-1 Iran            total 4 (exp 2.7)
+   2014 G: Portugal 2-1 Ghana         total 3 (exp 2.8)
+   2018 C: Australia 0-2 Peru         total 2 (exp 2.8)
+
+--------------------------------------------------------------------------------------------
+CAVEAT: 48 MD3 matches / 5 buckets → tiny per-bucket N. Treat single-digit buckets as
+anecdote, not signal (same small-sample trap that overfit the λ grid). Buckets here use the
+STRICT top-2 lock; production _get_md3_mods uses looser point buckets, so it fires far more often.
+============================================================================================
