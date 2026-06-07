@@ -323,16 +323,16 @@ def match_html(m, extra=""):
 
 def main():
     global MODE, RNG
-    MODE = sys.argv[1] if len(sys.argv) > 1 else "modal"
+    MODE = sys.argv[1] if len(sys.argv) > 1 else "sample"   # canonical bracket = sampled (varied, favourites advance)
     RNG = random.Random(2026) if MODE != "modal" else None
-    suffix = {"sample": "_sampled", "simulate": "_simulated"}.get(MODE, "")
-    champ_lbl = {"sample": "FAVOURITES ADVANCE", "simulate": "THIS SIMULATION"}.get(MODE, "WELTMEISTER")
-    sub_lead = {"sample": "Sampled scorelines · favourites advance",
-                "simulate": "One simulated tournament · upsets included"}.get(MODE, "Most-likely scorelines")
-    # data-recalibrated goal model (LOTO-tuned for end-result accuracy; brackets only — not config.json):
-    # lower base + more favourite-stretch + NO draw-boosting Dixon-Coles (ρ=0) + slight overdispersion.
-    predictor.CONSTANTS["elo_baseline_goals"] = 1.15
-    predictor.CONSTANTS["elo_scale_factor"] = 1200
+    suffix = {"modal": "_modal", "simulate": "_simulated"}.get(MODE, "")   # default (sample) → wm2026_bracket.html
+    champ_lbl = "THIS SIMULATION" if MODE == "simulate" else "WELTMEISTER"
+    sub_lead = {"modal": "Most-likely scorelines",
+                "simulate": "One simulated tournament · upsets included"}.get(MODE, "Sampled scorelines · favourites advance")
+    # Realistic goal level (~2.6/match) for lifelike SAMPLED scores; favourites still advance in the KO, so the
+    # champion follows the probabilities (no dice). ρ=0 (no draw-boost) + slight overdispersion. Brackets only.
+    predictor.CONSTANTS["elo_baseline_goals"] = 1.35
+    predictor.CONSTANTS["elo_scale_factor"] = 1600
     _orig_psm = predictor.predict_single_match
     predictor.predict_single_match = lambda row, *a, **k: _orig_psm(
         {**row, "rho": 0.0, "alpha_a": 0.06, "alpha_b": 0.06}, *a, **k)
