@@ -12,7 +12,7 @@ QF_BRACKET / SF_BRACKET); KO matches advance the higher-win-probability side, a.
 most-likely score is a draw. Bonusfragen %s are from this session's 20k MC run.
 Output: report/wm2026_bracket.html
 """
-import os, sys, html
+import os, sys, html, random
 from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import predictor
@@ -57,6 +57,45 @@ def win_probs(grid):
     return pa, pb
 
 
+# display mode: "modal" (most-likely), "sample" (varied scores, favourites advance),
+# "simulate" (one full random tournament). Set in main(); RNG seeded for reproducibility.
+MODE = "modal"
+RNG = None
+
+
+def sample(grid, rng):
+    """Draw a plausible scoreline from the joint distribution (proportional to cell prob)."""
+    cum = 0.0; cells = []
+    for ka, row in grid.items():
+        for kb, v in row.items():
+            if v > 0:
+                cum += v; cells.append((cum, int(ka), int(kb)))
+    if not cells:
+        return modal(grid)
+    r = rng.random() * cum
+    for c, x, y in cells:
+        if r <= c:
+            return x, y
+    return cells[-1][1], cells[-1][2]
+
+
+def sample_win(grid, rng, fav_a):
+    """Sample a plausible DECISIVE scoreline in which the favoured side (a if fav_a) wins."""
+    cum = 0.0; cells = []
+    for ka, row in grid.items():
+        for kb, v in row.items():
+            x, y = int(ka), int(kb)
+            if v > 0 and x != y and ((x > y) == fav_a):
+                cum += v; cells.append((cum, x, y))
+    if not cells:
+        return (1, 0) if fav_a else (0, 1)
+    r = rng.random() * cum
+    for c, x, y in cells:
+        if r <= c:
+            return x, y
+    return cells[-1][1], cells[-1][2]
+
+
 # ---- Group stage: all 72 games as most-likely scorelines (full matchday model) ----
 def group_games():
     team2grp = {t: g for g, ts in tbf.GROUPS.items() for t in ts}
@@ -64,9 +103,9 @@ def group_games():
     for md in (1, 2, 3):
         for r in mt.run_matchday(md, 0, 42):
             grid = r["grid"]
-            ga, gb = modal(grid)
+            ga, gb = sample(grid, RNG) if RNG else modal(grid)   # sampled (varied) or most-likely
             pa, pb = win_probs(grid); pd = max(0.0, 1 - pa - pb)
-            conf = pa if ga > gb else (pb if gb > ga else pd)   # P(predicted direction)
+            conf = pa if ga > gb else (pb if gb > ga else pd)   # P(this result's direction)
             games[team2grp[r["team_a"]]].append((md, r["team_a"], r["team_b"], ga, gb, conf))
     for g in games:
         games[g].sort()
@@ -134,15 +173,26 @@ def predict_ko(a, b, venue, team_loc, date):
             row[f"accl_days_{pre}"] = 10.0 if t in tbf.HOST_TEAMS else 0.0
     grid = predictor.predict_single_match(row)["grid"]
     pa, pb = win_probs(grid)
-    win = a if pa >= pb else b
+    et = False
+    if MODE == "simulate":                       # one true tournament: sampled result decides who advances
+        ga, gb = sample(grid, RNG)
+        if ga != gb:
+            win = a if ga > gb else b
+        else:
+            win = a if pa >= pb else b; et = True  # level → ET/penalties, favourite edges it
+    elif MODE == "sample":                       # favourite advances, but with a varied winning scoreline
+        win = a if pa >= pb else b
+        ga, gb = sample_win(grid, RNG, win == a)
+    else:                                        # modal: most-likely decisive score
+        win = a if pa >= pb else b
+        best, ga, gb = -1.0, (1 if win == a else 0), (0 if win == a else 1)
+        for ka, gr in grid.items():
+            for kb, p in gr.items():
+                x, y = int(ka), int(kb)
+                if x != y and ((x > y) == (win == a)) and p > best:
+                    best, ga, gb = p, x, y
     conf = (pa if win == a else pb) / (pa + pb) if (pa + pb) > 0 else 0.5   # win-share of the tie
-    best, ga, gb = -1.0, (1 if win == a else 0), (0 if win == a else 1)
-    for ka, gr in grid.items():
-        for kb, p in gr.items():
-            x, y = int(ka), int(kb)
-            if x != y and ((x > y) == (win == a)) and p > best:
-                best, ga, gb = p, x, y
-    return {"a": a, "b": b, "ga": ga, "gb": gb, "win": win, "et": False, "venue": venue, "conf": conf}
+    return {"a": a, "b": b, "ga": ga, "gb": gb, "win": win, "et": et, "venue": venue, "conf": conf}
 
 
 def build_ko(table, thirds_assigned):
@@ -272,6 +322,13 @@ def match_html(m, extra=""):
 
 
 def main():
+    global MODE, RNG
+    MODE = sys.argv[1] if len(sys.argv) > 1 else "modal"
+    RNG = random.Random(2026) if MODE != "modal" else None
+    suffix = {"sample": "_sampled", "simulate": "_simulated"}.get(MODE, "")
+    champ_lbl = {"sample": "FAVOURITES ADVANCE", "simulate": "THIS SIMULATION"}.get(MODE, "WELTMEISTER")
+    sub_lead = {"sample": "Sampled scorelines · favourites advance",
+                "simulate": "One simulated tournament · upsets included"}.get(MODE, "Most-likely scorelines")
     # data-recalibrated goal model (LOTO-tuned for end-result accuracy; brackets only — not config.json):
     # lower base + more favourite-stretch + NO draw-boosting Dixon-Coles (ρ=0) + slight overdispersion.
     predictor.CONSTANTS["elo_baseline_goals"] = 1.15
@@ -293,7 +350,7 @@ def main():
          f"<title>FIFA World Cup 2026 — Model Bracket</title><style>{CSS}</style></head><body>"]
     pct = f"&nbsp;·&nbsp;{champ_pct:.0f}% in 20k simulations" if champ_pct else ""
     P.append("<header><div class='wrap'><h1>FIFA WORLD CUP 2026 — MODEL PREDICTION BRACKET</h1>"
-             "<div class='sub'>Most-likely scorelines · altitude · travel/rest · xG playing style · "
+             f"<div class='sub'>{sub_lead} · altitude · travel/rest · xG playing style · "
              "standings from results · recalibrated goal scale · Negative-Binomial / Dixon–Coles engine</div>"
              f"<div class='champ-banner'><span class='crown'>👑</span><div><span>Predicted champion</span><br>"
              f"<b>{esc(champ)}</b></div><span>{pct}</span></div></div></header>")
@@ -350,7 +407,7 @@ def main():
              "".join(match_html(m) for m in ko["SF"]) + "</div>")
     P.append("<div class='round fin'><div class='rh'>Final</div>" + match_html(ko["FINAL"][0]) + "</div>")
     P.append("<div class='round champ-col'><div class='rh'>Champion</div>"
-             f"<div class='champ-box'><div class='crown'>🏆</div><div class='lbl'>WELTMEISTER</div>"
+             f"<div class='champ-box'><div class='crown'>🏆</div><div class='lbl'>{champ_lbl}</div>"
              f"<div class='nm'>{esc(champ)}</div><div class='cfin'>wins final · {ko['FINAL'][0]['conf']*100:.0f}%</div></div></div>")
     P.append("</div>")
 
@@ -362,14 +419,11 @@ def main():
     P.append("</div></body></html>")
 
     os.makedirs("report", exist_ok=True)
-    with open("report/wm2026_bracket.html", "w", encoding="utf-8") as f:
+    path = f"report/wm2026_bracket{suffix}.html"
+    with open(path, "w", encoding="utf-8") as f:
         f.write("".join(P))
-    # consistency self-check: group winner must be the team that won/topped its group
-    print(f"champion={champ}  best-thirds groups={sorted(qualified)}")
-    for g in sorted(table):
-        w = table[g][0]
-        print(f"  Group {g}: winner {w[0]} ({w[1]} pts, GD {w[2]:+d})")
-    print("✓ wrote report/wm2026_bracket.html")
+    print(f"[{MODE}] champion={champ}  best-thirds groups={sorted(qualified)}")
+    print(f"✓ wrote {path}")
 
 
 if __name__ == "__main__":
