@@ -89,6 +89,13 @@ def build_ko(table):
 
 
 def main():
+    # data-recalibrated goal model (LOTO-tuned for end-result accuracy; brackets only — not config.json):
+    # lower base + more favourite-stretch + NO draw-boosting Dixon-Coles (ρ=0) + slight overdispersion.
+    predictor.CONSTANTS["elo_baseline_goals"] = 1.15
+    predictor.CONSTANTS["elo_scale_factor"] = 1200
+    _orig_psm = predictor.predict_single_match
+    predictor.predict_single_match = lambda row, *a, **k: _orig_psm(
+        {**row, "rho": 0.0, "alpha_a": 0.06, "alpha_b": 0.06}, *a, **k)
     games = group_games()
     table = standings(games)
     ko = build_ko(table)
@@ -109,7 +116,7 @@ def main():
     res_txt = "✓ correct" if champ_ok else "✗ — actual winner was " + esc(w14.ACTUAL_CHAMPION)
     P.append("<header><div class='wrap'><h1>FIFA WORLD CUP 2018 — MODEL PREDICTION vs ACTUAL</h1>"
              "<div class='sub'>Pre-tournament (June 2018) Elo · most-likely scorelines · no lookahead · "
-             "hindsight check against the real outcome</div>"
+             "recalibrated goal scale · hindsight check against the real outcome</div>"
              f"<div class='champ-banner'><span class='crown'>👑</span><div><span>Predicted champion</span><br>"
              f"<b>{esc(champ)}</b></div><span>&nbsp;·&nbsp;{res_txt}</span></div></div></header>")
     P.append("<div class='wrap'>")

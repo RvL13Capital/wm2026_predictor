@@ -272,6 +272,13 @@ def match_html(m, extra=""):
 
 
 def main():
+    # data-recalibrated goal model (LOTO-tuned for end-result accuracy; brackets only — not config.json):
+    # lower base + more favourite-stretch + NO draw-boosting Dixon-Coles (ρ=0) + slight overdispersion.
+    predictor.CONSTANTS["elo_baseline_goals"] = 1.15
+    predictor.CONSTANTS["elo_scale_factor"] = 1200
+    _orig_psm = predictor.predict_single_match
+    predictor.predict_single_match = lambda row, *a, **k: _orig_psm(
+        {**row, "rho": 0.0, "alpha_a": 0.06, "alpha_b": 0.06}, *a, **k)
     games = group_games()
     table = standings_from_games(games)
     third_team, qualified = best_thirds(table)
@@ -287,7 +294,7 @@ def main():
     pct = f"&nbsp;·&nbsp;{champ_pct:.0f}% in 20k simulations" if champ_pct else ""
     P.append("<header><div class='wrap'><h1>FIFA WORLD CUP 2026 — MODEL PREDICTION BRACKET</h1>"
              "<div class='sub'>Most-likely scorelines · altitude · travel/rest · xG playing style · "
-             "standings from results · Negative-Binomial / Dixon–Coles engine</div>"
+             "standings from results · recalibrated goal scale · Negative-Binomial / Dixon–Coles engine</div>"
              f"<div class='champ-banner'><span class='crown'>👑</span><div><span>Predicted champion</span><br>"
              f"<b>{esc(champ)}</b></div><span>{pct}</span></div></div></header>")
     P.append("<div class='wrap'>")
