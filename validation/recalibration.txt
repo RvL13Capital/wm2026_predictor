@@ -4,9 +4,9 @@
 
 MOST-LIKELY score accuracy (exact / tendency), out of 192 matches:
   current default  (bg1.35 sf1600 ρ-0.05 α0.05): exact 22 (11%)  tendency 38%
-  LOTO-tuned (honest, out-of-sample)            : exact 31 (16%)  tendency 57%
+  LOTO (log-loss-selected, OOS)            : exact 23 (12%)  tendency 47%
   in-sample BEST (1.15, 1200, 0.0, 0.06) (overfit ceiling): exact 31 (16%)  tendency 57%
-  LOTO held-out picks: 2014:bg1.15 sf1200 ρ0.0 α0.06 | 2018:bg1.15 sf1200 ρ0.0 α0.06 | 2022:bg1.15 sf1200 ρ0.0 α0.06
+  LOTO held-out picks: 2014:bg1.25 sf2000 ρ0.0 α0.06 | 2018:bg1.25 sf1600 ρ0.0 α0.06 | 2022:bg1.25 sf1200 ρ0.0 α0.0
 
 EV-optimal tip accuracy (for reference — the points-maximising submission):
   default                     : exact 25 (13%)  tendency 55%
@@ -17,7 +17,7 @@ EV-optimal tip accuracy (for reference — the points-maximising submission):
   → less favourite-stretch, lower base goals
 
 ----------------------------------------------------------------------------
-VERDICT: out-of-sample exact-score change vs default: +9 matches (+4.7 pts).
+VERDICT: out-of-sample exact-score change vs default: +1 matches (+0.5 pts).
 Exact-score accuracy is capped by the flat result distribution + ~23% finishing luck;
 recalibration mainly moves TENDENCY/calibration, not the exact scoreline.
 ============================================================================

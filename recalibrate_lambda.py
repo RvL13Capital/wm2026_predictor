@@ -12,7 +12,7 @@ Output: validation/recalibration.txt
 import os, sys, math, csv
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import predictor
-from predictor import MatchModelConfig, ModelDistribution, generate_joint_grid, sign, solve_optimal_tip_from_grid
+from predictor import MatchModelConfig, ModelDistribution, generate_joint_grid, sign, solve_optimal_tip_from_grid, get_grid_val
 from make_bracket_html import modal
 import backtest_wm2014 as w14, backtest_wm2018 as w18, backtest_wm2022 as w22
 
@@ -38,31 +38,38 @@ configs = [(bg, sf, r, al) for bg in BG for sf in SF for r in RHO for al in ALPH
 DEFAULT = (1.35, 1600, -0.05, 0.05)
 configs.append(DEFAULT)
 
-# precompute modal exact/dir per (config, year)
-cell = {}
+# precompute modal exact/dir AND summed log-likelihood per (config, year)
+# (single grid_for call per match, reused for both the modal score and the log-prob)
+cell = {}; llcell = {}
 for ci, cfg in enumerate(configs):
     for y in YEARS:
-        ex = dr = 0
+        ex = dr = 0; ll = 0.0
         for diff, ga, gb in M[y]:
-            mx, my = modal(grid_for(diff, *cfg))
+            g = grid_for(diff, *cfg)
+            mx, my = modal(g)
             if mx == ga and my == gb: ex += 1
             if sign(mx - my) == sign(ga - gb): dr += 1
-        cell[(ci, y)] = (ex, dr, len(M[y]))
+            ll += math.log(max(get_grid_val(g, ga, gb), 1e-15))
+        cell[(ci, y)] = (ex, dr, len(M[y])); llcell[(ci, y)] = ll
 
 def agg(ci, years):
     ex = sum(cell[(ci, y)][0] for y in years); dr = sum(cell[(ci, y)][1] for y in years); n = sum(cell[(ci, y)][2] for y in years)
     return ex, dr, n
+
+def agg_ll(ci, years):
+    return sum(llcell[(ci, y)] for y in years)
 
 di = configs.index(DEFAULT)
 N = sum(len(M[y]) for y in YEARS)
 
 # in-sample best by exact
 best_ci = max(range(len(configs)), key=lambda ci: agg(ci, YEARS)[0])
-# LOTO tuned for exact
+# LOTO selection by LOG-LIKELIHOOD (proper scoring rule — uses the full density,
+# not the discontinuous exact-hit count that rewards historical finishing luck)
 loto_ex = loto_dr = 0; picks = []
 for h in YEARS:
     train = [y for y in YEARS if y != h]
-    bci = max(range(len(configs)), key=lambda ci: agg(ci, train)[0] / agg(ci, train)[2])
+    bci = max(range(len(configs)), key=lambda ci: agg_ll(ci, train))
     e, d, n = cell[(bci, h)]; loto_ex += e; loto_dr += d; picks.append((h, configs[bci]))
 
 # EV-tip accuracy for a config (heavier; only for a couple of configs)
@@ -99,7 +106,7 @@ de, dd, _ = agg(di, YEARS)
 be, bd, _ = agg(best_ci, YEARS)
 emit(f"\nMOST-LIKELY score accuracy (exact / tendency), out of {N} matches:")
 emit(f"  current default  (bg1.35 sf1600 ρ-0.05 α0.05): exact {de} ({100*de/N:.0f}%)  tendency {100*dd/N:.0f}%")
-emit(f"  LOTO-tuned (honest, out-of-sample)            : exact {loto_ex} ({100*loto_ex/N:.0f}%)  tendency {100*loto_dr/N:.0f}%")
+emit(f"  LOTO (log-loss-selected, OOS)            : exact {loto_ex} ({100*loto_ex/N:.0f}%)  tendency {100*loto_dr/N:.0f}%")
 emit(f"  in-sample BEST {configs[best_ci]} (overfit ceiling): exact {be} ({100*be/N:.0f}%)  tendency {100*bd/N:.0f}%")
 emit("  LOTO held-out picks: " + " | ".join(f"{h}:bg{c[0]} sf{c[1]} ρ{c[2]} α{c[3]}" for h, c in picks))
 
