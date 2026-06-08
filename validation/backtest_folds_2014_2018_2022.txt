@@ -1,0 +1,40 @@
+==============================================================================
+F9 — OUT-OF-SAMPLE KICKTIPP BACKTEST (2014 + 2018 + 2022, point-in-time Elo)
+==============================================================================
+Baseline = independent Poisson.  Optimized = Dixon-Coles + Negative Binomial.
+Both from identical pre-tournament Elo lambdas; scored 4/3/2 vs real results.
+
+WC2014  (64 matches)
+  Baseline (indep Poisson)    :  104 pts  (avg 1.625/match, tendency 58%)  [exact: 9 diff:12 tend:16 miss:27]
+  Optimized (DC + NegBin)     :  104 pts  (avg 1.625/match, tendency 58%)  [exact: 9 diff:12 tend:16 miss:27]
+  Δ (optimized − baseline)    : +0 pts
+
+WC2018  (64 matches)
+  Baseline (indep Poisson)    :  103 pts  (avg 1.609/match, tendency 55%)  [exact:12 diff: 9 tend:14 miss:29]
+  Optimized (DC + NegBin)     :  103 pts  (avg 1.609/match, tendency 55%)  [exact:12 diff: 9 tend:14 miss:29]
+  Δ (optimized − baseline)    : +0 pts
+
+WC2022  (64 matches)
+  Baseline (indep Poisson)    :   84 pts  (avg 1.312/match, tendency 53%)  [exact: 4 diff: 8 tend:22 miss:30]
+  Optimized (DC + NegBin)     :   84 pts  (avg 1.312/match, tendency 53%)  [exact: 4 diff: 8 tend:22 miss:30]
+  Δ (optimized − baseline)    : +0 pts
+
+──────────────────────────────────────────────────────────────────────────────
+AGGREGATE  (192 matches across 3 World Cups)
+  Baseline (indep Poisson)    :  291 pts  (avg 1.516/match, tendency 55%)  [exact:25 diff:29 tend:52 miss:86]
+  Optimized (DC + NegBin)     :  291 pts  (avg 1.516/match, tendency 55%)  [exact:25 diff:29 tend:52 miss:86]
+  Δ (optimized − baseline)    : +0 pts (+0.000/match)
+
+VERDICT: Optimized exactly ties baseline out-of-sample. The added probabilistic
+         complexity yields NO measurable Kicktipp edge — R4 NOT met.
+
+──────────────────────────────────────────────────────────────────────────────
+SECONDARY — CONTEXT LAYER probe (WC2022 group matches only, 90-min results)
+  Optimized core (no context) :   59 pts  (avg 1.229/match, tendency 50%)  [exact: 3 diff: 5 tend:16 miss:24]
+  + context (travel/wx/host)  :   61 pts  (avg 1.271/match, tendency 54%)  [exact: 1 diff: 7 tend:18 miss:22]
+  Δ (context − core)          : +2 pts
+
+NOTE: A 192-match backtest is still a small sample; single-tournament swings are
+      noisy. This measures Kicktipp-point yield only, not probabilistic calibration
+      (Brier/log-loss), which a points metric cannot capture.
+==============================================================================

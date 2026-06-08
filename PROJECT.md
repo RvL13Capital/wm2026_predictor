@@ -10,7 +10,7 @@
 | # | Name | Scope | Dependencies | Status |
 |---|------|-------|-------------|--------|
 | 1 | E2E Testing Track | Design and build the E2E test suite (Tiers 1-4). Outputs: `TEST_INFRA.md`, `tests/run_e2e.py`, `TEST_READY.md`, and E2E test suite in `tests/` | None | DONE (Conv: 4606a3e4-1e6e-445b-8297-9307c4ee54d6) |
-| 2 | Advanced Probability Engine | Bivariate Poisson with Dixon-Coles or NegBinomial + contextual factors (elevation, climate, travel, host support) | None | DONE (Conv: 4f3269e2-ee07-40b5-a16d-ccb850258a93 / 5e253a0d-1ef6-433b-8ff5-37ec851b88d5) |
+| 2 | Advanced Probability Engine | Negative Binomial with Dixon-Coles and contextual factors (elevation, climate, travel, host support) | None | DONE (Conv: 4f3269e2-ee07-40b5-a16d-ccb850258a93 / 5e253a0d-1ef6-433b-8ff5-37ec851b88d5) |
 | 3 | Kicktipp Solver | EV Maximization under 4/3/2 scoring rules | M2 | DONE (Conv: 5ec5b1fc-eba4-46ab-9594-0883a7e5092d) |
 | 4 | Backtesting Suite | Backtest optimized model vs baseline on WC 2022 data | M2, M3 | DONE (Conv: 1c17fbc0-a37c-479d-9f52-97f97dfa44dc) |
 | 5 | E2E Validation & Adversarial Hardening | E2E testing validation + Tier 5 coverage audit and fix | M1, M4 | DONE (Conv: 1ff89a9c-a7fd-4f6c-8d6a-d4b718379ee3) |
@@ -19,7 +19,7 @@
 
 ### R1. Advanced Probability Engine
 The engine replaces the simplistic independent Poisson model to resolve draw bias and overdispersion:
-- **Bivariate Poisson with Dixon-Coles Adjustments**: Adjusts probabilities for low scores (0-0, 1-0, 0-1, 1-1) using a correlation parameter ($\rho$) to properly model draw tendencies.
+- **Negative Binomial with Dixon-Coles Adjustments**: Uses a Negative Binomial distribution to model goal overdispersion, combined with a Dixon-Coles correlation parameter ($\rho$) to properly model draw tendencies for low scores (0-0, 1-0, 0-1, 1-1).
 - **Negative Binomial Model**: Handles overdispersion (high-scoring outliers) where variance exceeds the mean.
 
 ### R2. Contextual WM-Specific Factors

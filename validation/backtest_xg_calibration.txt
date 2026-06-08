@@ -1,0 +1,28 @@
+==============================================================================
+λ vs NON-PENALTY xG — lower-variance validation (StatsBomb open data)
+==============================================================================
+
+PART 1 — base Elo→λ vs realized npxG  (256 team-match observations, 2018+2022)
+  Pearson r (per-team λ vs npxG)     : +0.474
+  Pearson r (npxG MARGIN λa-λb)      : +0.567   ← outcome-relevant
+  MAE (λ vs npxG)                    : 0.584 goals
+  vs naive constant-mean MAE         : 0.553  → skill score -5.7%
+  bias (λ − npxG)                    : +0.311  (λ models total goals incl. penalties;
+                                        npxG excludes them, so a small + offset is expected)
+  RMSE                               : 0.736
+
+PART 2 — does the CONTEXT layer move λ closer to npxG?  (WC2022, conditions from wc2022_full.csv)
+  matches used: 64  (128 team-rows)
+  (a) per-team:  MAE core 0.628 → context 0.596  (Δ -0.033, t=-3.10)
+  (b) MARGIN:    MAE core 0.849 → context 0.837  (Δ -0.011, t=-0.47)  ← bias-invariant, outcome-relevant
+
+  READ: the per-team improvement (a) is NOT real context skill — it is context pulling the
+  over-scaled λ (Part-1 bias +0.31) down toward npxG. On the bias-invariant margin (b) the
+  effect vanishes into noise (t≈-0.5), and context slightly lowers the npxG-margin
+  correlation. Context adds no detectable outcome signal here once the confound is removed.
+
+  NOTE: Russia 2018 / Qatar 2022 are low-altitude, climate-mild (Qatar AC + winter),
+  near-zero inter-match travel — so altitude/heat barely fire here; this mainly tests
+  the travel + host components. Altitude/heat (the 2026-relevant curves) need extreme-
+  condition data with xG, which StatsBomb open data does not cover (no 2014, no quals).
+==============================================================================

@@ -1,0 +1,65 @@
+team_a,team_b,goals_a,goals_b,elevation,temp,humidity,phase,status_a,status_b,fan_pct_a,fan_pct_b,rest_days_a,rest_days_b,travel_miles_a,travel_miles_b,tz_crossed_a,tz_crossed_b,direction_a,direction_b,accl_days_a,accl_days_b,heat_accl_days_a,heat_accl_days_b,alpha_a,alpha_b,rho
+Russia,Saudi Arabia,5,0,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Egypt,Uruguay,0,1,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Russia,Egypt,3,1,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Uruguay,Saudi Arabia,1,0,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Uruguay,Russia,3,0,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Saudi Arabia,Egypt,2,1,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Morocco,Iran,0,1,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Portugal,Spain,3,3,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Portugal,Morocco,1,0,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Iran,Spain,0,1,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Iran,Portugal,1,1,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Spain,Morocco,2,2,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+France,Australia,2,1,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Peru,Denmark,0,1,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Denmark,Australia,1,1,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+France,Peru,1,0,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Denmark,France,0,0,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Australia,Peru,0,2,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Argentina,Iceland,1,1,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Croatia,Nigeria,2,0,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Argentina,Croatia,0,3,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Nigeria,Iceland,2,0,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Nigeria,Argentina,1,2,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Iceland,Croatia,1,2,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Costa Rica,Serbia,0,1,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Brazil,Switzerland,1,1,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Brazil,Costa Rica,2,0,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Serbia,Switzerland,1,2,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Serbia,Brazil,0,2,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Switzerland,Costa Rica,2,2,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Germany,Mexico,0,1,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Sweden,South Korea,1,0,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+South Korea,Mexico,1,2,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Germany,Sweden,2,1,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+South Korea,Germany,2,0,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Mexico,Sweden,0,3,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Belgium,Panama,3,0,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Tunisia,England,1,2,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Belgium,Tunisia,5,2,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+England,Panama,6,1,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+England,Belgium,0,1,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Panama,Tunisia,1,2,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Colombia,Japan,1,2,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Poland,Senegal,1,2,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Japan,Senegal,2,2,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Poland,Colombia,0,3,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Japan,Poland,0,1,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Senegal,Colombia,0,1,0,25,50,GROUP,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+France,Argentina,4,3,0,25,50,R16,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Uruguay,Portugal,2,1,0,25,50,R16,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Spain,Russia,1,1,0,25,50,R16,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Croatia,Denmark,1,1,0,25,50,R16,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Brazil,Mexico,2,0,0,25,50,R16,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Belgium,Japan,3,2,0,25,50,R16,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Sweden,Switzerland,1,0,0,25,50,R16,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Colombia,England,1,1,0,25,50,R16,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Uruguay,France,0,2,0,25,50,QF,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Brazil,Belgium,1,2,0,25,50,QF,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Sweden,England,0,2,0,25,50,QF,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Russia,Croatia,1,1,0,25,50,QF,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+France,Belgium,1,0,0,25,50,SF,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Croatia,England,1,1,0,25,50,SF,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+Belgium,England,2,0,0,25,50,THIRD,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05
+France,Croatia,4,2,0,25,50,FINAL,Neutral,Neutral,0.5,0.5,5,5,1000,1000,0,0,None,None,5,5,5,5,0.05,0.05,-0.05

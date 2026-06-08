@@ -56,22 +56,22 @@ def run_matchday(md: int, n_simulations: int, seed: int, market_probs: dict = No
                     row[k] = str(v)
             
             if team_a in tbf.HOST_TEAMS:
-                row["status_a"] = "host"
+                row["status_a"] = "True Home"
                 if team_a == "Mexico":
-                    row["fan_pct_a"] = "90"
+                    row["fan_pct_a"] = "0.90"
                 elif team_a == "USA":
-                    row["fan_pct_a"] = "80"
+                    row["fan_pct_a"] = "0.80"
                 elif team_a == "Canada":
-                    row["fan_pct_a"] = "75"
+                    row["fan_pct_a"] = "0.75"
             
             if team_b in tbf.HOST_TEAMS:
-                row["status_b"] = "host"
+                row["status_b"] = "True Home"
                 if team_b == "Mexico":
-                    row["fan_pct_b"] = "90"
+                    row["fan_pct_b"] = "0.90"
                 elif team_b == "USA":
-                    row["fan_pct_b"] = "80"
+                    row["fan_pct_b"] = "0.80"
                 elif team_b == "Canada":
-                    row["fan_pct_b"] = "75"
+                    row["fan_pct_b"] = "0.75"
                     
             elevation, accl_a, accl_b = tbf._get_match_elevation(team_a, team_b)
             if elevation > 0:
@@ -83,6 +83,25 @@ def run_matchday(md: int, n_simulations: int, seed: int, market_probs: dict = No
             form_a, form_b = tbf.compute_xg_form_multipliers(team_a, team_b)
             row["form_a"] = str(form_a)
             row["form_b"] = str(form_b)
+            
+            # Inject market odds if provided
+            if market_probs:
+                p_a = market_probs.get(team_a)
+                p_b = market_probs.get(team_b)
+                if p_a is not None and p_b is not None:
+                    import math
+                    s_a = math.sqrt(max(p_a, 0.001))
+                    s_b = math.sqrt(max(p_b, 0.001))
+                    p_a_win_raw = s_a / (s_a + s_b)
+                    p_b_win_raw = s_b / (s_a + s_b)
+                    mismatch = abs(p_a_win_raw - p_b_win_raw)
+                    p_draw = 0.27 * (1.0 - mismatch)
+                    rem = 1.0 - p_draw
+                    p_home = p_a_win_raw * rem
+                    p_away = p_b_win_raw * rem
+                    row["odds_1"] = str(round(1.0 / max(p_home, 0.01), 2))
+                    row["odds_x"] = str(round(1.0 / max(p_draw, 0.01), 2))
+                    row["odds_2"] = str(round(1.0 / max(p_away, 0.01), 2))
             
             # Use predictor's full pipeline
             # Injecting squad and injury adjustments
@@ -188,6 +207,9 @@ def run_matchday(md: int, n_simulations: int, seed: int, market_probs: dict = No
 def print_results(results: List[Dict[str, Any]], args: argparse.Namespace):
     try:
         commit_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD'], stderr=subprocess.STDOUT).decode('utf-8').strip()
+        is_dirty = subprocess.call(['git', 'diff', '--quiet']) != 0
+        if is_dirty:
+            commit_hash += " (dirty)"
     except Exception:
         commit_hash = "unknown"
         
@@ -245,7 +267,14 @@ if __name__ == "__main__":
     parser.add_argument("--simulations", type=int, default=1000, help="Number of MC simulations")
     parser.add_argument("--seed", type=int, default=42, help="RNG seed")
     parser.add_argument("--output", type=str, help="Output file")
+    parser.add_argument("--odds-snapshot", type=str, help="Path to Polymarket JSON snapshot")
     
     args = parser.parse_args()
-    res = run_matchday(args.md, args.simulations, args.seed)
+    
+    market_probs = None
+    if args.odds_snapshot:
+        with open(args.odds_snapshot, "r") as f:
+            market_probs = json.load(f)
+            
+    res = run_matchday(args.md, args.simulations, args.seed, market_probs)
     print_results(res, args)

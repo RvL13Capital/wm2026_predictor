@@ -8,7 +8,7 @@ from io import StringIO
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import predictor
-from solver import get_points, solve_optimal_tip_from_grid
+from predictor import get_points, solve_optimal_tip_from_grid
 import backtest
 
 class TestAdversarialC1(unittest.TestCase):
@@ -116,7 +116,7 @@ class TestAdversarialC1(unittest.TestCase):
         with self.assertRaises(TypeError):
             predictor.solve_optimal_tip(config)
 
-    # --- 2. Bugs in solver.py ---
+    # --- 2. Bugs in predictor.py ---
 
     def test_get_points_float_comparison_vulnerability(self):
         """

@@ -267,6 +267,12 @@ XG_STRENGTH = {
     "Argentina":    {"attack_str": 1.15, "defend_str": 0.65},  # WAS 0.45 defend — corrected: Romero OUT, weak oppo inflated stats
     "England":      {"attack_str": 1.05, "defend_str": 0.55},  # xG 0.89 vs JPN = attack limited. Defense genuinely elite.
     
+    # Missing teams
+    "Egypt":        {"attack_str": 1.00, "defend_str": 0.90},
+    "New Zealand":  {"attack_str": 0.85, "defend_str": 1.10},
+    "Scotland":     {"attack_str": 0.95, "defend_str": 0.90},
+
+    
     # Tier 2: Strong attack, decent defense
     "France":       {"attack_str": 1.30, "defend_str": 0.80},  # Attack real (Mbappé). Defend 0.75→0.80: lost 1-2 to CIV, leaky.
     "Germany":      {"attack_str": 1.25, "defend_str": 0.85},  # WAS 1.40 attack — corrected: 4-0 Finland ≠ WC level. vs USA/top: ~2.0 G/g
@@ -379,10 +385,10 @@ def compute_xg_form_multipliers(team_a: str, team_b: str) -> Tuple[float, float]
             form_a = form_a * (1.0 - dampen) + 1.0 * dampen
             # team_b is underdog: their attack gets slightly dampened too
             # (sitting deep = fewer counter-attack chances)
-            form_b = form_b * (1.0 - dampen * 0.5) + form_b * dampen * 0.5
+            form_b = form_b * (1.0 - dampen * 0.5) + xg_b["attack_str"] * dampen * 0.5
         else:
             form_b = form_b * (1.0 - dampen) + 1.0 * dampen
-            form_a = form_a * (1.0 - dampen * 0.5) + form_a * dampen * 0.5
+            form_a = form_a * (1.0 - dampen * 0.5) + xg_a["attack_str"] * dampen * 0.5
     
     # Step 3: Clamp to reasonable range
     # Floor 0.65 (not 0.60): two defensive teams shouldn't produce <1.7 total goals
@@ -666,11 +672,13 @@ def precompute_grids(host_teams: set = None, market_probs: dict = None) -> dict:
                 if p_a is not None and p_b is not None:
                     s_a = math.sqrt(max(p_a, 0.001))
                     s_b = math.sqrt(max(p_b, 0.001))
-                    p_a_win = s_a / (s_a + s_b)
-                    p_b_win = s_b / (s_a + s_b)
-                    p_home = p_a_win * 0.73
-                    p_away = p_b_win * 0.73
-                    p_draw = 0.27
+                    p_a_win_raw = s_a / (s_a + s_b)
+                    p_b_win_raw = s_b / (s_a + s_b)
+                    mismatch = abs(p_a_win_raw - p_b_win_raw)
+                    p_draw = 0.27 * (1.0 - mismatch)
+                    rem = 1.0 - p_draw
+                    p_home = p_a_win_raw * rem
+                    p_away = p_b_win_raw * rem
                     oh = round(1.0 / max(p_home, 0.01), 2)
                     od = round(1.0 / max(p_draw, 0.01), 2)
                     oa = round(1.0 / max(p_away, 0.01), 2)
@@ -1012,13 +1020,8 @@ def _simulate_ko_match(team_a: str, team_b: str, phase: str,
             winner = team_b
         else:
             # Still drawn → Penalty Shootout
-            # Empirical: WC penalty shootouts are nearly 50/50.
-            # Elo difference explains <10% of variance.
-            # Max edge: 55/45 (dampening factor 1200 instead of 400)
-            elo_diff = (eff_elo_a - eff_elo_b) / 1200.0
-            p_a_pens = 1.0 / (1.0 + 10 ** (-elo_diff))
-            # Clamp to [0.40, 0.60] — no team has >60% in shootouts
-            p_a_pens = max(0.40, min(0.60, p_a_pens))
+            dist = predictor.penalty_shootout_distribution(eff_elo_a, eff_elo_b)
+            p_a_pens = dist["p_a_win"]
             winner = team_a if rng.random() < p_a_pens else team_b
     
     return winner, ga, gb
@@ -1224,6 +1227,22 @@ def run_monte_carlo(n_sims: int = 10000, market_probs: dict = None,
                     apply_squad_value: bool = True) -> dict:
     """
     Run N full tournament simulations and aggregate results.
+    """
+    import predictor
+    import copy
+    original_teams = copy.deepcopy(predictor.WORLD_CUP_2026_TEAMS)
+    try:
+        return _run_monte_carlo_inner(n_sims, market_probs, seed, verbose, apply_injuries, apply_squad_value)
+    finally:
+        predictor.WORLD_CUP_2026_TEAMS.clear()
+        predictor.WORLD_CUP_2026_TEAMS.update(original_teams)
+
+def _run_monte_carlo_inner(n_sims: int = 10000, market_probs: dict = None,
+                    seed: int = None, verbose: bool = True,
+                    apply_injuries: bool = True,
+                    apply_squad_value: bool = True) -> dict:
+    """
+    Run N full tournament simulations and aggregate results.
     
     Performance: precomputes all 72 group match grids once (~2s),
     then each simulation only needs to sample from cached distributions.
@@ -1395,10 +1414,6 @@ def run_monte_carlo(n_sims: int = 10000, market_probs: dict = None,
         "avg_goals": {t: round(g / n_sims, 1) for t, g in total_goals_sum.items()},
         "all": {t: round(c / n_sims, 4) for t, c in ts_sorted[:10]},
     }
-    
-    # Restore original Elo values
-    for team, orig_elo in original_elos.items():
-        predictor.WORLD_CUP_2026_TEAMS[team]["elo"] = orig_elo
     
     return results
 
@@ -1627,6 +1642,9 @@ def main():
     import subprocess
     try:
         commit_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD'], stderr=subprocess.STDOUT).decode('utf-8').strip()
+        is_dirty = subprocess.call(['git', 'diff', '--quiet']) != 0
+        if is_dirty:
+            commit_hash += " (dirty)"
     except Exception:
         commit_hash = "unknown"
         
