@@ -9,6 +9,7 @@ from dataclasses import dataclass, field
 from typing import Dict, Tuple, List, Union, Optional
 from io import StringIO
 from utils.math_utils import strip_vig_shin
+from stadium_data import STADIUM_DATA
 
 # ==============================================================================
 # 1. STANDALONE SOLVER ENGINE (Inlined from solver.py)
@@ -244,6 +245,61 @@ WORLD_CUP_2026_TEAMS = {
     "South Africa": {"elo": 1518, "rank": 50},
     "Curaçao":      {"elo": 1433, "rank": 51},
     "Qatar":        {"elo": 1423, "rank": 52},
+}
+
+TEAM_PPDA = {
+    "Spain": 8.2,
+    "Germany": 8.5,
+    "Austria": 8.0,
+    "Argentina": 9.8,
+    "France": 11.2,
+    "England": 10.5,
+    "Portugal": 10.2,
+    "Brazil": 9.5,
+    "Colombia": 9.6,
+    "Netherlands": 10.8,
+    "Ecuador": 10.0,
+    "Norway": 11.5,
+    "Croatia": 12.0,
+    "Turkey": 11.0,
+    "Japan": 9.2,
+    "Switzerland": 11.8,
+    "Uruguay": 9.0,
+    "Belgium": 11.4,
+    "Denmark": 10.9,
+    "Senegal": 12.2,
+    "Mexico": 9.5,
+    "Paraguay": 10.1,
+    "Morocco": 12.5,
+    "Canada": 10.3,
+    "Australia": 12.8,
+    "Scotland": 13.0,
+    "South Korea": 10.4,
+    "Czechia": 12.1,
+    "Iran": 14.5,
+    "USA": 9.9,
+    "Panama": 13.2,
+    "Algeria": 12.9,
+    "Uzbekistan": 13.5,
+    "Sweden": 11.3,
+    "Cameroon": 13.1,
+    "Jordan": 14.0,
+    "Ivory Coast": 11.6,
+    "DR Congo": 13.4,
+    "Egypt": 13.8,
+    "Costa Rica": 14.2,
+    "Tunisia": 14.0,
+    "Iraq": 13.9,
+    "Bosnia": 12.7,
+    "New Zealand": 12.5,
+    "Cape Verde": 13.0,
+    "Saudi Arabia": 14.8,
+    "Ghana": 12.3,
+    "Haiti": 14.1,
+    "Jamaica": 14.5,
+    "South Africa": 11.9,
+    "Curaçao": 13.6,
+    "Qatar": 15.2,
 }
 
 # Normalize German and alternative spellings to English Elo key names
@@ -866,7 +922,8 @@ def calculate_wbgt(temperature: float, humidity: float) -> float:
         wbgt = 0.567 * temperature + 3.94
     return wbgt
 
-def calculate_thermal_factor(temperature: float, humidity: float, heat_acclimation_days: float) -> float:
+def calculate_thermal_factor(temperature: float, humidity: float, heat_acclimation_days: float,
+                             is_retractable_roof: bool = False, ppda: float = 11.0) -> float:
     if temperature is None or humidity is None or heat_acclimation_days is None:
         raise TypeError("temperature, humidity, and heat_acclimation_days must be numeric")
     if isinstance(temperature, str) or isinstance(humidity, str) or isinstance(heat_acclimation_days, str):
@@ -880,9 +937,18 @@ def calculate_thermal_factor(temperature: float, humidity: float, heat_acclimati
         heat_acclimation_days = max(0.0, heat_acclimation_days)
 
     wbgt = calculate_wbgt(temperature, humidity)
+    if is_retractable_roof:
+        wbgt = 21.0
+        
     if wbgt <= CONSTANTS["thermal_wbgt_threshold"]:
         return 1.0
-    base_loss = CONSTANTS["thermal_base_loss_coefficient"] * (wbgt - CONSTANTS["thermal_wbgt_threshold"])
+        
+    # PPDA tactical vulnerability multiplier (lower PPDA = more intense pressing = more heat degradation)
+    # Baseline PPDA is 11.0. Clamped to [0.5, 2.0] for model robustness.
+    vulnerability_multiplier = 11.0 / max(4.0, ppda)
+    vulnerability_multiplier = max(0.5, min(2.0, vulnerability_multiplier))
+    
+    base_loss = CONSTANTS["thermal_base_loss_coefficient"] * (wbgt - CONSTANTS["thermal_wbgt_threshold"]) * vulnerability_multiplier
     try:
         exponent = -heat_acclimation_days / CONSTANTS["thermal_acclimation_decay_rate"]
         if exponent > 700:
@@ -1047,8 +1113,16 @@ def get_adjusted_lambdas(
     f_alt_A = calculate_altitude_factor(elev, accl_A)
     f_alt_B = calculate_altitude_factor(elev, accl_B)
     
-    f_therm_A = calculate_thermal_factor(temp, hum, heat_accl_A)
-    f_therm_B = calculate_thermal_factor(temp, hum, heat_accl_B)
+    venue = get_context_val(teamA_context, "venue", get_context_val(teamB_context, "venue", None))
+    is_retractable = False
+    if venue in STADIUM_DATA and STADIUM_DATA[venue].get("retractable_roof", False):
+        is_retractable = True
+        
+    ppda_a = get_context_val(teamA_context, "ppda", 11.0)
+    ppda_b = get_context_val(teamB_context, "ppda", 11.0)
+    
+    f_therm_A = calculate_thermal_factor(temp, hum, heat_accl_A, is_retractable_roof=is_retractable, ppda=ppda_a)
+    f_therm_B = calculate_thermal_factor(temp, hum, heat_accl_B, is_retractable_roof=is_retractable, ppda=ppda_b)
     
     F_A = f_alt_A * f_therm_A
     F_B = f_alt_B * f_therm_B
@@ -1825,6 +1899,14 @@ def predict_single_match(row: dict, pts_exact: int = 4, pts_diff: int = 3,
     
     ctx_a = ctx("a")
     ctx_b = ctx("b")
+    
+    # Inject venue and PPDA
+    venue = row.get("venue", None)
+    if venue:
+        ctx_a["venue"] = venue
+        ctx_b["venue"] = venue
+    ctx_a["ppda"] = TEAM_PPDA.get(team_a, 11.0)
+    ctx_b["ppda"] = TEAM_PPDA.get(team_b, 11.0)
     
     # Adjusted lambdas
     lambda_a, lambda_b = get_adjusted_lambdas(lambda_a_base, lambda_b_base, ctx_a, ctx_b)
