@@ -1,0 +1,37 @@
+group,matchday,team_a,team_b,goals_a,goals_b
+G3,1,Turkey,Italy,0,3
+G6,1,Denmark,Finland,0,1
+G6,1,Belgium,Russia,3,0
+G3,1,Wales,Switzerland,1,1
+G1,1,Austria,North Macedonia,3,1
+G5,1,England,Croatia,1,0
+G1,1,Netherlands,Ukraine,3,2
+G4,1,Poland,Slovakia,1,2
+G4,1,Spain,Sweden,0,0
+G5,1,Scotland,Czech Republic,0,2
+G2,1,France,Germany,1,0
+G2,1,Hungary,Portugal,0,3
+G3,2,Turkey,Wales,0,2
+G3,2,Italy,Switzerland,3,0
+G6,2,Finland,Russia,0,1
+G1,2,Ukraine,North Macedonia,2,1
+G6,2,Denmark,Belgium,1,2
+G1,2,Netherlands,Austria,2,0
+G4,2,Sweden,Slovakia,1,0
+G5,2,Croatia,Czech Republic,1,1
+G5,2,England,Scotland,0,0
+G2,2,Hungary,France,1,1
+G2,2,Portugal,Germany,2,4
+G4,2,Spain,Poland,1,1
+G3,3,Switzerland,Turkey,3,1
+G3,3,Italy,Wales,1,0
+G6,3,Russia,Denmark,1,4
+G1,3,North Macedonia,Netherlands,0,3
+G6,3,Finland,Belgium,0,2
+G1,3,Ukraine,Austria,0,1
+G5,3,Croatia,Scotland,3,1
+G5,3,Czech Republic,England,0,1
+G2,3,Portugal,France,2,2
+G2,3,Germany,Hungary,2,2
+G4,3,Slovakia,Spain,0,5
+G4,3,Sweden,Poland,3,2
