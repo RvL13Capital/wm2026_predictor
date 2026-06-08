@@ -1387,7 +1387,11 @@ def _run_monte_carlo_inner(n_sims: int = 10000, market_probs: dict = None,
         "n_sims": n_sims,
         "elapsed_seconds": round(time.time() - t0, 1),
     }
-    
+    # per-team expected tournament goals (bakes in scoring rate AND how deep the team runs) —
+    # consumed by goalscorer.py to distribute across players by recent goal share.
+    results["team_expected_goals"] = {t: round(g / n_sims, 3)
+                                      for t, g in sorted(total_goals_sum.items(), key=lambda x: -x[1])}
+
     # Group winners (most probable for each group)
     results["group_winners"] = {}
     for group in sorted(GROUPS.keys()):
