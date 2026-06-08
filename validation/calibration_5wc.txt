@@ -1,0 +1,16 @@
+==========================================================
+OUT-OF-SAMPLE CALIBRATION — 5 World Cups (2006–2022)
+Elo->λ (bg1.35 sf1600) · NB α0.06 · ρ0 · no context, no market
+==========================================================
+    WC    N  model RPS    naive  improve
+  2006   48     0.1820   0.2396    24.1%
+  2010   48     0.1957   0.2292    14.6%
+  2014   48     0.1965   0.2465    20.3%
+  2018   48     0.2057   0.2465    16.6%
+  2022   48     0.2322   0.2431     4.4%
+----------------------------------------
+   ALL  240     0.2024   0.2410    16.0%
+
+5-WC out-of-sample RPS improvement: 16.0%  (prior 3-WC: +16.1%).
+2022 is the known outlier (Saudi>Argentina, Japan>Germany&Spain) — Elo models all struggled.
+Confirms the sealed engine's calibration is robust back to 2006; not a refit. ρ=0/α=0.06 held.
