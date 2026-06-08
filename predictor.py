@@ -8,6 +8,7 @@ from enum import Enum
 from dataclasses import dataclass, field
 from typing import Dict, Tuple, List, Union, Optional
 from io import StringIO
+from utils.math_utils import strip_vig_shin
 
 # ==============================================================================
 # 1. STANDALONE SOLVER ENGINE (Inlined from solver.py)
@@ -426,6 +427,11 @@ DEFAULT_CONSTANTS = {
     "pen_conversion_rate": 0.75,     # Historical average: ~75% of penalties score
     "pen_sudden_death_conversion": 0.72,  # Slightly lower under sudden death pressure
     "pen_max_sudden_death_rounds": 5,     # Max sudden death rounds to simulate
+    # Bayesian Precision-Weighted Blending (Milestone 1.3)
+    "blend_alpha": 0.1,
+    "blend_beta": 0.5,
+    "blend_gamma": 0.05,
+    "blend_tau_mod": 1.0,
 }
 
 CONSTANTS = DEFAULT_CONSTANTS.copy()
@@ -588,25 +594,57 @@ def odds_to_lambdas(p_home: float, p_draw: float, p_away: float,
 
 def blend_lambdas(elo_la: float, elo_lb: float,
                    market_la: float, market_lb: float,
-                   market_weight: float = 0.8) -> Tuple[float, float]:
+                   market_weight: float = 0.8,
+                   time_to_kickoff: Optional[float] = None,
+                   volume: Optional[float] = None) -> Tuple[float, float]:
     """
     Blend Elo-based and market-implied lambdas.
     
-    Default market_weight=0.8 means 80% market, 20% Elo.
-    The market is almost always more accurate than Elo because it incorporates
-    real-time information (injuries, form, lineup, sharp money).
+    If time_to_kickoff and/or volume are provided, performs a log-space Bayesian blend.
+    Otherwise falls back to standard linear blending.
     
     Args:
         elo_la/lb: Lambdas from Elo rating system
         market_la/lb: Lambdas reverse-engineered from market odds
         market_weight: Weight for market lambdas (0.0 = pure Elo, 1.0 = pure market)
+        time_to_kickoff: Hours to kickoff (float or None)
+        volume: Volume in raw matched currency (float or None)
     
     Returns:
         Blended (lambda_a, lambda_b)
     """
-    w = max(0.0, min(1.0, market_weight))
-    la = w * market_la + (1.0 - w) * elo_la
-    lb = w * market_lb + (1.0 - w) * elo_lb
+    if time_to_kickoff is not None or volume is not None:
+        alpha = CONSTANTS.get("blend_alpha", 0.1)
+        beta = CONSTANTS.get("blend_beta", 0.5)
+        gamma = CONSTANTS.get("blend_gamma", 0.05)
+        tau_mod = CONSTANTS.get("blend_tau_mod", 1.0)
+        
+        tau_mkt = 0.0
+        if volume is not None:
+            tau_mkt += alpha * math.log(max(1.0, volume))
+        if time_to_kickoff is not None:
+            tau_mkt += beta * math.exp(-gamma * time_to_kickoff)
+            
+        total_tau = tau_mkt + tau_mod
+        if total_tau <= 0:
+            la = market_la
+            lb = market_lb
+        else:
+            eps = 1e-9
+            market_la_safe = max(eps, market_la)
+            market_lb_safe = max(eps, market_lb)
+            elo_la_safe = max(eps, elo_la)
+            elo_lb_safe = max(eps, elo_lb)
+            
+            ln_la = (tau_mkt * math.log(market_la_safe) + tau_mod * math.log(elo_la_safe)) / total_tau
+            ln_lb = (tau_mkt * math.log(market_lb_safe) + tau_mod * math.log(elo_lb_safe)) / total_tau
+            la = math.exp(ln_la)
+            lb = math.exp(ln_lb)
+    else:
+        w = max(0.0, min(1.0, market_weight))
+        la = w * market_la + (1.0 - w) * elo_la
+        lb = w * market_lb + (1.0 - w) * elo_lb
+        
     return round(la, 4), round(lb, 4)
 
 
@@ -1712,29 +1750,46 @@ def predict_single_match(row: dict, pts_exact: int = 4, pts_diff: int = 3,
     # ── Market odds integration ──
     # If odds are provided, reverse-engineer market-implied lambdas and blend
     odds_source = None
+    market_z = 0.0
     odds_home = row.get("odds_home", row.get("odds_h", None))
     odds_draw = row.get("odds_draw", row.get("odds_d", None))
     odds_away = row.get("odds_away", row.get("odds_a", None))
     market_weight = float(row.get("market_weight", 0.8))
     
+    # Parse time_to_kickoff and volume for Bayesian blending
+    time_to_kickoff = row.get("time_to_kickoff", row.get("time_to_ko", None))
+    if time_to_kickoff is not None:
+        try:
+            time_to_kickoff = float(time_to_kickoff)
+        except (ValueError, TypeError):
+            time_to_kickoff = None
+            
+    volume = row.get("volume", row.get("vol", None))
+    if volume is not None:
+        try:
+            volume = float(volume)
+        except (ValueError, TypeError):
+            volume = None
+            
     if odds_home is not None and odds_draw is not None and odds_away is not None:
         try:
             oh, od, oa = float(odds_home), float(odds_draw), float(odds_away)
             if oh > 1.0 and od > 1.0 and oa > 1.0:
-                # Strip vig and get fair probabilities
+                # Strip vig using Shin's Method and get fair probabilities and insider proportion z
                 raw_h, raw_d, raw_a = 1.0/oh, 1.0/od, 1.0/oa
-                total_raw = raw_h + raw_d + raw_a
-                p_h, p_d, p_a = raw_h/total_raw, raw_d/total_raw, raw_a/total_raw
+                (p_h, p_d, p_a), market_z = strip_vig_shin(raw_h, raw_d, raw_a)
                 
                 # Reverse Poisson: P(1x2) → λ
                 rho_for_reverse = float(row.get("rho", -0.05))
                 market_la, market_lb = odds_to_lambdas(p_h, p_d, p_a, rho_for_reverse)
                 
-                # Blend: default 80% market, 20% Elo
+                # Blend: default 80% market, 20% Elo (supporting Bayesian blend if time/volume are provided)
                 lambda_a_base, lambda_b_base = blend_lambdas(
                     lambda_a_base, lambda_b_base,
                     market_la, market_lb,
-                    market_weight
+                    market_weight,
+                    time_to_kickoff=time_to_kickoff,
+                    volume=volume
                 )
                 odds_source = "manual"
         except (ValueError, TypeError) as e:
@@ -1888,6 +1943,7 @@ def predict_single_match(row: dict, pts_exact: int = 4, pts_diff: int = 3,
         "grid_90": grid_90,
         "is_ko_model": is_ko_with_et,
         "odds_source": odds_source,
+        "market_z": market_z,
     }
 
 

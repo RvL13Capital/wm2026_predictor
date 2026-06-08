@@ -35,6 +35,8 @@ except ImportError:
 # DATA STRUCTURES
 # ==============================================================================
 
+from utils.math_utils import strip_vig_shin
+
 @dataclass
 class MatchOdds:
     """Normalized match odds from any source."""
@@ -48,6 +50,7 @@ class MatchOdds:
     raw_odds_draw: float = 0.0
     raw_odds_away: float = 0.0
     overround: float = 0.0  # Market margin (e.g., 0.05 = 5%)
+    z: float = 0.0  # Estimated proportion of insider trading from Shin's Method
     
     def __post_init__(self):
         if not self.timestamp:
@@ -62,6 +65,7 @@ class MatchOdds:
             "bookmaker": self.bookmaker,
             "timestamp": self.timestamp,
             "overround": round(self.overround, 4),
+            "z": round(self.z, 4),
         }
 
 
@@ -71,10 +75,7 @@ class MatchOdds:
 
 def strip_vig(raw_home: float, raw_draw: float, raw_away: float) -> Tuple[float, float, float]:
     """
-    Removes bookmaker margin (vig/overround) from implied probabilities.
-    
-    Method: Basic normalization — divide each probability by the sum.
-    This is the most common approach and works well for 3-way markets.
+    Removes bookmaker margin (vig/overround) from implied probabilities using Shin's Method.
     
     Args:
         raw_home/draw/away: Raw implied probabilities (sum > 1.0)
@@ -85,7 +86,8 @@ def strip_vig(raw_home: float, raw_draw: float, raw_away: float) -> Tuple[float,
     total = raw_home + raw_draw + raw_away
     if total <= 0:
         raise ValueError(f"Invalid raw probabilities: sum={total}")
-    return (raw_home / total, raw_draw / total, raw_away / total)
+    p, _ = strip_vig_shin(raw_home, raw_draw, raw_away)
+    return p
 
 
 def decimal_odds_to_probabilities(odds_home: float, odds_draw: float, 
@@ -113,7 +115,7 @@ def decimal_odds_to_probabilities(odds_home: float, odds_draw: float,
     
     overround = (raw_home + raw_draw + raw_away) - 1.0
     
-    p_home, p_draw, p_away = strip_vig(raw_home, raw_draw, raw_away)
+    (p_home, p_draw, p_away), z = strip_vig_shin(raw_home, raw_draw, raw_away)
     
     return MatchOdds(
         p_home=p_home,
@@ -125,6 +127,7 @@ def decimal_odds_to_probabilities(odds_home: float, odds_draw: float,
         raw_odds_draw=odds_draw,
         raw_odds_away=odds_away,
         overround=overround,
+        z=z,
     )
 
 

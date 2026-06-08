@@ -22,6 +22,7 @@ import math
 import random
 import sys
 import time
+import functools
 from collections import Counter, defaultdict
 from typing import Dict, List, Optional, Tuple
 
@@ -958,6 +959,37 @@ def get_best_third_place_teams(all_group_standings: dict) -> List[str]:
     return thirds[:8]
 
 
+@functools.lru_cache(maxsize=None)
+def _penalty_win_prob(team_a: str, team_b: str) -> float:
+    """
+    Computes the probability of team_a winning the shootout against team_b
+    using the detailed penalty shootout distribution and team-specific penalty strengths.
+    """
+    base_pen_rate = predictor.CONSTANTS.get("pen_conversion_rate", 0.75)
+    pen_mod_a = predictor.PENALTY_STRENGTH.get(team_a, 1.0)
+    pen_mod_b = predictor.PENALTY_STRENGTH.get(team_b, 1.0)
+    
+    p_a = base_pen_rate * pen_mod_a
+    p_b = base_pen_rate * pen_mod_b
+    
+    # Sudden death rates
+    base_sd_rate = predictor.CONSTANTS.get("pen_sudden_death_conversion", 0.72)
+    p_sd_a = base_sd_rate * pen_mod_a
+    p_sd_b = base_sd_rate * pen_mod_b
+    
+    max_sd_rounds = int(predictor.CONSTANTS.get("pen_max_sudden_death_rounds", 5))
+    
+    dist = predictor.penalty_shootout_distribution(
+        p_a=p_a, p_b=p_b,
+        p_sd_a=p_sd_a, p_sd_b=p_sd_b,
+        max_sd_rounds=max_sd_rounds
+    )
+    
+    # Sum up probability of A winning
+    p_a_win = sum(p for (ga, gb), p in dist.items() if ga > gb)
+    return p_a_win
+
+
 def _simulate_ko_match(team_a: str, team_b: str, phase: str,
                         host_teams: set, ko_cache: dict, rng: random.Random,
                         elevation: float = 0.0,
@@ -1020,8 +1052,7 @@ def _simulate_ko_match(team_a: str, team_b: str, phase: str,
             winner = team_b
         else:
             # Still drawn → Penalty Shootout
-            dist = predictor.penalty_shootout_distribution(eff_elo_a, eff_elo_b)
-            p_a_pens = dist["p_a_win"]
+            p_a_pens = _penalty_win_prob(team_a, team_b)
             winner = team_a if rng.random() < p_a_pens else team_b
     
     return winner, ga, gb
