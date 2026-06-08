@@ -20,6 +20,7 @@ BACKTEST_VALUE = {(2, 1), (1, 2)}
 EV_PLATEAU = 0.05   # EV gap below which #1 and #2 are effectively tied (display heuristic, not fitted)
 MIN_MARKET_LIQUIDITY = 1000.0   # USD; a tagged market below this is noise -> skip the blend, fall back to Elo
 GOAL_TOTAL_FLAG = 0.40   # |model E[goals] - market O/U E[goals]| above which to flag tempo disagreement (advisory)
+WIDE_LONGSHOT_REL_SPREAD = 0.12   # market longshot leg's bid-ask spread / mid above which the price is "soft" (advisory)
 
 
 def run_matchday(md: int, n_simulations: int, seed: int, market_probs: dict = None,
@@ -109,7 +110,8 @@ def run_matchday(md: int, n_simulations: int, seed: int, market_probs: dict = No
             # market_probs is keyed "TeamA|TeamB" -> {"1": dec, "X": dec, "2": dec} (raw decimal
             # odds, vig intact). predictor strips the FLB via the Power method + KL solver, so we
             # blend at full 0.80. No synthesis, no sqrt: the clean wisdom-of-crowds path.
-            market_total = None   # market O/U-implied E[goals] (read-only calibration; never blended)
+            market_total = None       # market O/U-implied E[goals] (read-only calibration; never blended)
+            market_longshot = None    # market's softest (wide-spread) longshot leg (read-only signal)
             if market_probs:
                 ta = predictor.TEAM_NAME_MAPPING.get(team_a.lower(), team_a)
                 tb = predictor.TEAM_NAME_MAPPING.get(team_b.lower(), team_b)
@@ -136,6 +138,13 @@ def run_matchday(md: int, n_simulations: int, seed: int, market_probs: dict = No
                         row["odds_draw"] = str(odds_data["X"])
                         row["odds_away"] = str(odds_data["1"])
                     row["market_weight"] = "0.80"   # reactivated: real 1x2 line, not outrights
+                    ls = odds_data.get("longshot")              # read-only: softest longshot leg
+                    if ls:
+                        side = ls.get("side")
+                        if is_reversed and side in ("1", "2"):  # flip to this fixture's orientation
+                            side = "2" if side == "1" else "1"
+                        market_longshot = {"side": side, "odds": ls.get("odds"),
+                                           "rel_spread": ls.get("rel_spread", 0.0)}
 
             # READ-ONLY: market O/U-implied expected total goals, for the calibration flag only.
             # (Orientation-free — total goals don't depend on home/away — so no swap needed.)
@@ -244,6 +253,7 @@ def run_matchday(md: int, n_simulations: int, seed: int, market_probs: dict = No
                 "ev": max_ev,
                 "top_tips": result.get("top_tips", []),
                 "market_total": market_total,
+                "market_longshot": market_longshot,
                 "mc": mc_stats
             })
             
@@ -314,6 +324,21 @@ def print_results(results: List[Dict[str, Any]], args: argparse.Namespace):
                              f"(model {model_total:.2f} vs O/U {mkt_total:.2f}) — review tempo/context.")
             else:
                 lines.append(f"     [✓] goals aligned with market O/U (model {model_total:.2f} ≈ {mkt_total:.2f})")
+
+        # READ-ONLY longshot detector: the market's lowest-prob outcome sitting on a WIDE (uncertain)
+        # line. When our model rates that outcome materially above the market mid, it's a possible
+        # value / differential upset worth a look. Advisory only — the submitted tip is unchanged.
+        ls = res.get("market_longshot")
+        if ls and ls.get("side") and ls.get("rel_spread", 0.0) >= WIDE_LONGSHOT_REL_SPREAD:
+            side = ls["side"]
+            label = {"1": res["team_a"], "X": "Draw", "2": res["team_b"]}.get(side, side)
+            mkt_p = (1.0 / ls["odds"]) * 100 if ls.get("odds") else 0.0
+            model_p = {"1": p_h, "X": p_d, "2": p_a}.get(side, 0.0)   # our model %, from the grid
+            if mkt_p > 0 and model_p >= 1.25 * mkt_p:
+                tag = f"MODEL VALUE — we rate it {model_p:.0f}% vs market ~{mkt_p:.0f}%, differential upset"
+            else:
+                tag = f"model {model_p:.0f}% ~ market {mkt_p:.0f}% — soft mid, no model edge"
+            lines.append(f"     [$] WIDE LONGSHOT {label} (rel-spread {ls['rel_spread']*100:.0f}%): {tag}")
 
         if res["mc"]:
             mc = res["mc"]

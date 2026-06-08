@@ -260,6 +260,10 @@ class OddsAPIClient:
 # ==============================================================================
 
 THIN_LIQUIDITY = 5000.0   # USD; below this a Polymarket match line is thin -> warn (override w/ a sharp book)
+# Longshot leg (lowest-prob outcome) bid-ask spread, relative to its mid, above which the price is
+# "soft". Data-derived: across the 72 live WC games the longshot rel-spread runs median ~7%, p90 ~12%
+# -- 12% isolates the genuinely-widened lines (e.g. 2-tick on a longshot) from the structural floor.
+WIDE_LONGSHOT_REL_SPREAD = 0.12
 
 
 def _num(m, *keys):
@@ -377,9 +381,10 @@ class PolymarketClient:
             groupItemTitle "Team B"                 q "Will Team B win on <date>?"      -> P(away)=YES px
         The 1X2 probabilities are the YES price of each leg (they sum ~1, near vig-free).
 
-        Returns (home, away, odds_home, odds_draw, odds_away, min_leg_liq, sum_leg_vol) or None
-        if the event is not a 3-leg game (this also rejects outrights/props/settled lines, so it
-        doubles as the games filter — no reliance on tags).
+        Returns (home, away, odds_home, odds_draw, odds_away, min_leg_liq, sum_leg_vol, micro) or
+        None if not a 3-leg game (also rejects outrights/props/settled lines, so it doubles as the
+        games filter). `micro` = {"spreads": per-leg bid-ask, "longshot": the lowest-prob leg + its
+        relative spread} — read-only market-quality signals; the blend still uses the YES mid.
         """
         title = (event.get("title") or "").strip()
         low = title.lower()
@@ -396,7 +401,7 @@ class PolymarketClient:
         else:
             return None
 
-        legs = {"1": None, "X": None, "2": None}            # (yes_price, liq, vol) per outcome
+        legs = {"1": None, "X": None, "2": None}            # (yes_price, liq, vol, spread) per outcome
         for m in event.get("markets", []):
             q = (m.get("question") or "").lower()
             git = (m.get("groupItemTitle") or "").strip()
@@ -416,6 +421,12 @@ class PolymarketClient:
                 continue
             liq = _num(m, "liquidityNum", "liquidity", "liquidityClob")
             vol = _num(m, "volumeNum", "volume", "volumeClob")
+            bb, ba = m.get("bestBid"), m.get("bestAsk")      # YES-leg bid-ask spread (price softness)
+            try:
+                spread = float(ba) - float(bb) if bb is not None and ba is not None else _num(m, "spread")
+            except (TypeError, ValueError):
+                spread = _num(m, "spread")
+            spread = max(0.0, spread)
 
             if "end in a draw" in q or git.lower().startswith("draw"):
                 slot = "X"
@@ -426,18 +437,27 @@ class PolymarketClient:
                 wl = who.lower()
                 slot = "1" if wl == home.lower() else "2" if wl == away.lower() else None
             if slot and legs[slot] is None:
-                legs[slot] = (p_yes, liq, vol)
+                legs[slot] = (p_yes, liq, vol, spread)
 
         if any(v is None for v in legs.values()):
             return None
-        (ph, lh, vh), (px, lx, vx), (pa, la, va) = legs["1"], legs["X"], legs["2"]
+        (ph, lh, vh, sh), (px, lx, vx, sx), (pa, la, va, sa) = legs["1"], legs["X"], legs["2"]
         if not (0.0 < ph < 1.0 and 0.0 < px < 1.0 and 0.0 < pa < 1.0):
             return None                                      # settled/degenerate (e.g. 1/0/0)
         if not (0.85 <= ph + px + pa <= 1.30):
             return None                                      # not a sane 3-way moneyline
-        return (home, away,
-                round(1.0 / ph, 3), round(1.0 / px, 3), round(1.0 / pa, 3),
-                round(min(lh, lx, la), 2), round(vh + vx + va, 2))
+        oh, od, oa = round(1.0 / ph, 3), round(1.0 / px, 3), round(1.0 / pa, 3)
+        spreads = {"1": round(sh, 4), "X": round(sx, 4), "2": round(sa, 4)}
+        # Longshot = lowest-probability leg (highest decimal odds). Its bid-ask spread RELATIVE to
+        # its mid is the cleanest "is this price soft?" signal — longshots widen first when the book
+        # is unsure, and the relative measure normalizes the fixed tick against the small price.
+        mids = {"1": ph, "X": px, "2": pa}
+        ls = min(mids, key=mids.get)
+        longshot = {"side": ls, "odds": {"1": oh, "X": od, "2": oa}[ls],
+                    "rel_spread": round(spreads[ls] / mids[ls], 3) if mids[ls] > 0 else 0.0}
+        return (home, away, oh, od, oa,
+                round(min(lh, lx, la), 2), round(vh + vx + va, 2),
+                {"spreads": spreads, "longshot": longshot})
 
     @staticmethod
     def _parse_pair(title):
@@ -561,11 +581,12 @@ class PolymarketClient:
         for e in events:
             parsed = self._extract_game_1x2(e)               # also rejects outrights/props/settled
             if parsed:
-                home, away, oh, od, oa, liq, vol = parsed
+                home, away, oh, od, oa, liq, vol, micro = parsed
                 key = f"{home}|{away}"
                 if min_liquidity > 0.0 and liq < min_liquidity:
                     dropped.append((key, liq)); continue
-                matches[key] = {"1": oh, "X": od, "2": oa, "liquidity": liq, "volume": vol}
+                matches[key] = {"1": oh, "X": od, "2": oa, "liquidity": liq, "volume": vol,
+                                "spreads": micro["spreads"], "longshot": micro["longshot"]}
             else:                                            # read-only derivatives (totals/spreads/exact)
                 ex = self._extract_extras(e)
                 if ex:
@@ -582,6 +603,18 @@ class PolymarketClient:
               file=sys.stderr)
         for k, liq in thin:
             print(f"[odds]   THIN {k}  ${liq:,.0f}", file=sys.stderr)
+
+        # longshot watch: low-prob legs on a WIDE (soft) line -- the mid is least reliable here, and
+        # a soft longshot price can hide a value/upset. Read-only: surfaced, never auto-applied.
+        wide = sorted(((k, v["longshot"]) for k, v in matches.items()
+                       if v.get("longshot", {}).get("rel_spread", 0.0) >= WIDE_LONGSHOT_REL_SPREAD),
+                      key=lambda kv: -kv[1]["rel_spread"])
+        if wide:
+            print(f"[odds] {len(wide)} game(s) with a WIDE longshot leg (rel-spread >= "
+                  f"{WIDE_LONGSHOT_REL_SPREAD:.0%}) -- soft price, possible value/trap:", file=sys.stderr)
+            for k, l in wide:
+                print(f"[odds]   LONGSHOT {k}  side={l['side']} odds={l['odds']} "
+                      f"rel-spread={l['rel_spread']:.0%}", file=sys.stderr)
 
         return {"source": "polymarket_matches_1x2", "probabilities": matches, "extras": extras}
 
