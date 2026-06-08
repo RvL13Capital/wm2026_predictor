@@ -259,6 +259,40 @@ def run_matchday(md: int, n_simulations: int, seed: int, market_probs: dict = No
             
     return match_results
 
+def load_market_snapshot(path):
+    """
+    Load a Polymarket snapshot and canonicalize team names to engine keys, returning
+    (market_probs, market_extras) both keyed "CanonHome|CanonAway". Shared by the live matchday
+    run AND the offline calibration log so canonicalization lives in exactly ONE place.
+
+    Polymarket name -> engine canonical key: explicit aliases WIN (used as the final name);
+    everything else falls through predictor.TEAM_NAME_MAPPING, then to the raw name. The aliases
+    cover spellings the mapping misses ("Korea Republic", "IR Iran", the accented "Côte d'Ivoire").
+    """
+    with open(path, "r") as f:
+        snapshot = json.load(f)
+    aliases = {
+        "united states": "USA", "us": "USA", "usa": "USA",
+        "korea republic": "South Korea", "south korea": "South Korea",
+        "ir iran": "Iran",
+        "côte d'ivoire": "Ivory Coast", "cote d'ivoire": "Ivory Coast",
+    }
+    def _canon(name):
+        low = name.strip().lower()
+        if low in aliases:
+            return aliases[low]
+        return predictor.TEAM_NAME_MAPPING.get(low, name.strip())
+    def _remap(d):
+        out = {}
+        for k, v in (d or {}).items():
+            if "|" in k:
+                a, b = k.split("|", 1)
+                out[f"{_canon(a)}|{_canon(b)}"] = v
+        return out
+    raw = snapshot.get("probabilities", snapshot)
+    return _remap(raw), _remap(snapshot.get("extras", {}))
+
+
 def print_results(results: List[Dict[str, Any]], args: argparse.Namespace):
     try:
         commit_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD'], stderr=subprocess.STDOUT).decode('utf-8').strip()
@@ -378,36 +412,7 @@ if __name__ == "__main__":
     market_probs = None
     market_extras = None
     if args.odds_snapshot:
-        with open(args.odds_snapshot, "r") as f:
-            snapshot = json.load(f)
-
-        raw = snapshot.get("probabilities", snapshot)
-        market_probs = {}
-        # Polymarket name -> engine canonical key. Explicit aliases WIN (taken as the final name);
-        # everything else falls through predictor.TEAM_NAME_MAPPING, then to the raw name. These
-        # cover the Polymarket spellings that the mapping misses ("Korea Republic", "IR Iran",
-        # the accented "Côte d'Ivoire").
-        aliases = {
-            "united states": "USA", "us": "USA", "usa": "USA",
-            "korea republic": "South Korea", "south korea": "South Korea",
-            "ir iran": "Iran",
-            "côte d'ivoire": "Ivory Coast", "cote d'ivoire": "Ivory Coast",
-        }
-        def _canon(name):
-            low = name.strip().lower()
-            if low in aliases:
-                return aliases[low]
-            return predictor.TEAM_NAME_MAPPING.get(low, name.strip())
-        for k, v in raw.items():
-            if "|" in k:                              # match-specific "TeamA|TeamB" key
-                a, b = k.split("|", 1)
-                market_probs[f"{_canon(a)}|{_canon(b)}"] = v
-        # read-only derivatives (O/U totals / spreads / exact score), canonicalized the same way
-        market_extras = {}
-        for k, v in snapshot.get("extras", {}).items():
-            if "|" in k:
-                a, b = k.split("|", 1)
-                market_extras[f"{_canon(a)}|{_canon(b)}"] = v
+        market_probs, market_extras = load_market_snapshot(args.odds_snapshot)
         print(f"Loaded {len(market_probs)} 1X2 markets"
               + (f" (+{len(market_extras)} with O/U/exact extras)" if market_extras else "")
               + f" from {args.odds_snapshot}", file=sys.stderr)

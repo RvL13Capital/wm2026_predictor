@@ -16,6 +16,7 @@ Usage:
 """
 
 import json
+import math
 import os
 import sys
 import time
@@ -278,6 +279,37 @@ def _num(m, *keys):
     return 0.0
 
 
+def _fit_poisson_mean(rungs):
+    """
+    E[goals] implied by an O/U ladder: the Poisson mean whose survival P(N > k+0.5) = P(N >= k+1)
+    best fits the over-prices (least squares). `rungs` = [(k, over_price), ...] for lines k+0.5.
+
+    Why a fit and not a survival-sum: the bare sum is biased low (drops the tail) and a geometric
+    tail extrapolation EXPLODES on thin, near-flat top rungs (e.g. [.., 0.105, 0.10] -> r~0.95 ->
+    +1.9 goals of phantom tail). A bounded single-parameter fit leans on the liquid middle rungs,
+    ignores the noisy deep-OTM tail, and can't run away. Goals totals are ~Poisson; mild
+    over-dispersion barely moves the MEAN, which is all this needs.
+    """
+    if len(rungs) < 2:
+        return None
+    kmax = max(k for k, _ in rungs)
+    best_lam, best_sse = None, float("inf")
+    lam = 0.2
+    while lam <= 6.5:
+        pmf = math.exp(-lam)            # cumulative Poisson CDF up to kmax
+        cdf = pmf
+        cdf_at = [cdf]
+        for i in range(1, kmax + 1):
+            pmf *= lam / i
+            cdf += pmf
+            cdf_at.append(cdf)
+        sse = sum((over - (1.0 - cdf_at[k])) ** 2 for k, over in rungs)
+        if sse < best_sse:
+            best_sse, best_lam = sse, lam
+        lam += 0.02
+    return best_lam
+
+
 class PolymarketClient:
     """
     Fetches probabilities from Polymarket prediction markets.
@@ -525,22 +557,17 @@ class PolymarketClient:
         if totals:
             totals.sort(key=lambda d: d["line"])
             data["totals"] = totals
-            # E[goals] = sum_k P(N > k+0.5) over the consecutive ladder from 0.5, PLUS a geometric
-            # extrapolation of the tail above the top listed line. Without the tail term E[N] is a
-            # lower bound — badly biased for high-scoring games (a top line of O/U 5.5 can still
-            # carry P(over)=0.28), which would over-state the model-vs-market gap on exactly those
-            # games. The geometric tail lands within ~0.05 of a Poisson fit. O/U prices sum to 1/line.
+            # E[goals]: fit a Poisson to the consecutive over-price ladder from 0.5 and take its mean
+            # (see _fit_poisson_mean). Stable where a bare survival-sum is biased low and a geometric
+            # tail explodes on thin near-flat top rungs.
             rungs, expect = [], 0.5
             for t in totals:
                 if abs(t["line"] - expect) < 1e-9:
-                    rungs.append(t["over"]); expect += 1.0
+                    rungs.append((int(t["line"]), t["over"])); expect += 1.0
                 else:
                     break
-            if rungs:
-                mt = sum(rungs)
-                if len(rungs) >= 2 and rungs[-2] > 0:            # tail from the last two rungs' decay
-                    r = min(0.95, rungs[-1] / rungs[-2])
-                    mt += rungs[-1] * r / (1.0 - r) if r < 1.0 else 0.0
+            mt = _fit_poisson_mean(rungs)
+            if mt is not None:
                 data["market_total"] = round(mt, 3)
         if spreads:
             data["spreads"] = spreads
