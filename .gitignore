@@ -28,3 +28,6 @@ data/context_calibration_log.jsonl
 
 # AI agent scratchpads — kept in git history for provenance, untracked from the working tree
 .agents/
+
+# Generated tip-sheet PDFs from make_tips_pdf.py (the curated report lives in report/)
+von_linck_capital_*.pdf
