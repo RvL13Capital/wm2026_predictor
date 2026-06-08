@@ -1,9 +1,0 @@
-## 2026-06-03T18:08:39Z
-You are a teamwork_preview_explorer. Your task is to:
-1. Examine the codebase (specifically predictor.py, solver.py, and tests/test_tier1_feature_coverage.py).
-2. Design the backtesting suite (`backtest.py`). Explain how the required functions should be structured:
-   - `load_match_data(csv_path: str) -> List[dict]`: parses columns like `team_a`, `team_b`, `goals_a`, `goals_b`, `elevation`, `temp`, `humidity`, and any others. What other columns does predictor.py need? (e.g. status_a, status_b, travel, rest, etc. or acclimation?). How should we default or parse missing ones? Note that it must raise ValueError on empty CSVs, missing columns, or malformed data.
-   - `run_backtest(model_type: str, data: List[dict]) -> dict`: runs the backtest for the specified model (`baseline` vs `optimized`) and returns total points and a list of predictions with points. Detail how baseline and optimized expectations/lambdas should be calculated or mapped for WC 2022 teams, and how Dixon-Coles or Negative Binomial adjustments should be applied in optimized mode.
-   - `generate_summary_report(results_base: dict, results_opt: dict) -> dict`: compiles total points and average points.
-3. Recommend a dataset representation for WC 2022 matches. Provide the actual WC 2022 group stage and knockout matches (or a representative subset) along with actual scores and contexts (e.g. Qatar climate in Nov-Dec, altitude, team statuses). Keep in mind the baseline must be outperformed by the optimized model, so make sure the parameters or contexts you select lead to a higher simulated Kicktipp points performance for the optimized model.
-Write your analysis and plan to `/Users/vonlinck/.gemini/antigravity/scratch/wm2026_predictor/.agents/explorer_m4_1/analysis.md`. Do NOT write code files or run commands yourself.

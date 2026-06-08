@@ -22,3 +22,9 @@ data/context_calibration_log.jsonl
 # Agent scratch / temp files (never commit)
 /test_points.py
 /tmp_out.txt
+
+# Runtime outputs (transient stdout/test dumps; curated reports live in validation/*.txt)
+*_out.txt
+
+# AI agent scratchpads — kept in git history for provenance, untracked from the working tree
+.agents/
