@@ -31,3 +31,6 @@ data/context_calibration_log.jsonl
 
 # Generated tip-sheet PDFs from make_tips_pdf.py (the curated report lives in report/)
 von_linck_capital_*.pdf
+
+# Generated Golden Boot ranking (goalscorer.py)
+data/goldenboot.json

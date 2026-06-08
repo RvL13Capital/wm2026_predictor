@@ -97,7 +97,18 @@ def load_bonus(path):
     return json.loads(raw[raw.index("{"):])
 
 
-def build_html(tips, bonus, mode="optimal"):
+def load_goldenboot():
+    """The market-blended Golden Boot top-N from goalscorer.py (data/goldenboot.json); None if absent."""
+    p = os.path.join(HERE, "data", "goldenboot.json")
+    if os.path.exists(p):
+        try:
+            return json.load(open(p, encoding="utf-8"))
+        except Exception:
+            return None
+    return None
+
+
+def build_html(tips, bonus, mode="optimal", goldenboot=None):
     diff = (mode == "differential")
     master = (mode == "master")
     logo = logo_uri()
@@ -171,6 +182,21 @@ def build_html(tips, bonus, mode="optimal"):
         for t in semis["tips"]
     )
     champ = bonus["champion"]; scorer = bonus["top_scorer_team"]
+
+    gb_html = ""
+    if goldenboot:
+        cells = "".join(
+            f'<div class="gb"><span class="gbrank">{p["rank"]}</span>{flag(p["team"])}'
+            f'<span class="gbname">{p["player"]}</span><span class="gbpct">{p["prob"]*100:.0f}%</span></div>'
+            for p in goldenboot[:5]
+        )
+        gb_html = (
+            '<h2 style="margin-top:16px;border:none;margin-bottom:7px;font-size:13px;">'
+            'Golden Boot · Top Scorer (player)</h2>'
+            f'<div class="gbgrid">{cells}</div>'
+            '<div class="gbnote">70% Polymarket Golden Boot market + 30% structural model — the market '
+            'prices team depth, so pure-Elo focal-scorer artefacts wash out. High-variance prop.</div>'
+        )
 
     return f"""<!doctype html><html><head><meta charset="utf-8"><style>
 @page {{ size: A4; margin: 3.0cm 1.4cm 1.7cm 1.4cm;
@@ -247,6 +273,14 @@ h2 {{ font: 700 15px Georgia, serif; margin: 22px 0 10px; padding-bottom: 5px;
 .semi img.flag {{ height: 18px; width: 27px; display: block; margin: 0 auto 6px; }}
 .semi span {{ font-weight: 600; font-size: 12px; display: block; }}
 .semi em {{ font-style: normal; font-size: 9.5px; color: #9a7a1e; }}
+.gbgrid {{ display: grid; grid-template-columns: repeat(5, 1fr); gap: 7px; }}
+.gb {{ position: relative; text-align: center; border: 1px solid #e3d6a8; border-radius: 8px;
+  padding: 10px 4px 8px; background: #fdfbf3; }}
+.gb .gbrank {{ position: absolute; top: 4px; left: 6px; font: 700 9px Georgia, serif; color: #b89630; }}
+.gb img.flag {{ height: 15px; width: 23px; display: block; margin: 1px auto 5px; }}
+.gb .gbname {{ display: block; font-weight: 600; font-size: 9.5px; line-height: 1.15; }}
+.gb .gbpct {{ display: block; font-size: 9.5px; color: #9a7a1e; margin-top: 3px; font-weight: 700; }}
+.gbnote {{ font-size: 8px; color: #8a8470; margin-top: 6px; font-style: italic; }}
 </style></head><body>
 <div class="hdr">{brand}<div class="ht"><span class="name">von Linck Capital</span>
   <span class="sub">Quantitative Football Intelligence</span></div></div>
@@ -267,7 +301,7 @@ h2 {{ font: 700 15px Georgia, serif; margin: 22px 0 10px; padding-bottom: 5px;
     <div class="team">{flag(scorer['tip'])}{scorer['tip']}</div>
     <div class="pct">{scorer['probability']*100:.1f}% to supply the Golden Boot</div></div>
 </div>
-
+{gb_html}
 <h2 style="border:none;margin-bottom:8px;font-size:13px;">Group Winners</h2>
 <div class="gwgrid">{gw_cells}</div>
 
@@ -287,7 +321,7 @@ def main():
     out = pos[1] if len(pos) > 1 else os.path.join(HERE, default_name)
     tips = md1_tips()
     bonus = load_bonus(bonus_path)
-    html = build_html(tips, bonus, mode)
+    html = build_html(tips, bonus, mode, load_goldenboot())
     from weasyprint import HTML
     HTML(string=html, base_url=HERE).write_pdf(out)
     print(f"✓ wrote {out}  ({os.path.getsize(out)//1024} KB)  mode={mode}  "

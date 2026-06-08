@@ -24,6 +24,58 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import tournament_bonusfragen as tbf
+import json
+import ssl
+import unicodedata
+import urllib.request
+
+
+def _norm(name):
+    """Accent-insensitive lowercase key for matching market vs model player names."""
+    return "".join(c for c in unicodedata.normalize("NFKD", name or "")
+                   if not unicodedata.combining(c)).lower().strip()
+
+
+def fetch_golden_boot():
+    """Polymarket 'Golden Boot Winner' player outright -> {player: de-vigged P(win)}. {} if unavailable."""
+    ctx = ssl.create_default_context()
+    ctx.check_hostname = False
+    ctx.verify_mode = ssl.CERT_NONE
+
+    def getj(u):
+        req = urllib.request.Request(u, headers={"User-Agent": "Mozilla/5.0"})
+        return json.loads(urllib.request.urlopen(req, context=ctx, timeout=40).read().decode())
+
+    ev = []
+    try:
+        for off in range(0, 300, 100):
+            pg = getj("https://gamma-api.polymarket.com/events?tag_slug=fifa-world-cup"
+                      f"&closed=false&limit=100&offset={off}")
+            if not pg:
+                break
+            ev += pg
+    except Exception:
+        return {}
+    gb = next((e for e in ev if "golden boot" in (e.get("title") or "").lower()), None)
+    if not gb:
+        return {}
+    raw = {}
+    for m in gb.get("markets", []):
+        name = (m.get("groupItemTitle") or "").strip()
+        o, p = m.get("outcomes", "[]"), m.get("outcomePrices", "[]")
+        try:
+            if isinstance(o, str): o = json.loads(o)
+            if isinstance(p, str): p = json.loads(p)
+            ol = [str(x).lower() for x in o]
+            if "yes" not in ol or len(o) != len(p):
+                continue
+            pr = float(p[ol.index("yes")])
+        except (ValueError, TypeError, IndexError, json.JSONDecodeError):
+            continue
+        if name and pr > 0:
+            raw[name] = pr
+    tot = sum(raw.values())
+    return {n: pr / tot for n, pr in raw.items()} if tot > 0 else raw
 
 # engine team name -> martj42 goalscorers.csv name (only the mismatches)
 TEAM_MAP = {
@@ -68,15 +120,53 @@ def main():
             exp = (goals / team_recent) * teg[team]
             rows.append((exp, player, team, goals, pens[mname].get(player, 0)))
     rows.sort(reverse=True)
+    import math
 
-    print(f"\nGOLDEN BOOT — top-scorer (player) projection   [recent intl goals since {since}]")
-    print(f"{'#':>2}  {'player':<24} {'team':<14} {'xGoals':>7} {'recent':>7} {'pens':>5}")
-    print("  " + "-" * 62)
-    for i, (exp, player, team, goals, pk) in enumerate(rows[:15], 1):
-        print(f"{i:>2}  {player:<24} {team:<14} {exp:>7.2f} {goals:>7} {pk:>5}")
-    print(f"\n  >> projected Golden Boot: {rows[0][1]} ({rows[0][2]}) — {rows[0][0]:.2f} expected goals")
-    print("  NB: structural estimate. The Polymarket Golden Boot market is the sharper signal; the")
-    print("  prop is high-variance. Goal SHARE is a form proxy (no appearance/rate data).")
+    # ── MARKET CORRECTION: blend toward the Polymarket Golden Boot outright (the sharp signal) ──
+    # The deep Golden Boot market prices team depth, so pure-Elo artefacts (a focal scorer on an
+    # Elo-overrated team) wash out. Model xGoals -> softmax win-prob so it's comparable to the market.
+    W = 0.70
+    player_team = {}
+    for team in teams2026:
+        for pl in by.get(TEAM_MAP.get(team, team), {}):
+            player_team.setdefault(_norm(pl), (pl, team))
+    xg = {_norm(pl): exp for exp, pl, team, goals, pk in rows}
+    Z = sum(math.exp(v) for v in xg.values()) or 1.0
+    p_model = {k: math.exp(v) / Z for k, v in xg.items()}
+
+    market = fetch_golden_boot()
+    p_market = {_norm(n): pr for n, pr in market.items()}
+    have_market = bool(p_market)
+
+    ranking = []
+    for k, (disp, team) in player_team.items():
+        pm, pmod = p_market.get(k, 0.0), p_model.get(k, 0.0)
+        blend = (W * pm + (1 - W) * pmod) if have_market else pmod
+        ranking.append((blend, disp, team, xg.get(k, 0.0), pm))
+    s = sum(r[0] for r in ranking) or 1.0
+    ranking = [(b / s, d, t, x, pm) for b, d, t, x, pm in ranking]
+    ranking.sort(reverse=True)
+
+    src = (f"{int(W*100)}% Polymarket Golden Boot market + {int((1-W)*100)}% structural model"
+           if have_market else "structural model only (market unavailable)")
+    print(f"\nGOLDEN BOOT — market-blended projection   [{src}]")
+    print(f"{'#':>2}  {'player':<22} {'team':<13} {'blend%':>7} {'xGoals':>7} {'market%':>8}")
+    print("  " + "-" * 64)
+    for i, (b, disp, team, x, pm) in enumerate(ranking[:15], 1):
+        print(f"{i:>2}  {disp:<22} {team:<13} {b*100:>6.1f}% {x:>7.2f} {pm*100:>7.1f}%")
+    print(f"\n  >> projected Golden Boot: {ranking[0][1]} ({ranking[0][2]}) — {ranking[0][0]*100:.1f}% blended")
+    if have_market:
+        print("  market-corrected: the Golden Boot market prices team depth, so pure-Elo artefacts wash out.")
+    else:
+        print("  NB: structural estimate (market unavailable) — high-variance prop.")
+
+    if "--json" in sys.argv:
+        out_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "goldenboot.json")
+        json.dump([{"rank": i, "player": d, "team": t, "prob": round(b, 4),
+                    "xgoals": round(x, 2), "market_prob": round(pm, 4)}
+                   for i, (b, d, t, x, pm) in enumerate(ranking[:15], 1)],
+                  open(out_path, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+        print(f"[gs] wrote {out_path}", file=sys.stderr)
     if no_data:
         print(f"\n  (no recent scorers matched for: {', '.join(no_data)})", file=sys.stderr)
 
