@@ -27,10 +27,10 @@ class TestSolver(unittest.TestCase):
         self.assertEqual(get_points(0, 2, 1, 4), 2)  # Away win, different diff
 
     def test_get_points_draw_difference_exception(self):
-        # 2 points: Draw tip on a non-exact draw outcome (Draw Difference Exception)
-        self.assertEqual(get_points(1, 1, 2, 2), 2)
-        self.assertEqual(get_points(2, 2, 0, 0), 2)
-        self.assertEqual(get_points(0, 0, 3, 3), 2)
+        # 3 points: Draw tip on a non-exact draw outcome (Goal difference of 0 is correct)
+        self.assertEqual(get_points(1, 1, 2, 2), 3)
+        self.assertEqual(get_points(2, 2, 0, 0), 3)
+        self.assertEqual(get_points(0, 0, 3, 3), 3)
 
     def test_get_points_incorrect(self):
         # 0 points: Incorrect tendency

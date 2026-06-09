@@ -111,8 +111,6 @@ def get_points(t_a: int, t_b: int, g_a: int, g_b: int, pts_exact=4, pts_diff=3, 
     sign_tip = sign(diff_tip)
     
     if diff_actual == diff_tip:
-        if diff_actual == 0:
-            return pts_tend
         return pts_diff
     elif sign_actual == sign_tip:
         return pts_tend
@@ -175,7 +173,7 @@ def solve_optimal_tip_from_grid(
             elif d < 0:
                 ev = p_t * (pts_exact - pts_diff) + diff_probs.get(d, 0.0) * (pts_diff - pts_tend) + prob_away * pts_tend
             else:
-                ev = p_t * (pts_exact - pts_tend) + prob_draw * pts_tend
+                ev = p_t * (pts_exact - pts_diff) + prob_draw * pts_diff
                 
             expected_points[(t_a, t_b)] = ev
             
