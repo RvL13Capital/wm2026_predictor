@@ -133,19 +133,20 @@ def _get_match_elevation(team_a: str, team_b: str) -> tuple:
 # Updated after June 4 friendlies + xG validation
 # Negative values = weaker due to injuries + form crisis
 INJURY_ELO_ADJUSTMENTS = {
-    "Netherlands": -40,   # Xavi Simons (ACL, Apr) CONFIRMED OUT + de Ligt (back) OUT
-    "Brazil":      -35,   # Rodrygo (ACL+meniscus, Mar) CONFIRMED OUT. Neymar NOT in squad.
-    "Japan":       -30,   # Mitoma (hamstring) OUT, Kubo doubtful
-    "USA":         -25,   # Cardoso (ankle) OUT, Richards doubtful
-    "England":     -12,   # White+Grealish OUT. xG vs Uruguay 1.86>1.27 (unlucky); but vs Japan 0.89 xG, 0.00 xGOT til 78'.
-    "France":      -12,   # LOST 1-2 to CIV (Jun 4). Also internal FFF tension over bonuses/tickets causing distractions.
-    "Argentina":   -12,   # Romero (MCL) OUT. Messi: subbed off May 24 with hamstring; recovering in camp, fitness not 100%.
-    "Spain":       -15,   # Yamal (hamstring): missed Iraq friendly, NOT GUARANTEED for opener vs Cape Verde. Cautious medical approach.
-    "Mexico":       -5,   # Malagón (GK, Achilles) OUT
-    "Germany":      -5,   # Gnabry (adductor) OUT. But form: 4-0 Finland, xG 2.78.
-    "Croatia":      -5,   # Modrić fractured cheekbone (playing with mask)
-    "Uruguay":      -5,   # de Arrascaeta (calf tear) misses group stage
-    "Portugal":     +5,   # Extreme emotional cohesion/motivation to win for late teammate Diogo Jota
+    "Netherlands": -42,   # Xavi Simons (ACL) OUT, de Ligt (back) OUT, Jurriën Timber (groin) OUT, Verbruggen (keeper) injured in friendly.
+    "Brazil":      -38,   # Rodrygo (ACL/meniscus) OUT, Eder Militao (hamstring surgery) OUT, Neymar (calf tear) in squad but major doubt.
+    "Japan":       -32,   # Mitoma (hamstring) OUT, Kubo doubtful, captain Wataru Endo struggling with foot injury.
+    "USA":         -25,   # Cardoso (ankle) OUT, Richards doubtful.
+    "Spain":       -17,   # Yamal (hamstring) group stage doubt, Fermin Lopez (metatarsal fracture) OUT, Barrenetxea OUT.
+    "Argentina":   -15,   # Romero (MCL) OUT, Foyth (Achilles) OUT, Panichelli (ACL) OUT, Balerdi (calf) OUT, Messi recovering.
+    "France":      -14,   # Hugo Ekitike (Achilles) OUT, Mbappe managing an ailment. Internal FFF tension.
+    "England":     -12,   # White (knee) OUT, Branthwaite (thigh) OUT, Grealish (foot) OUT.
+    "Uruguay":     -10,   # de Arrascaeta (calf tear) group doubt, Ronald Araújo (calf) injured in training, Cáceres (concussion).
+    "Belgium":     -10,   # De Bruyne recovering, Debast (hamstring) out for first 2 matches, Lukaku injury-hit season.
+    "Portugal":     -5,   # Cristiano Ronaldo (hamstring concerns), Mateus Nunes (health issues, missed friendly).
+    "Germany":      -5,   # Gnabry (adductor) OUT, Karl (thigh muscle tear) OUT.
+    "Croatia":      -5,   # Modrić cheekbone fracture (playing with mask).
+    "Mexico":       -5,   # Malagón (Achilles) OUT.
 }
 
 # ==============================================================================
