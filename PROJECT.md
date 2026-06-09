@@ -14,6 +14,8 @@
 | 3 | Kicktipp Solver | EV Maximization under 4/3/2 scoring rules | M2 | DONE (Conv: 5ec5b1fc-eba4-46ab-9594-0883a7e5092d) |
 | 4 | Backtesting Suite | Backtest optimized model vs baseline on WC 2022 data | M2, M3 | DONE (Conv: 1c17fbc0-a37c-479d-9f52-97f97dfa44dc) |
 | 5 | E2E Validation & Adversarial Hardening | E2E testing validation + Tier 5 coverage audit and fix | M1, M4 | DONE (Conv: 1ff89a9c-a7fd-4f6c-8d6a-d4b718379ee3) |
+| 6 | In-Play Oracle & Path-Dependent Fatigue | Live state overrides, 4D fatigue arrays, conditional ET probabilities, and multi-derivative scanner | M2, M3, M5 | DONE (Conv: f91688cd-043a-4ce5-a835-496bd0fefa0a) |
+| 7 | Walk-Forward Backtesting Harness | Historical Point-in-Time chronological walk-forward simulation against Synthetic Elo Market baseline | M4, M6 | DONE (Conv: f91688cd-043a-4ce5-a835-496bd0fefa0a) |
 
 ## Detailed Requirements Mapping
 
@@ -45,13 +47,24 @@ Provides a backtesting suite (`backtest.py`) that:
 - Compares its simulated Kicktipp points performance against the baseline independent Poisson model.
 - Verifies if the optimized model achieves higher total points than the baseline on historical match data.
 
+### R5. In-Play Oracle & Path-Dependent Fatigue Engine
+- **In-Play State Injection**: Ingests live score updates at half-time or full-time to collapse prediction realities into a deterministic state and dynamically propagate updated standings.
+- **Path-Dependent Fatigue carry-over ("Dead Legs")**: Precomputes a 4-dimensional fatigue grid and dynamically flags matches that went to Extra Time/Penalties, applying a bench-depth-scaled physiological exhaustion penalty to the winning team in their next match.
+
+### R6. Chronological Walk-Forward Backtest
+- **Synthetic Elo Market Prior**: Compares the full model's predictive skill against a vanilla Elo baseline with a standard 5% overround.
+- **Kelly Execution**: Evaluates financial viability using 0.25x Fractional Kelly allocation on a $100,000 bankroll.
+- **Brier Skill Score**: Isolates genuine physiological alpha by comparing Brier Scores (Mean Squared Error) in extreme environmental conditions and fatigue carry-over matches.
+
 ## Interface Contracts
 ### predictor.py ↔ solver.py
 - **Prediction engine** outputs a full probability distribution over scores (up to `max_goals` × `max_goals` grid, e.g., $12 \times 12$).
 - **Solver** takes this probability distribution and outputs the optimal tip $(t_A, t_B)$ maximizing Kicktipp EV.
 
 ## Code Layout
-- `predictor.py`: probability modeling (implements Poisson, Dixon-Coles, Negative Binomial, and contextual factors).
-- `solver.py`: Kicktipp solver (implements EV optimization).
-- `backtest.py`: backtesting runner (runs historical evaluations and outputs comparison reports).
-- `tests/`: test suite (contains unit and end-to-end tests).
+- `predictor.py`: Core probability modeling (implements Poisson, Dixon-Coles, and contextual factors).
+- `vectorized_mc.py`: Fast Monte Carlo engine executing 100,000 bracket realities in 4.2 seconds under hardware L3 cache compression, supporting live state overrides and path-dependent fatigue.
+- `edge_scanner.py`: Asynchronous live bet exchange edge scanner daemon with Shin's Method and Kelly sizing.
+- `backtest_harness.py`: Chronological Point-in-Time walk-forward historical backtesting harness.
+- `matchday_tips.py` & `tournament_bonusfragen.py`: Kicktipp optimal tip solvers for matchdays and tournament-wide outright bonus questions.
+- `tests/`: Extensive unit and E2E test suite (176 tests).

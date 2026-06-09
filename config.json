@@ -1,5 +1,5 @@
 {
-  "elo_baseline_goals": 1.35,
+  "elo_baseline_goals": 1.0,
   "elo_scale_factor": 1600.0,
   "elevation_base_loss_linear": 0.08,
   "elevation_base_loss_quadratic": 0.015,

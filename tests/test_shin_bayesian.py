@@ -1,47 +1,80 @@
 import unittest
 import math
-from utils.math_utils import strip_vig_shin
+from utils.math_utils import strip_vig_shin, devig_shin, devig_book
 from predictor import blend_lambdas, predict_single_match, CONSTANTS, DEFAULT_CONSTANTS
 
 class TestShinDeVig(unittest.TestCase):
-    """Unit tests for strip_vig_shin and Shin's Method analytical de-vigging."""
-    
+    """Unit tests for strip_vig_shin — canonical (iterative) Shin de-vigging.
+
+    These assert against the *true* Shin estimator (Newton-Raphson on the
+    sqrt model), cross-checked with an independent bisection reference. The
+    previously shipped quadratic stand-in returned a meaningless z (~0.90 on
+    these odds); the guards below lock that regression out for good.
+    """
+
     def test_shin_standard_overround(self):
-        # Standard soccer odds: Home=2.5, Draw=3.2, Away=2.8
+        # Standard soccer odds: Home=2.5, Draw=3.2, Away=2.8 (booksum 1.0696).
         pi_h, pi_d, pi_a = 1.0 / 2.5, 1.0 / 3.2, 1.0 / 2.8
         (p_h, p_d, p_a), z = strip_vig_shin(pi_h, pi_d, pi_a)
-        
-        # Fair probabilities must sum to 1.0
+
+        # Fair probabilities must sum to 1.0.
         self.assertAlmostEqual(p_h + p_d + p_a, 1.0, places=7)
-        # Insider trading proportion z must be between 0.0 and 1.0
-        self.assertTrue(0.0 <= z < 1.0)
-        # Probabilities should be positive
-        self.assertTrue(p_h > 0 and p_d > 0 and p_a > 0)
+        # Canonical Shin values (verified vs. independent bisection solver).
+        self.assertAlmostEqual(z, 0.0348, places=3)
+        self.assertAlmostEqual(p_h, 0.3760, places=3)
+        self.assertAlmostEqual(p_d, 0.2900, places=3)
+        self.assertAlmostEqual(p_a, 0.3339, places=3)
+        # Direction: Shin shades the favourite UP vs. naive normalisation.
+        naive_h = pi_h / (pi_h + pi_d + pi_a)
+        self.assertGreater(p_h, naive_h)
+
+    def test_shin_z_is_realistic_not_quadratic_fake(self):
+        # Regression guard for the integrity hotfix: the insider proportion z
+        # for ordinary football odds is a few percent — NOT ~0.9 as the old
+        # quadratic fake produced.
+        for odds in ([2.5, 3.2, 2.8], [1.8, 3.6, 4.5], [1.2, 7.0, 15.0]):
+            pi = [1.0 / o for o in odds]
+            _probs, z = strip_vig_shin(*pi)
+            self.assertTrue(0.0 < z < 0.10, f"z={z} out of realistic range for {odds}")
 
     def test_shin_fallback_no_overround(self):
-        # Arbitrage or no overround: sum of pi <= 1.0
-        # e.g., 2.0, 4.0, 4.0 -> sum of pi = 0.5 + 0.25 + 0.25 = 1.0
+        # No overround (booksum == 1.0): Shin undefined -> proportional normalise.
         (p_h, p_d, p_a), z = strip_vig_shin(0.5, 0.25, 0.25)
         self.assertAlmostEqual(p_h, 0.5, places=7)
         self.assertAlmostEqual(p_d, 0.25, places=7)
         self.assertAlmostEqual(p_a, 0.25, places=7)
         self.assertEqual(z, 0.0)
 
-    def test_shin_fallback_extreme_odds(self):
-        # Extreme odds violating Shin's assumption sum_pi_sq >= 1.0
-        # e.g., pi = [0.95, 0.1, 0.1] -> sum_pi = 1.15, sum_pi_sq = 0.9025 + 0.01 + 0.01 = 0.9225 < 1.0 (valid)
-        # but pi = [0.99, 0.1, 0.1] -> sum_pi_sq = 0.99**2 + 0.02 = 1.0001 >= 1.0 (invalid)
+    def test_shin_strong_favourite(self):
+        # Strong favourite, real overround (booksum 1.19). Canonical Shin is
+        # well-defined here (no artificial fallback); values vs. bisection ref.
         (p_h, p_d, p_a), z = strip_vig_shin(0.99, 0.1, 0.1)
-        self.assertEqual(z, 0.0)
         self.assertAlmostEqual(p_h + p_d + p_a, 1.0, places=7)
+        self.assertTrue(0.0 < z < 1.0)
+        self.assertAlmostEqual(z, 0.1272, places=3)
+        self.assertAlmostEqual(p_h, 0.9013, places=3)
 
     def test_shin_division_by_zero_safety(self):
-        # All pi are 0.0
+        # All pi are 0.0 -> uniform, z = 0.
         (p_h, p_d, p_a), z = strip_vig_shin(0.0, 0.0, 0.0)
         self.assertAlmostEqual(p_h, 1.0/3.0, places=7)
         self.assertAlmostEqual(p_d, 1.0/3.0, places=7)
         self.assertAlmostEqual(p_a, 1.0/3.0, places=7)
         self.assertEqual(z, 0.0)
+
+    def test_devig_book_nway(self):
+        # N-way book de-vig (used by edge_scanner). Favourite first.
+        implied = [1.0/1.5, 1.0/4.0, 1.0/7.0]  # booksum 1.0595 (real overround)
+        basic = devig_book(implied, method="basic")
+        shin = devig_book(implied, method="shin")
+        self.assertAlmostEqual(sum(basic), 1.0, places=7)
+        self.assertAlmostEqual(sum(shin), 1.0, places=7)
+        # Basic = proportional normalisation.
+        s = sum(implied)
+        self.assertAlmostEqual(basic[0], implied[0] / s, places=7)
+        # Shin shades favourite up, longshot down vs. basic.
+        self.assertGreater(shin[0], basic[0])
+        self.assertLess(shin[-1], basic[-1])
 
 
 class TestBayesianBlending(unittest.TestCase):

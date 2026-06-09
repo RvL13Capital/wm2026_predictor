@@ -10,6 +10,11 @@ from typing import Dict, Tuple, List, Union, Optional
 from io import StringIO
 from utils.math_utils import strip_vig_shin
 from stadium_data import STADIUM_DATA
+try:
+    from squad_data import SQUAD_VALUES
+except ImportError:
+    SQUAD_VALUES = {}
+
 
 # ==============================================================================
 # 1. STANDALONE SOLVER ENGINE (Inlined from solver.py)
@@ -433,9 +438,12 @@ PENALTY_STRENGTH = {
 import json
 
 DEFAULT_CONSTANTS = {
-    "elo_baseline_goals": 1.35,
+    "elo_baseline_goals": 1.0,
     "elo_scale_factor": 1600.0,
+    "value_beta_xi": 0.15,
+    "value_beta_bench": 0.05,
     "elevation_base_loss_linear": 0.08,
+
     "elevation_base_loss_quadratic": 0.015,
     "elevation_acclimation_decay_rate": 7.0,
     "thermal_wbgt_threshold": 20.0,
@@ -1172,9 +1180,68 @@ def get_adjusted_lambdas(
     
     delta_att_B = delta_att_env_B + delta_att_ctx_B
     delta_def_B = delta_def_env_B + delta_def_ctx_B
-    
+
+    # --- Phase 3: Squad Value & Depth Resilience Modifiers ---
+    def resolve_team(name):
+        if not name:
+            return ""
+        cleaned_name = name.strip().lower()
+        return TEAM_NAME_MAPPING.get(cleaned_name, name.strip())
+
+    team_a_name = get_context_val(teamA_context, "team_name", get_context_val(teamA_context, "team", "Team A"))
+    team_b_name = get_context_val(teamB_context, "team_name", get_context_val(teamB_context, "team", "Team B"))
+
+    team_a_res = resolve_team(team_a_name)
+    team_b_res = resolve_team(team_b_name)
+
+    val_A = SQUAD_VALUES.get(team_a_res, {"xi": 100.0, "bench": 50.0})
+    val_B = SQUAD_VALUES.get(team_b_res, {"xi": 100.0, "bench": 50.0})
+
+    val_A_xi = val_A.get("xi", 100.0)
+    val_A_bench = val_A.get("bench", 50.0)
+    val_B_xi = val_B.get("xi", 100.0)
+    val_B_bench = val_B.get("bench", 50.0)
+
+    # Missing starters and VORP swapping
+    missing_value_A = max(0.0, float(get_context_val(teamA_context, "missing_value", 0.0)))
+    missing_count_A = max(0, int(get_context_val(teamA_context, "missing_count", 0)))
+    missing_value_B = max(0.0, float(get_context_val(teamB_context, "missing_value", 0.0)))
+    missing_count_B = max(0, int(get_context_val(teamB_context, "missing_count", 0)))
+
+    # Proxy for replacing injured starters with average bench players
+    avg_bench_val_A = val_A_bench / 15.0  
+    effective_xi_A = max(1.0, val_A_xi - missing_value_A + (missing_count_A * avg_bench_val_A))
+    effective_bench_A = max(1.0, val_A_bench - (missing_count_A * avg_bench_val_A))
+
+    avg_bench_val_B = val_B_bench / 15.0  
+    effective_xi_B = max(1.0, val_B_xi - missing_value_B + (missing_count_B * avg_bench_val_B))
+    effective_bench_B = max(1.0, val_B_bench - (missing_count_B * avg_bench_val_B))
+
+    # Thermal shock dynamic scaling
+    wbgt = calculate_wbgt(temp, hum)
+    if is_retractable:
+        wbgt = 21.0
+
+    threshold = CONSTANTS.get("thermal_wbgt_threshold", 20.0)
+    thermal_shock_multiplier = max(0.0, (wbgt - threshold) * 0.1)
+
+    beta_xi = CONSTANTS.get("value_beta_xi", 0.15)
+    beta_bench = CONSTANTS.get("value_beta_bench", 0.05)
+    beta_bench_adj = beta_bench * (1.0 + thermal_shock_multiplier)
+
+    # Squad Value Advantage A over B
+    adv_val_A = beta_xi * math.log(effective_xi_A / effective_xi_B) + beta_bench_adj * math.log(effective_bench_A / effective_bench_B)
+
+    # Split the advantage symmetrically
+    delta_att_val_A = adv_val_A / 2.0
+    delta_def_val_A = -adv_val_A / 2.0
+
+    delta_att_A += delta_att_val_A
+    delta_def_A += delta_def_val_A
+
     exponent_A = delta_att_A + delta_def_B
     exponent_B = delta_att_B + delta_def_A
+
     
     if math.isnan(exponent_A) or math.isinf(exponent_A):
         exponent_A = 0.0
@@ -1885,11 +1952,13 @@ def predict_single_match(row: dict, pts_exact: int = 4, pts_diff: int = 3,
             "direction": f"direction_{suffix}",
             "status": f"status_{suffix}",
             "fan_support_pct": f"fan_pct_{suffix}",
+            "missing_value": f"missing_value_{suffix}",
+            "missing_count": f"missing_count_{suffix}",
         }
         for ctx_key, row_key in mappings.items():
             if row_key in row:
                 val = row[row_key]
-                if ctx_key in ("tz_crossed",):
+                if ctx_key in ("tz_crossed", "missing_count"):
                     c[ctx_key] = int(float(val)) if val is not None else 0
                 elif ctx_key in ("direction", "status"):
                     c[ctx_key] = str(val) if val is not None else "None"
@@ -1899,6 +1968,9 @@ def predict_single_match(row: dict, pts_exact: int = 4, pts_diff: int = 3,
     
     ctx_a = ctx("a")
     ctx_b = ctx("b")
+    
+    ctx_a["team_name"] = team_a
+    ctx_b["team_name"] = team_b
     
     # Inject venue and PPDA
     venue = row.get("venue", None)
@@ -2305,6 +2377,12 @@ def main():
     parser.add_argument("--formA", type=float, default=1.0, help="Form factor multiplier for Team A")
     parser.add_argument("--formB", type=float, default=1.0, help="Form factor multiplier for Team B")
     
+    # Missing / Injured Starters (Phase 3)
+    parser.add_argument("--missing_value_A", type=float, default=0.0, help="Total market value of missing starters for Team A in millions €")
+    parser.add_argument("--missing_value_B", type=float, default=0.0, help="Total market value of missing starters for Team B in millions €")
+    parser.add_argument("--missing_count_A", type=int, default=0, help="Number of missing starters for Team A")
+    parser.add_argument("--missing_count_B", type=int, default=0, help="Number of missing starters for Team B")
+    
     # v4 Features
     parser.add_argument("--config", type=str, default=None, help="JSON config file path")
     parser.add_argument("--batch", type=str, default=None, help="CSV file for batch prediction")
@@ -2364,18 +2442,24 @@ def main():
         validate_team_name(args.teamB, strict=False)
     
     teamA_context = {
+        "team_name": args.teamA,
         "elevation": args.elevation, "temp": args.temp, "humidity": args.humidity,
         "accl_days": args.accl_days_A, "heat_accl_days": args.heat_accl_days_A,
         "rest_days": args.rest_days_A, "travel_miles": args.travel_miles_A,
         "tz_crossed": args.tz_crossed_A, "direction": args.travel_dir_A,
-        "status": status_map[args.status_A], "fan_support_pct": args.fan_pct_A
+        "status": status_map[args.status_A], "fan_support_pct": args.fan_pct_A,
+        "missing_value": args.missing_value_A,
+        "missing_count": args.missing_count_A,
     }
     teamB_context = {
+        "team_name": args.teamB,
         "elevation": args.elevation, "temp": args.temp, "humidity": args.humidity,
         "accl_days": args.accl_days_B, "heat_accl_days": args.heat_accl_days_B,
         "rest_days": args.rest_days_B, "travel_miles": args.travel_miles_B,
         "tz_crossed": args.tz_crossed_B, "direction": args.travel_dir_B,
-        "status": status_map[args.status_B], "fan_support_pct": args.fan_pct_B
+        "status": status_map[args.status_B], "fan_support_pct": args.fan_pct_B,
+        "missing_value": args.missing_value_B,
+        "missing_count": args.missing_count_B,
     }
     
     # Base expected goals
