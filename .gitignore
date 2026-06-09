@@ -12,6 +12,12 @@ venv.bak/
 # Project files
 .DS_Store
 
+# Temp files
+tmp*.csv
+temp_*.csv
+data/run_test_mc.txt
+data/vectorized_run_*.txt
+
 # Data outputs generated locally
 data/*_tips*.txt
 data/bonusfragen*.txt
