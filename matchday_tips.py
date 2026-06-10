@@ -3,6 +3,7 @@ import sys
 import json
 import time
 from typing import Dict, Any, List
+from contextlib import contextmanager
 import random
 from datetime import datetime, timezone
 import subprocess
@@ -10,6 +11,31 @@ import subprocess
 import predictor
 import tournament_bonusfragen as tbf
 import schedule_context
+
+
+@contextmanager
+def _elo_overrides(team_a: str, team_b: str, squad_elo_adj: dict):
+    """Temporarily apply squad-value + injury Elo adjustments to the global table.
+
+    predict_single_match reads predictor.WORLD_CUP_2026_TEAMS directly, so the
+    overrides must be applied globally. The finally-block guarantees restoration
+    even if prediction raises — otherwise one failed match would corrupt the
+    ratings for every later match in the run.
+    """
+    saved = {}
+    try:
+        for team in (team_a, team_b):
+            if team in predictor.WORLD_CUP_2026_TEAMS:
+                saved[team] = predictor.WORLD_CUP_2026_TEAMS[team]["elo"]
+                predictor.WORLD_CUP_2026_TEAMS[team]["elo"] = (
+                    saved[team]
+                    + squad_elo_adj.get(team, 0.0)
+                    + tbf.INJURY_ELO_ADJUSTMENTS.get(team, 0.0)
+                )
+        yield
+    finally:
+        for team, elo in saved.items():
+            predictor.WORLD_CUP_2026_TEAMS[team]["elo"] = elo
 
 # --- Strategic-flag thresholds (READ-ONLY advisory; does NOT change the EV tip) ---
 # Cells the 144-match backtest (WC 2014-22) showed the NB grid OVER-predicts in-sample
@@ -155,28 +181,10 @@ def run_matchday(md: int, n_simulations: int, seed: int, market_probs: dict = No
                 if ex:
                     market_total = ex.get("market_total")
 
-            # Use predictor's full pipeline
-            # Injecting squad and injury adjustments
-            elo_a = predictor.WORLD_CUP_2026_TEAMS.get(team_a, {}).get("elo", 1500)
-            elo_b = predictor.WORLD_CUP_2026_TEAMS.get(team_b, {}).get("elo", 1500)
-            
-            # Predictor's predict_single_match uses WORLD_CUP_2026_TEAMS directly, 
-            # so we temporarily apply the adjustments to the global dict (as in tournament_sim)
-            orig_elo_a = predictor.WORLD_CUP_2026_TEAMS[team_a]["elo"] if team_a in predictor.WORLD_CUP_2026_TEAMS else 1500
-            orig_elo_b = predictor.WORLD_CUP_2026_TEAMS[team_b]["elo"] if team_b in predictor.WORLD_CUP_2026_TEAMS else 1500
-            
-            if team_a in predictor.WORLD_CUP_2026_TEAMS:
-                predictor.WORLD_CUP_2026_TEAMS[team_a]["elo"] = orig_elo_a + squad_elo_adj.get(team_a, 0.0) + tbf.INJURY_ELO_ADJUSTMENTS.get(team_a, 0.0)
-            if team_b in predictor.WORLD_CUP_2026_TEAMS:
-                predictor.WORLD_CUP_2026_TEAMS[team_b]["elo"] = orig_elo_b + squad_elo_adj.get(team_b, 0.0) + tbf.INJURY_ELO_ADJUSTMENTS.get(team_b, 0.0)
-            
-            result = predictor.predict_single_match(row)
-            
-            # Restore
-            if team_a in predictor.WORLD_CUP_2026_TEAMS:
-                predictor.WORLD_CUP_2026_TEAMS[team_a]["elo"] = orig_elo_a
-            if team_b in predictor.WORLD_CUP_2026_TEAMS:
-                predictor.WORLD_CUP_2026_TEAMS[team_b]["elo"] = orig_elo_b
+            # Use predictor's full pipeline with squad + injury Elo overrides
+            # applied (and guaranteed restored) around the call.
+            with _elo_overrides(team_a, team_b, squad_elo_adj):
+                result = predictor.predict_single_match(row)
             
             # Parse grid from str keys to int keys
             grid_str = result["grid"]
