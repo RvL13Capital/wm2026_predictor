@@ -234,12 +234,13 @@ class MatrixPrecomputer:
             # matchday-specific rest/travel/form/market context into the KO
             # grids of same-group rematch pairings (4 of 6 fixtures per group).
 
+            # MD3: flat x0.87 trim for EVERY matchday-3 game — the only validated
+            # MD3 effect (validation/md3_regime_backtest.py); replaces the old
+            # unvalidated conditional x0.85 'dead rubber' states. All four state
+            # slots are kept shape-compatible but identical for MD3 (S11).
             for state in range(4):
-                a_damp = (state // 2) > 0
-                b_damp = (state % 2) > 0
-                
-                la_f = la_adj * 0.85 if (md == 3 and a_damp) else la_adj
-                lb_f = lb_adj * 0.85 if (md == 3 and b_damp) else lb_adj
+                la_f = la_adj * 0.87 if md == 3 else la_adj
+                lb_f = lb_adj * 0.87 if md == 3 else lb_adj
                 
                 cfg = MatchModelConfig(
                     dist_type=ModelDistribution.POISSON,
@@ -358,7 +359,7 @@ class MatrixPrecomputer:
 # ==============================================================================
 # MATRIX CACHE (S13) — persist the ~4-minute precompute, key by input fingerprint
 # ==============================================================================
-CACHE_VERSION = 1   # bump whenever grid-generation logic changes upstream
+CACHE_VERSION = 2   # bump whenever grid-generation logic changes upstream (v2: flat MD3 x0.87)
 
 _MATRIX_ARRAYS = ("base_elos", "lam_a", "lam_b", "group_cdfs",
                   "ko_cdfs", "ko_et_probs", "routing_table")
@@ -600,8 +601,7 @@ class VectorizedSimulator:
             PTS[:, ta] += np.where(g_a > g_b, 3, np.where(g_a == g_b, 1, 0)).astype(DTYPE_INT)
             PTS[:, tb] += np.where(g_b > g_a, 3, np.where(g_a == g_b, 1, 0)).astype(DTYPE_INT)
 
-        # 2. Group Stage MD3 (with Vectorized Dampening)
-        damp_mask = (PTS >= 6) | (PTS == 0)
+        # 2. Group Stage MD3 (flat x0.87 trim baked into the grids — S11)
         for m_idx in range(48, 72):
             ta, tb, _, _ = self.mx.GROUP_MATCHES[m_idx]
             ta_name = self.mx.id_to_team[ta]
@@ -620,10 +620,9 @@ class VectorizedSimulator:
                         g_b = np.full(self.N, score[0], dtype=DTYPE_INT)
                         
             if score is None:
-                state = damp_mask[:, ta].astype(DTYPE_INT) * 2 + damp_mask[:, tb].astype(DTYPE_INT)
-                cdfs = self.mx.group_cdfs[m_idx, state]
                 U = np.random.rand(self.N, 1).astype(DTYPE_FLOAT)
-                flat_scores = np.minimum((cdfs < U).sum(axis=-1), 224)
+                cdf = self.mx.group_cdfs[m_idx, 0]
+                flat_scores = np.minimum((cdf < U).sum(axis=-1), 224)
                 g_a = (flat_scores // 15).astype(DTYPE_INT)
                 g_b = (flat_scores % 15).astype(DTYPE_INT)
                 
@@ -638,8 +637,10 @@ class VectorizedSimulator:
             PTS[:, tb] += np.where(g_b > g_a, 3, np.where(g_a == g_b, 1, 0)).astype(DTYPE_INT)
 
         # 3. Vectorized Tiebreakers (`np.lexsort`)
+        # Tiebreak order: pts, gd, gf, drawing of lots (S11: Elo removed — it is
+        # not in any FIFA regulation and biased coin-flip qualifications toward
+        # favourites; H2H remains a documented scalar-engine-only refinement).
         lots = np.random.rand(self.N, self.mx.N_TEAMS).astype(DTYPE_FLOAT)
-        Elo_tensor = np.tile(self.mx.base_elos, (self.N, 1))
         
         g_winners = np.zeros((self.N, 12), dtype=DTYPE_INT)
         g_runners = np.zeros((self.N, 12), dtype=DTYPE_INT)
@@ -649,9 +650,9 @@ class VectorizedSimulator:
             g_teams = np.array([self.mx.GROUP_MATCHES[g_idx*6][0], self.mx.GROUP_MATCHES[g_idx*6][1], 
                                 self.mx.GROUP_MATCHES[g_idx*6+1][0], self.mx.GROUP_MATCHES[g_idx*6+1][1]], dtype=DTYPE_INT)
             
-            pts_g, gd_g, gf_g, elo_g, lots_g = PTS[:, g_teams], GD[:, g_teams], GF[:, g_teams], Elo_tensor[:, g_teams], lots[:, g_teams]
-            
-            order = np.lexsort((lots_g, elo_g, gf_g, gd_g, pts_g), axis=-1)
+            pts_g, gd_g, gf_g, lots_g = PTS[:, g_teams], GD[:, g_teams], GF[:, g_teams], lots[:, g_teams]
+
+            order = np.lexsort((lots_g, gf_g, gd_g, pts_g), axis=-1)
             
             g_winners[:, g_idx] = g_teams[order[:, 3]]
             g_runners[:, g_idx] = g_teams[order[:, 2]]
@@ -659,9 +660,9 @@ class VectorizedSimulator:
 
         # 4. Third Place Routing
         t_pts, t_gd, t_gf = np.take_along_axis(PTS, g_thirds, axis=1), np.take_along_axis(GD, g_thirds, axis=1), np.take_along_axis(GF, g_thirds, axis=1)
-        t_elo, t_lots = np.take_along_axis(Elo_tensor, g_thirds, axis=1), np.take_along_axis(lots, g_thirds, axis=1)
-        
-        t_order = np.lexsort((t_lots, t_elo, t_gf, t_gd, t_pts), axis=-1)
+        t_lots = np.take_along_axis(lots, g_thirds, axis=1)
+
+        t_order = np.lexsort((t_lots, t_gf, t_gd, t_pts), axis=-1)
         adv_idx = t_order[:, 4:12]
         
         mask = np.zeros(self.N, dtype=np.int32)
@@ -709,6 +710,21 @@ class VectorizedSimulator:
         golden_boot_winners = np.argmax(striker_goals + noise, axis=1)
 
         return g_winners, stage_reach, golden_boot_winners, state["M104"], team_goals
+
+def blend_champion_probs(champ_counts, market_probs, teams, n_sims):
+    """50/50 model-market champion blend, RENORMALIZED to sum to 1 (S11 — the
+    raw average of a normalized MC distribution and a possibly differently
+    normalized market book need not sum to 1)."""
+    blended = {}
+    for team in teams:
+        mc_prob = champ_counts.get(team, 0) / n_sims
+        mkt_prob = market_probs.get(team, mc_prob)
+        blended[team] = (mc_prob + mkt_prob) / 2.0
+    total = sum(blended.values())
+    if total > 0:
+        blended = {t: p / total for t, p in blended.items()}
+    return blended
+
 
 def run_monte_carlo(n_sims: int = 100000, market_probs: dict = None,
                     seed: int = None, verbose: bool = True,
@@ -802,11 +818,7 @@ def run_monte_carlo(n_sims: int = 100000, market_probs: dict = None,
         # Champion (blended with market odds if present)
         champ_counts = Counter(matrix.id_to_team[idx] for idx in champs)
         if market_probs:
-            blended_champ = {}
-            for t_idx, team in enumerate(matrix.teams):
-                mc_prob = champ_counts.get(team, 0) / n_sims
-                mkt_prob = market_probs.get(team, mc_prob)
-                blended_champ[team] = (mc_prob + mkt_prob) / 2.0
+            blended_champ = blend_champion_probs(champ_counts, market_probs, matrix.teams, n_sims)
             champ_sorted = sorted(blended_champ.items(), key=lambda x: x[1], reverse=True)
             results["champion"] = {
                 "tip": champ_sorted[0][0],

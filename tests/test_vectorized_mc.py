@@ -142,6 +142,13 @@ class TestVectorizedEngine(unittest.TestCase):
         self.assertFalse(np.all((g_a == 9) & (g_b == 9)))
         self.assertFalse(np.all((g_a == 5) & (g_b == 5)))
 
+    def test_md3_grids_state_independent_flat_trim(self):
+        """S11: the flat x0.87 MD3 trim replaced the conditional dead-rubber
+        states — all four state slots must be identical for MD3 fixtures."""
+        md3 = self.matrix.group_cdfs[48:72]
+        for state in (1, 2, 3):
+            np.testing.assert_array_equal(md3[:, 0], md3[:, state])
+
     def test_matrix_cache_roundtrip(self):
         """save/load must reproduce the precomputed tensors exactly and drive
         the simulator end-to-end (S13)."""
