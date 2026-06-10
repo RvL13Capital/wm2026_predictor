@@ -132,6 +132,73 @@ def strip_vig_shin(pi_h: float, pi_d: float, pi_a: float) -> Tuple[Tuple[float, 
     return (probs[0], probs[1], probs[2]), z
 
 
+def kelly_mutually_exclusive(probs: Sequence[float], odds: Sequence[float],
+                             fraction: float = 1.0) -> List[float]:
+    """Simultaneous Kelly stakes for MUTUALLY EXCLUSIVE outcomes of one book.
+
+    Sizing several legs of the same book (e.g. three outright-winner legs, or
+    the 1/X/2 legs of one match) independently with the binary Kelly formula is
+    not growth-optimal: each binary formula ignores that every other stake in
+    the book is lost when its leg wins, and that mutually exclusive legs hedge
+    one another (so the joint optimum can stake more OR less in aggregate).
+    This implements the classical simultaneous-Kelly solution (Smoczynski &
+    Tomkins 2010 / Thorp): maximize E[log(1 - Σf_j + f_i·o_i)] over stake
+    fractions f.
+
+    Algorithm: order outcomes by expected revenue p·o descending; greedily
+    include outcome k while p_k·o_k > R(S), where the reserve rate
+        R(S) = (1 - Σ_{i∈S} p_i) / (1 - Σ_{i∈S} 1/o_i)
+    is the growth-optimal wealth fraction kept back; optimal stakes are
+        f_i = p_i - R(S)/o_i   for i ∈ S, else 0.
+
+    Args:
+        probs: model probabilities of each outcome (need not sum to 1 — the
+               remainder is the implicit "no bet pays" mass).
+        odds:  decimal payout odds for each outcome (what the book actually pays).
+        fraction: fractional-Kelly multiplier applied to the optimal stakes
+                  (0.25 = quarter Kelly).
+
+    Returns:
+        Stake fractions of bankroll per outcome (0.0 for excluded legs).
+    """
+    n = len(probs)
+    if n == 0 or len(odds) != n:
+        return [0.0] * n
+
+    order = sorted(range(n), key=lambda i: probs[i] * odds[i], reverse=True)
+    included: List[int] = []
+    reserve = 1.0
+    sum_p = 0.0
+    sum_inv = 0.0
+    for k in order:
+        p, o = float(probs[k]), float(odds[k])
+        if p <= 0.0 or o <= 1.0:
+            continue
+        if p * o <= reserve:
+            break                       # ordered by p·o, so no later leg qualifies
+        new_sum_inv = sum_inv + 1.0 / o
+        if 1.0 - new_sum_inv <= 1e-12:
+            break                       # sub-book Σ1/o ≥ 1: inclusion can't be growth-optimal
+        included.append(k)
+        sum_p, sum_inv = sum_p + p, new_sum_inv
+        # For a complete +EV book Σp→1 drives the reserve to 0 (stake the whole
+        # bankroll, f_i = p_i) — that IS the Kelly optimum; clamp only guards
+        # invalid inputs with Σp > 1.
+        reserve = max(0.0, (1.0 - sum_p) / (1.0 - sum_inv))
+
+    stakes = [0.0] * n
+    for i in included:
+        f = probs[i] - reserve / odds[i]
+        if f > 0.0:
+            stakes[i] = f
+    # Practical cap: never stake literally 100% of bankroll (model error means
+    # the residual no-payout state may exist even when Σp says it doesn't).
+    total = sum(stakes)
+    if total > 0.999:
+        stakes = [s * (0.999 / total) for s in stakes]
+    return [s * fraction for s in stakes]
+
+
 def devig_book(implied: Sequence[float], method: str = "shin") -> List[float]:
     """De-vig a complete mutually-exclusive market book; returns probs summing to 1.
 
