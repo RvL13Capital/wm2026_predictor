@@ -82,5 +82,4 @@ Everything flows through one engine; **`predictor.predict_single_match(row) -> d
 - **`.gitignore` policy:** generated tip sheets / bonusfragen outputs / snapshots / `data/matrix_cache/` stay **local**; the JSONL logs (`predictions_log/`, `scan_ledger/`) are **committed**.
 - **Change freeze from Jun 28** (first KO match): only P0 fixes merge, each with the full suite + points-floor + equivalence tests green.
 - **One commit per plan step ID**, message referencing the step (S-number).
-- **Dead scripts at repo root** (`verify_solver_equivalence.py`, `test_tournament_sim.py`, `temp_verify.py`, `test_wiki.py`, `fetch_github.py`) reference removed modules or pandas — not part of the live stack; deletion is plan S24.
 - **Open items:** S11 canonical-dynamics decision; S15 third-place match M103 (absent from both engines — Golden Boot misses its goals); G2 odds data; optional pool-history check of the shootout score representation (`validation/POOL_RULES.md`).

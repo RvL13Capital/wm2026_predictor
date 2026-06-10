@@ -7,6 +7,3 @@
 #   tests/test_vectorized_mc.py
 numpy
 
-# Optional, NOT on any prediction code path: pandas is used solely by the
-# offline/peripheral root-level script test_wiki.py. Install only to run it.
-# pandas
