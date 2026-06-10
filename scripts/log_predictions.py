@@ -94,13 +94,38 @@ def parse_matchday(content: str) -> list:
     return matches
 
 
+_BF_SECTION_RE = re.compile(r"│\s{2}([A-ZÄÖÜ][A-ZÄÖÜa-zäöü0-9 ()\-/]+?)\s*│\s*$")
+_BF_STAR_RE = re.compile(r"★\s+([A-Za-zÄÖÜäöüçé&' .\-]+?)\s{2,}([\d.]+)%")
+_BF_GROUP_RE = re.compile(r"Gruppe ([A-L]):\s+([A-Za-zÄÖÜäöüçé&' .\-]+?)\s{2,}([\d.]+)%")
+
+
 def parse_bonusfragen(content: str) -> dict:
-    """Light-touch extraction for bonusfragen outputs: champion tip line if present."""
-    out = {}
-    m = re.search(r"WELTMEISTER\s+(\w[\w\s]*)", content)
-    if m:
-        out["champion_tip"] = m.group(1).strip().split("\n")[0]
-    return out
+    """Extract every ★-marked answer per section from a bonusfragen artifact.
+
+    The rendered artifact itself is gitignored (generated output), so this
+    parsed record in the committed log IS the pre-registered answer set:
+    {section: [{"team": ..., "p": ...}, ...]} for champion, semifinalists,
+    golden-boot team, group winners.
+    """
+    answers = {}
+    section = None
+    for line in content.splitlines():
+        if "★" not in line and "%" not in line:
+            m = _BF_SECTION_RE.search(line)
+            if m and "─" not in m.group(1):
+                section = m.group(1).strip()
+                continue
+        m = _BF_STAR_RE.search(line)
+        if m and section:
+            answers.setdefault(section, []).append(
+                {"team": m.group(1).strip(), "p": float(m.group(2)) / 100.0})
+            continue
+        g = _BF_GROUP_RE.search(line)
+        if g:
+            answers.setdefault("GRUPPENSIEGER", []).append(
+                {"group": g.group(1), "team": g.group(2).strip(),
+                 "p": float(g.group(3)) / 100.0})
+    return {"answers": answers}
 
 
 def main():
