@@ -518,6 +518,17 @@ DEFAULT_CONSTANTS = {
     "blend_beta": 0.5,
     "blend_gamma": 0.05,
     "blend_tau_mod": 1.0,
+    # Kicktipp KO scoring convention (gate G1, validation/POOL_RULES.md):
+    #   "shootout_total" — pool scores KO "inkl. Elfmeterschießen": no draws,
+    #                      all goals from 90' + ET + every converted shootout
+    #                      kick summed into the final score (VERIFIED for this
+    #                      pool, 2026-06-10).
+    #   "120min"         — result after extra time; shootout games are scored
+    #                      as the ET draw (the F9 historical-dataset convention).
+    #   "90min"          — the 90-minute result counts; draws are real outcomes.
+    # Affects ONLY which grid the KO tip is solved on; advancement
+    # probabilities always use the full 3-layer model.
+    "kicktipp_ko_convention": "shootout_total",
 }
 
 CONSTANTS = DEFAULT_CONSTANTS.copy()
@@ -529,7 +540,12 @@ def load_config(path: str):
             user_config = json.load(f)
         for k, v in user_config.items():
             if k in CONSTANTS:
-                CONSTANTS[k] = float(v)
+                # Type-preserving override: string-valued constants (e.g.
+                # kicktipp_ko_convention) stay strings; numeric ones coerce to float.
+                if isinstance(CONSTANTS[k], str):
+                    CONSTANTS[k] = str(v)
+                else:
+                    CONSTANTS[k] = float(v)
     except Exception as e:
         print(f"Warnung: Fehler beim Laden der Konfiguration {path}: {e}. Nutze Standardwerte.", file=sys.stderr)
 
@@ -1663,6 +1679,65 @@ def generate_ko_final_grid(config: MatchModelConfig, max_final_goals: int = 15,
     return final_grid
 
 
+def generate_ko_120_grid(config: MatchModelConfig, max_final_goals: int = 15) -> Dict[int, Dict[int, float]]:
+    """
+    Knockout grid under the "120min" Kicktipp convention: the result after
+    extra time counts; shootout goals are NOT added, so a game still level
+    after ET is scored as the (ET) DRAW.
+
+    Layers 1+2 of generate_ko_final_grid (90-minute grid + fatigue-adjusted
+    extra time), with ties retained. The unvalidated et_depth_asymmetry knob
+    is deliberately not replicated here (it is off by default).
+    """
+    grid_90 = generate_joint_grid(config)
+    max_90 = config.max_goals
+
+    lambda_a_et = config.mu_a * CONSTANTS["et_time_fraction"] * CONSTANTS["et_fatigue_factor"]
+    lambda_b_et = config.mu_b * CONSTANTS["et_time_fraction"] * CONSTANTS["et_fatigue_factor"]
+    max_et_goals = 4
+
+    final_grid = {a: {b: 0.0 for b in range(max_final_goals + 1)}
+                  for a in range(max_final_goals + 1)}
+
+    # Layer 1: decisive 90-minute results pass through unchanged
+    for a in range(max_90 + 1):
+        for b in range(max_90 + 1):
+            if a == b:
+                continue
+            p = get_grid_val(grid_90, a, b)
+            if p < 1e-15:
+                continue
+            if a <= max_final_goals and b <= max_final_goals:
+                final_grid[a][b] += p
+
+    # Layer 2: 90-minute draws play extra time; level-after-ET stays a draw
+    et_dist_a = [poisson_probability(k, lambda_a_et) for k in range(max_et_goals + 1)]
+    et_dist_b = [poisson_probability(k, lambda_b_et) for k in range(max_et_goals + 1)]
+
+    for d in range(max_90 + 1):
+        p_draw_d = get_grid_val(grid_90, d, d)
+        if p_draw_d < 1e-12:
+            continue
+        for ea in range(max_et_goals + 1):
+            for eb in range(max_et_goals + 1):
+                p_et = et_dist_a[ea] * et_dist_b[eb]
+                if p_et < 1e-15:
+                    continue
+                final_a = d + ea
+                final_b = d + eb
+                if final_a <= max_final_goals and final_b <= max_final_goals:
+                    final_grid[final_a][final_b] += p_draw_d * p_et
+
+    total = sum(final_grid[a][b] for a in range(max_final_goals + 1)
+                for b in range(max_final_goals + 1))
+    if total > 0 and abs(total - 1.0) > 0.001:
+        for a in range(max_final_goals + 1):
+            for b in range(max_final_goals + 1):
+                final_grid[a][b] /= total
+
+    return final_grid
+
+
 def apply_phase_adjustments(rho: float, lambda_a: float, lambda_b: float,
                              phase: Optional[MatchPhase] = None) -> Tuple[float, float, float]:
     """
@@ -1953,7 +2028,14 @@ def predict_single_match(row: dict, pts_exact: int = 4, pts_diff: int = 3,
     
     # Base lambdas from Elo
     lambda_a_base, lambda_b_base = estimate_base_lambdas_from_elo(team_a, team_b, elo_a, elo_b)
-    
+
+    # Manual base-λ override (CLI --lambdaA/--lambdaB route through here so the
+    # CLI and library share one pipeline; context/phase still apply on top).
+    if row.get("lambda_a") is not None:
+        lambda_a_base = float(row["lambda_a"])
+    if row.get("lambda_b") is not None:
+        lambda_b_base = float(row["lambda_b"])
+
     # Apply form multipliers
     form_a = float(row.get("form_a", row.get("formA", 1.0)))
     form_b = float(row.get("form_b", row.get("formB", 1.0)))
@@ -2084,16 +2166,21 @@ def predict_single_match(row: dict, pts_exact: int = 4, pts_diff: int = 3,
     )
     grid_90 = generate_joint_grid(config_90)
     
-    # Determine if this is a knockout match that uses the 3-layer model
-    # (KO model: 90min + ET + penalties — final score always has a winner)
-    # 3rd place match uses the KO model too (it also goes to ET/pens)
-    is_ko_with_et = phase is not None and phase not in (MatchPhase.GROUP,)
-    
+    # Determine if this is a knockout match (3rd place included — it also goes
+    # to ET/pens). Which GRID the tip is solved on depends on the pool's
+    # scoring convention (gate G1, validation/POOL_RULES.md):
+    #   shootout_total → 3-layer grid, no draws, shootout goals summed (this pool)
+    #   120min         → 90' + ET, level-after-ET stays a scored draw
+    #   90min          → tip exactly like a group game (phase-adjusted λ/ρ)
+    is_ko_phase = phase is not None and phase not in (MatchPhase.GROUP,)
+    ko_convention = str(CONSTANTS.get("kicktipp_ko_convention", "shootout_total")).strip().lower()
+    is_ko_with_et = is_ko_phase and ko_convention != "90min"
+
     if is_ko_with_et:
-        # KO matches: auto-increase max_tip to cover penalty-inflated scores
+        # KO matches: auto-increase max_tip to cover ET/penalty-inflated scores
         ko_max_tip = max(max_tip, 10)
         ko_max_final = 15  # Grid extends to 15 to cover extreme penalty scenarios
-        
+
         config = MatchModelConfig(
             dist_type=dist_type,
             mu_a=lambda_a,
@@ -2108,36 +2195,42 @@ def predict_single_match(row: dict, pts_exact: int = 4, pts_diff: int = 3,
             pts_tend=pts_tend,
             phase=phase,
         )
-        
-        # Generate the 3-layer KO grid (with team-specific penalty strength)
-        base_pen_rate = CONSTANTS["pen_conversion_rate"]
-        pen_mod_a = PENALTY_STRENGTH.get(team_a, 1.0)
-        pen_mod_b = PENALTY_STRENGTH.get(team_b, 1.0)
-        grid = generate_ko_final_grid(
-            config, max_final_goals=ko_max_final,
-            pen_conv_a=base_pen_rate * pen_mod_a,
-            pen_conv_b=base_pen_rate * pen_mod_b,
-        )
-        
-        # Solve optimal tip against KO grid
+
+        if ko_convention == "120min":
+            # Result after extra time; a shootout game is scored as the ET draw.
+            grid = generate_ko_120_grid(config, max_final_goals=ko_max_final)
+        else:
+            # "shootout_total": 3-layer KO grid with team-specific penalty strength
+            base_pen_rate = CONSTANTS["pen_conversion_rate"]
+            pen_mod_a = PENALTY_STRENGTH.get(team_a, 1.0)
+            pen_mod_b = PENALTY_STRENGTH.get(team_b, 1.0)
+            grid = generate_ko_final_grid(
+                config, max_final_goals=ko_max_final,
+                pen_conv_a=base_pen_rate * pen_mod_a,
+                pen_conv_b=base_pen_rate * pen_mod_b,
+            )
+
+        # Solve optimal tip against the convention's grid
         tips, scores, outcomes = solve_optimal_tip_from_grid(
             grid, pts_exact=pts_exact, pts_diff=pts_diff, pts_tend=pts_tend,
             max_tip=ko_max_tip
         )
-        
+
         optimal_tip = tips[0][0]
         optimal_ev = tips[0][1]
-        
-        # Override outcomes: for KO, draw is always 0 (the solver might 
-        # report a tiny draw prob from numerical noise, force it to 0)
-        p_home = outcomes[0]
-        p_away = outcomes[2]
-        outcomes = (p_home, 0.0, p_away)
-        
+
+        if ko_convention != "120min":
+            # No-draw outcome space: zero out numerical draw noise. Under
+            # "120min" the draw is a REAL scored outcome and must survive.
+            p_home = outcomes[0]
+            p_away = outcomes[2]
+            outcomes = (p_home, 0.0, p_away)
+
         # EV breakdown
         breakdown = compute_ev_breakdown(grid, optimal_tip, pts_exact, pts_diff, pts_tend, ko_max_final)
     else:
-        # GROUP stage: use standard model
+        # GROUP stage — and KO under the "90min" convention — use the standard
+        # model on the (phase-adjusted) 90-minute grid
         tips, scores, outcomes = solve_optimal_tip(config_90)
         optimal_tip = tips[0][0]
         optimal_ev = tips[0][1]
@@ -2168,6 +2261,7 @@ def predict_single_match(row: dict, pts_exact: int = 4, pts_diff: int = 3,
         "grid": grid,
         "grid_90": grid_90,
         "is_ko_model": is_ko_with_et,
+        "ko_convention": ko_convention if is_ko_phase else None,
         "odds_source": odds_source,
         "market_z": market_z,
     }
@@ -2499,61 +2593,26 @@ def main():
         return
 
     # ── SINGLE MATCH MODE ──
+    # One pipeline for CLI and library: build a predict_single_match row from
+    # the CLI flags. (Previously the CLI solved KO matches on the phase-adjusted
+    # 90-minute grid while the library used the convention KO grid — a
+    # split-brain that showed P(draw)=34% vs 0% for the same fixture and, under
+    # this pool's verified "shootout_total" rule, made the CLI's KO tip wrong.)
     status_map = {
         "True Home": "True Home", "True_Home": "True Home",
         "Co-Host": "Co-Host", "Co_Host": "Co-Host",
         "Neutral": "Neutral"
     }
-    
-    # Validate team names
-    if args.strict:
-        validate_team_name(args.teamA, strict=True)
-        validate_team_name(args.teamB, strict=True)
-    else:
-        validate_team_name(args.teamA, strict=False)
-        validate_team_name(args.teamB, strict=False)
-    
-    teamA_context = {
-        "team_name": args.teamA,
-        "elevation": args.elevation, "temp": args.temp, "humidity": args.humidity,
-        "accl_days": args.accl_days_A, "heat_accl_days": args.heat_accl_days_A,
-        "rest_days": args.rest_days_A, "travel_miles": args.travel_miles_A,
-        "tz_crossed": args.tz_crossed_A, "direction": args.travel_dir_A,
-        "status": status_map[args.status_A], "fan_support_pct": args.fan_pct_A,
-        "missing_value": args.missing_value_A,
-        "missing_count": args.missing_count_A,
-    }
-    teamB_context = {
-        "team_name": args.teamB,
-        "elevation": args.elevation, "temp": args.temp, "humidity": args.humidity,
-        "accl_days": args.accl_days_B, "heat_accl_days": args.heat_accl_days_B,
-        "rest_days": args.rest_days_B, "travel_miles": args.travel_miles_B,
-        "tz_crossed": args.tz_crossed_B, "direction": args.travel_dir_B,
-        "status": status_map[args.status_B], "fan_support_pct": args.fan_pct_B,
-        "missing_value": args.missing_value_B,
-        "missing_count": args.missing_count_B,
-    }
-    
-    # Base expected goals
-    lambda_A_base = args.lambdaA
-    lambda_B_base = args.lambdaB
-    is_estimated = False
-    if lambda_A_base is None or lambda_B_base is None:
-        lambda_A_base, lambda_B_base = estimate_base_lambdas_from_elo(args.teamA, args.teamB)
-        is_estimated = True
 
-    # Form multipliers
-    if args.formA != 1.0 or args.formB != 1.0:
-        lambda_A_base *= args.formA
-        lambda_B_base *= args.formB
+    validate_team_name(args.teamA, strict=args.strict)
+    validate_team_name(args.teamB, strict=args.strict)
 
-    # ── Market odds integration (CLI) ──
+    # ── Market odds auto-fetch (optional) ──
     odds_info = None
     odds_home = args.odds_home
     odds_draw = args.odds_draw
     odds_away = args.odds_away
-    
-    # Auto-fetch from Polymarket/APIs if requested
+
     if args.fetch_odds and odds_home is None:
         try:
             from odds_client import OddsClient
@@ -2571,92 +2630,76 @@ def main():
             print("⚠ odds_client.py not found. Using Elo only.")
         except Exception as e:
             print(f"⚠ Odds fetch error: {e}. Using Elo only.")
-    
-    if odds_home is not None and odds_draw is not None and odds_away is not None:
-        if odds_home > 1.0 and odds_draw > 1.0 and odds_away > 1.0:
-            total_raw = 1.0/odds_home + 1.0/odds_draw + 1.0/odds_away   # kept for vig display
-            p_h, p_d, p_a = extract_true_probs_power(odds_home, odds_draw, odds_away)
-            
-            market_la, market_lb = odds_to_lambdas(p_h, p_d, p_a, args.rho)
-            mw = args.market_weight
-            
-            elo_la_orig, elo_lb_orig = lambda_A_base, lambda_B_base
-            lambda_A_base, lambda_B_base = blend_lambdas(
-                lambda_A_base, lambda_B_base, market_la, market_lb, mw
-            )
-            
-            if not odds_info:
-                overround = (total_raw - 1.0) * 100
-                odds_info = f"manual odds {odds_home}/{odds_draw}/{odds_away} (vig={overround:.1f}%)"
-            
-            is_estimated = False
-            if not args.json:
-                print(f"📊 Market odds: {odds_info}")
-                print(f"   Market λ: ({market_la:.3f}, {market_lb:.3f})  |  Elo λ: ({elo_la_orig:.3f}, {elo_lb_orig:.3f})")
-                print(f"   Blended λ ({mw:.0%} market): ({lambda_A_base:.3f}, {lambda_B_base:.3f})")
-                print()
-    
-    # Contextual adjustment
-    lambda_A, lambda_B = get_adjusted_lambdas(lambda_A_base, lambda_B_base, teamA_context, teamB_context)
-    
-    # Phase adjustment
-    phase = parse_match_phase(args.phase)
-    rho_adj, lambda_A, lambda_B = apply_phase_adjustments(args.rho, lambda_A, lambda_B, phase)
-    
-    dist_type = ModelDistribution.NEGATIVE_BINOMIAL if args.distribution == "negative_binomial" else ModelDistribution.POISSON
-    config = MatchModelConfig(
-        dist_type=dist_type,
-        mu_a=lambda_A, mu_b=lambda_B,
-        alpha_a=args.alphaA, alpha_b=args.alphaB,
-        rho=rho_adj,
-        max_goals=args.max_goals, max_tip=args.max_tip,
-        pts_exact=args.pts_exact, pts_diff=args.pts_diff, pts_tend=args.pts_tendency,
-        phase=phase,
-    )
-    
-    tips, scores, outcomes = solve_optimal_tip(config)
-    
-    # Build result dict
-    grid = generate_joint_grid(config)
-    optimal_tip = tips[0][0]
-    breakdown = compute_ev_breakdown(grid, optimal_tip, args.pts_exact, args.pts_diff, args.pts_tendency, args.max_goals)
-    
-    result = {
+
+    # ── Build the row (the same shape run_batch_prediction feeds) ──
+    row = {
         "team_a": args.teamA, "team_b": args.teamB,
-        "phase": phase.value if phase else "GROUP",
-        "lambda_a_base": lambda_A_base, "lambda_b_base": lambda_B_base,
-        "lambda_a_adj": lambda_A, "lambda_b_adj": lambda_B,
-        "rho_base": args.rho, "rho_adj": rho_adj,
-        "optimal_tip": f"{optimal_tip[0]}:{optimal_tip[1]}",
-        "p_home": outcomes[0], "p_draw": outcomes[1], "p_away": outcomes[2],
-        "top_scores": [(s[0], s[1], p) for (s, p) in scores[:5]],
-        "top_tips": [{"tip": f"{t[0]}:{t[1]}", "ev": ev} for t, ev in tips[:5]],
-        "breakdown": breakdown,
-        "grid": grid,
-        "ev": tips[0][1],
+        "rho": args.rho,
+        "alpha_a": args.alphaA, "alpha_b": args.alphaB,
+        "form_a": args.formA, "form_b": args.formB,
+        "elevation": args.elevation, "temp": args.temp, "humidity": args.humidity,
+        "accl_days_a": args.accl_days_A, "accl_days_b": args.accl_days_B,
+        "heat_accl_days_a": args.heat_accl_days_A, "heat_accl_days_b": args.heat_accl_days_B,
+        "rest_days_a": args.rest_days_A, "rest_days_b": args.rest_days_B,
+        "travel_miles_a": args.travel_miles_A, "travel_miles_b": args.travel_miles_B,
+        "tz_crossed_a": args.tz_crossed_A, "tz_crossed_b": args.tz_crossed_B,
+        "direction_a": args.travel_dir_A, "direction_b": args.travel_dir_B,
+        "status_a": status_map[args.status_A], "status_b": status_map[args.status_B],
+        "fan_pct_a": args.fan_pct_A, "fan_pct_b": args.fan_pct_B,
+        "missing_value_a": args.missing_value_A, "missing_value_b": args.missing_value_B,
+        "missing_count_a": args.missing_count_A, "missing_count_b": args.missing_count_B,
     }
-    
-    # Sensitivity analysis
+    if args.phase:
+        row["phase"] = args.phase
+
+    is_estimated = True
+    if args.lambdaA is not None:
+        row["lambda_a"] = args.lambdaA
+        is_estimated = False
+    if args.lambdaB is not None:
+        row["lambda_b"] = args.lambdaB
+        is_estimated = False
+
+    if (odds_home is not None and odds_draw is not None and odds_away is not None
+            and odds_home > 1.0 and odds_draw > 1.0 and odds_away > 1.0):
+        row["odds_home"] = odds_home
+        row["odds_draw"] = odds_draw
+        row["odds_away"] = odds_away
+        row["market_weight"] = args.market_weight
+        is_estimated = False
+        if not args.json:
+            total_raw = 1.0/odds_home + 1.0/odds_draw + 1.0/odds_away
+            label = odds_info or f"manual odds {odds_home}/{odds_draw}/{odds_away}"
+            print(f"📊 Market odds: {label} (vig={(total_raw-1.0)*100:.1f}%, de-vig: Shin, blend weight {args.market_weight:.0%})")
+            print()
+
+    result = predict_single_match(
+        row,
+        pts_exact=args.pts_exact, pts_diff=args.pts_diff, pts_tend=args.pts_tendency,
+        max_tip=args.max_tip, max_goals=args.max_goals, strict=args.strict,
+    )
+
+    # Sensitivity analysis on the final adjusted lambdas / solved config
     sensitivity = None
     if args.sensitivity:
-        sensitivity = run_sensitivity_analysis(lambda_A, lambda_B, config)
-    
+        sensitivity = run_sensitivity_analysis(
+            result["lambda_a_adj"], result["lambda_b_adj"], result["config"])
+
     # Output
     if args.json:
-        json_result = {k: v for k, v in result.items() if k != "grid"}
+        json_result = {k: v for k, v in result.items() if k not in ("grid", "grid_90", "config")}
         if sensitivity:
             json_result["sensitivity"] = {k: v for k, v in sensitivity.items() if k != "details"}
         output = json_module.dumps(json_result, indent=2, ensure_ascii=False)
     else:
         output = format_strategic_output(result, args.teamA, args.teamB, is_estimated, sensitivity, args.verbose)
-    
+
     if args.output:
         with open(args.output, 'w', encoding='utf-8') as f:
             f.write(output)
         print(f"Results written to {args.output}")
     else:
         print(output)
-
 if __name__ == "__main__":
     main()
 
