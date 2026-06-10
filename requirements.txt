@@ -1,7 +1,12 @@
-# The prediction engine is 100% pure Python standard library.
-# predictor.py and the entire live path (matchday_tips, odds_client, make_bracket_html,
-# tournament_bonusfragen) require ZERO third-party packages — that is the design.
+# Core prediction path is pure Python standard library:
+#   predictor.py, matchday_tips.py, tournament_bonusfragen.py, odds_client.py,
+#   schedule_context.py, stadium_data.py, goalscorer.py
 #
-# The only third-party dependency is pandas, used solely by one offline/peripheral test
-# (test_wiki.py); it is NOT on any prediction code path. Install it only to run that test.
-pandas
+# The vectorized/quant layer REQUIRES numpy:
+#   vectorized_mc.py, edge_scanner.py, backtest_harness.py,
+#   tests/test_vectorized_mc.py
+numpy
+
+# Optional, NOT on any prediction code path: pandas is used solely by the
+# offline/peripheral root-level script test_wiki.py. Install only to run it.
+# pandas

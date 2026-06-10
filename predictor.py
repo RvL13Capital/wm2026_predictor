@@ -89,8 +89,10 @@ def get_points(t_a: int, t_b: int, g_a: int, g_b: int, pts_exact=4, pts_diff=3, 
     """
     Calculates Kicktipp points according to the scoring rules:
     - pts_exact points: Exact score (t_a == g_a and t_b == g_b)
-    - pts_diff points: Correct goal difference and tendency (non-draws only)
-    - pts_tend points: Correct tendency or non-exact draw on a draw outcome
+    - pts_diff points: Correct goal difference (t_a - t_b == g_a - g_b). Per the
+      Kicktipp "Tordifferenz" rule this includes a non-exact draw tip on a draw
+      result (0 == 0), e.g. tip 1:1 on a 0:0 scores pts_diff.
+    - pts_tend points: Correct tendency (sign of the difference) otherwise
     - 0 points: Otherwise
     """
     if not (is_integer_like(t_a) and is_integer_like(t_b) and is_integer_like(g_a) and is_integer_like(g_b)):
