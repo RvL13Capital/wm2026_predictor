@@ -96,10 +96,22 @@ def load_fold(year: int, odds_path: str, results_path: str,
             }
 
     rows, missing = [], []
+    blank = invalid = 0
     with open(odds_path, newline="", encoding="utf-8") as f:
         for r in csv.DictReader(f):
             a, b = _canon(r["team_a"]), _canon(r["team_b"])
-            oh, od, oa = float(r["odds_home"]), float(r["odds_draw"]), float(r["odds_away"])
+            raw = (r.get("odds_home"), r.get("odds_draw"), r.get("odds_away"))
+            if any(x is None or str(x).strip() == "" for x in raw):
+                blank += 1                  # template row not filled in yet — fine
+                continue
+            try:
+                oh, od, oa = (float(x) for x in raw)
+            except ValueError:
+                invalid += 1
+                continue
+            if min(oh, od, oa) <= 1.0:
+                invalid += 1                # decimal odds must exceed 1.0
+                continue
             res = results.get((a, b))
             if res is None:
                 res = results.get((b, a))
@@ -124,6 +136,11 @@ def load_fold(year: int, odds_path: str, results_path: str,
     if missing:
         print(f"⚠ {year}: {len(missing)} odds rows had no matching result "
               f"(e.g. {missing[:3]}) — excluded.", file=sys.stderr)
+    if blank:
+        print(f"ℹ {year}: {blank} template rows still without odds — skipped "
+              f"(fill them in data/wc{year}_odds.csv).", file=sys.stderr)
+    if invalid:
+        print(f"⚠ {year}: {invalid} rows with unparseable/≤1.0 odds — skipped.", file=sys.stderr)
     return rows
 
 
@@ -227,15 +244,32 @@ def main():
     ap.add_argument("--output", type=str, default=os.path.join(REPO, "validation", "backtest_real_market.txt"))
     args = ap.parse_args()
 
-    missing = [y for y in args.years
-               if not os.path.exists(os.path.join(REPO, "data", f"wc{y}_odds.csv"))]
-    if missing:
+    # Load whatever data exists; a year is "awaiting" if its odds file is
+    # missing OR present but has no completed rows yet (the committed files
+    # start as fixture templates with blank odds — see data/ODDS_DATA_README.md).
+    fold_rows, awaiting = {}, []
+    for y in args.years:
+        path = os.path.join(REPO, "data", f"wc{y}_odds.csv")
+        if not os.path.exists(path):
+            awaiting.append((y, "file missing"))
+            continue
+        loaded = load_fold(y, path, os.path.join(REPO, "data", f"wc{y}_results.csv"),
+                           ELO_TABLES.get(y, {}), went_to_extra_time_real)
+        if not loaded:
+            awaiting.append((y, "template present, no completed odds rows yet"))
+            continue
+        fold_rows[y] = loaded
+
+    if not fold_rows:
         print("=" * 72)
         print("⏳ GATE G2 — AWAITING DATA")
         print("=" * 72)
-        for y in missing:
-            print(f"  missing: data/wc{y}_odds.csv")
-        print(__doc__.split("DATA (not in the repo yet")[1].split("SETTLEMENT")[0])
+        for y, why in awaiting:
+            print(f"  {y}: {why}  →  data/wc{y}_odds.csv")
+        print("\nFill the closing 1X2 odds into the template CSVs (three numbers per")
+        print("row); see data/ODDS_DATA_README.md for sources and definitions, then")
+        print("re-run. Partial fills are fine — completed rows are used, blank rows")
+        print("are skipped, and a single year runs with e.g. --years 2022.")
         sys.exit(2)
 
     out = []
@@ -247,12 +281,14 @@ def main():
     emit("=" * 76)
     emit("GATE G2 — MODEL vs REAL CLOSING ODDS (pre-registered verdict, plan S16)")
     emit("=" * 76)
+    if awaiting:
+        emit("⚠ PARTIAL RUN — still awaiting: "
+             + ", ".join(f"{y} ({why})" for y, why in awaiting))
+        emit("  Criterion (a) needs >= 2 folds beating the close; treat a partial")
+        emit("  run as a parsing sanity check, not the gate.")
 
     fold_results, all_returns = {}, []
-    for y in args.years:
-        rows = load_fold(y, os.path.join(REPO, "data", f"wc{y}_odds.csv"),
-                         os.path.join(REPO, "data", f"wc{y}_results.csv"),
-                         ELO_TABLES.get(y, {}), went_to_extra_time_real)
+    for y, rows in fold_rows.items():
         res = evaluate_fold(rows, threshold=args.threshold, kelly_fraction=args.kelly)
         fold_results[y] = res
         all_returns.extend(res["bet_returns"])

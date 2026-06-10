@@ -100,13 +100,33 @@ class TestEvaluateFold(unittest.TestCase):
         self.assertFalse(passed3)                       # (b) fails
 
 
+class TestBlankTemplateTolerance(unittest.TestCase):
+
+    def test_blank_and_invalid_odds_rows_are_skipped(self):
+        td = tempfile.mkdtemp()
+        _write(os.path.join(td, "results.csv"),
+               "team_a,team_b,goals_a,goals_b,phase\n"
+               "Spain,Qatar,3,0,GROUP\n"
+               "France,Germany,2,1,QF\n")
+        _write(os.path.join(td, "odds.csv"),
+               "team_a,team_b,odds_home,odds_draw,odds_away,phase,bookmaker,source_url\n"
+               "Spain,Qatar,1.30,5.50,11.00,GROUP,demo,\n"
+               "France,Germany,,,,QF,,\n")              # template row, not filled yet
+        rows = brm.load_fold(2099, os.path.join(td, "odds.csv"),
+                             os.path.join(td, "results.csv"), FAKE_ELO, _fake_et)
+        self.assertEqual(len(rows), 1)                   # only the completed row
+        self.assertEqual(rows[0]["team_a"], "Spain")
+
+
 class TestAwaitingData(unittest.TestCase):
 
-    def test_exits_2_without_real_odds_files(self):
+    def test_exits_2_until_some_odds_rows_are_completed(self):
+        """The committed odds CSVs start as blank fixture templates; the gate
+        must keep reporting AWAITING DATA (exit 2) until rows are filled."""
         proc = subprocess.run(
             [sys.executable, os.path.join(REPO, "backtest_real_market.py")],
             cwd=REPO, capture_output=True, text=True)
-        if os.path.exists(os.path.join(REPO, "data", "wc2022_odds.csv")):
+        if proc.returncode == 0:
             self.skipTest("real odds data present — gate is live")
         self.assertEqual(proc.returncode, 2)
         self.assertIn("AWAITING DATA", proc.stdout)
