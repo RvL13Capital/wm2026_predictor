@@ -1,253 +1,444 @@
-# edge_scanner.py — Live Market Edge Scanner Daemon
+# edge_scanner.py — Market Edge Scanner Daemon (PAPER MODE)
 #
 # Compares the engine's simulated probabilities against market lines to flag
-# +EV bets and size them with fractional Kelly.
+# +EV bets and size them with simultaneous fractional Kelly.
 #
-# INTEGRITY NOTE (see validation/SHIN_EVALUATION.md):
-#   The edge MUST be computed against the *de-vigged* market probability, not
-#   the raw inverse-odds (which still contain the bookmaker overround). Earlier
-#   this file used `edge = p_mod - 1/decimal_odds`, comparing a fair model
-#   probability against a vig-inflated implied probability — a systematic bias
-#   that manufactures or hides edge depending on market structure. Every book is
-#   now de-vigged with utils.math_utils.devig_book before differencing:
-#         edge = p_mod - p_mkt_devigged
-#   Flagging uses the de-vigged edge; Kelly/EV sizing uses the *raw* decimal
-#   odds (that is what actually gets paid).
+# INTEGRITY NOTES (see validation/SHIN_EVALUATION.md and IMPLEMENTATION_PLAN.md S17):
+#   * Edges are computed against the *de-vigged* market probability
+#     (edge = p_mod − p_mkt_fair); Kelly/EV sizing uses the *raw* decimal odds
+#     (that is what actually gets paid).
+#   * Legs of one mutually exclusive book (outright winner, the 1/X/2 of a
+#     match, a win-group book) are sized JOINTLY via
+#     utils.math_utils.kelly_mutually_exclusive — independent per-leg Kelly is
+#     not growth-optimal (tests/test_joint_kelly.py).
+#   * Model 1X2 priors for match markets are PURE model (no market blending) —
+#     blending the market into the prior and then differencing against the
+#     same market would be self-referential.
+#   * PAPER MODE ONLY: this tool prints and logs recommendations to a JSONL
+#     ledger; there is deliberately NO order-execution path. Real-money use is
+#     gated on the real-odds backtest verdict (plan gate G2, S16).
 #
-# The built-in market lines below are ILLUSTRATIVE STATIC books, structured to
-# be internally consistent (complete mutually-exclusive books with a "Field"
-# bucket; two-sided binary reach lines). In production, replace
-# `_fetch_market_books` with a live exchange feed of the same shape.
+# Live sources:
+#   * Outright winner book: Polymarket tournament-winner markets (near vig-free).
+#   * Match 1X2 books: Polymarket per-game events (negRisk Yes/No legs), with
+#     liquidity guards from odds_client.
+#   * Derivative books (Reach R16/SF, Win Group, …): supplied via --books JSON
+#     (no exchange carries them as clean books); the old built-in static demo
+#     books were removed.
 
-import time
-import sys
-import json
 import argparse
+import json
+import os
+import subprocess
+import sys
+import time
+from datetime import datetime, timezone
+
 import numpy as np
-from datetime import datetime
 
 import predictor
-from vectorized_mc import MatrixPrecomputer, VectorizedSimulator, build_matrix
 import tournament_bonusfragen as tb
-from utils.math_utils import devig_book
+from vectorized_mc import VectorizedSimulator, build_matrix
+from utils.math_utils import devig_book, kelly_mutually_exclusive
+from odds_client import PolymarketClient, THIN_LIQUIDITY
 
-# Assumed two-way margin for binary "reach stage" lines (only the YES price is
-# quoted below; the complementary NO price is reconstructed at this margin so
-# the book can be de-vigged honestly).
+# Assumed two-way margin for manual binary "reach stage" lines (only the YES
+# price is quoted; the NO side is reconstructed at this margin so the book can
+# be de-vigged honestly).
 _REACH_MARGIN = 0.05
+
+_PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
+DEFAULT_LEDGER = os.path.join(_PROJECT_ROOT, "scan_ledger", "2026.jsonl")
+
+
+def _git_commit_label() -> str:
+    try:
+        commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=_PROJECT_ROOT,
+                                         stderr=subprocess.STDOUT).decode().strip()
+        if subprocess.call(["git", "diff", "--quiet"], cwd=_PROJECT_ROOT) != 0:
+            commit += " (dirty)"
+        return commit
+    except Exception:
+        return "unknown"
 
 
 class EdgeScanner:
-    def __init__(self, edge_threshold: float = 0.015, kelly_fraction: float = 0.25):
+    def __init__(self, edge_threshold: float = 0.015, kelly_fraction: float = 0.25,
+                 n_sims: int = 100000, max_market_frac: float = 0.05,
+                 max_total_frac: float = 0.20, ledger_path: str = DEFAULT_LEDGER,
+                 books_path: str = None, min_liquidity: float = THIN_LIQUIDITY,
+                 matrix=None, apply_adjustments: bool = True):
         """
-        edge_threshold: Minimum (de-vigged) probability divergence to flag a bet (e.g. 1.5%).
-        kelly_fraction: Fractional Kelly multiplier for bankroll safety (e.g. 1/4 Kelly).
+        edge_threshold:  minimum de-vigged probability divergence to flag a leg.
+        kelly_fraction:  fractional Kelly multiplier (0.25 = quarter Kelly).
+        max_market_frac: bankroll cap per single leg.
+        max_total_frac:  bankroll cap on the sum of all open recommendations
+                         in one scan (stakes scaled down proportionally).
+        matrix:          inject a prebuilt MatrixPrecomputer (tests); built
+                         via the S13 cache otherwise.
         """
         self.edge_threshold = edge_threshold
         self.kelly_fraction = kelly_fraction
-        self.N = 100000
+        self.N = n_sims
+        self.max_market_frac = max_market_frac
+        self.max_total_frac = max_total_frac
+        self.ledger_path = ledger_path
+        self.books_path = books_path
+        self.min_liquidity = min_liquidity
+        self._group_contexts = None
+        self._pm = None
 
-        sys.stdout.write(f"[{datetime.now().strftime('%H:%M:%S')}] Booting High-Frequency Edge Scanner...\n")
+        sys.stdout.write(f"[{datetime.now().strftime('%H:%M:%S')}] Booting Edge Scanner (paper mode)...\n")
 
-        # Apply ELO adjustments to predictor.WORLD_CUP_2026_TEAMS
-        if hasattr(tb, "INJURY_ELO_ADJUSTMENTS") and tb.INJURY_ELO_ADJUSTMENTS:
-            sys.stdout.write("Applying injury Elo adjustments...\n")
-            for team, adj in tb.INJURY_ELO_ADJUSTMENTS.items():
-                if team in predictor.WORLD_CUP_2026_TEAMS:
-                    predictor.WORLD_CUP_2026_TEAMS[team]["elo"] += adj
-        if hasattr(tb, "compute_squad_elo_adjustments"):
-            sys.stdout.write("Applying squad value & form Elo adjustments...\n")
-            squad_adjustments = tb.compute_squad_elo_adjustments()
-            for team, adj in squad_adjustments.items():
-                if team in predictor.WORLD_CUP_2026_TEAMS:
-                    predictor.WORLD_CUP_2026_TEAMS[team]["elo"] += adj
+        if apply_adjustments:
+            # Apply ELO adjustments to predictor.WORLD_CUP_2026_TEAMS
+            if hasattr(tb, "INJURY_ELO_ADJUSTMENTS") and tb.INJURY_ELO_ADJUSTMENTS:
+                sys.stdout.write("Applying injury Elo adjustments...\n")
+                for team, adj in tb.INJURY_ELO_ADJUSTMENTS.items():
+                    if team in predictor.WORLD_CUP_2026_TEAMS:
+                        predictor.WORLD_CUP_2026_TEAMS[team]["elo"] += adj
+            if hasattr(tb, "compute_squad_elo_adjustments"):
+                sys.stdout.write("Applying squad value & form Elo adjustments...\n")
+                for team, adj in tb.compute_squad_elo_adjustments().items():
+                    if team in predictor.WORLD_CUP_2026_TEAMS:
+                        predictor.WORLD_CUP_2026_TEAMS[team]["elo"] += adj
 
         # Cached precompute (S13): warm scanner restarts in seconds, not minutes
-        self.matrix = build_matrix(host_teams=tb.HOST_TEAMS, verbose=True)
+        self.matrix = matrix if matrix is not None else build_matrix(host_teams=tb.HOST_TEAMS, verbose=True)
         self.team_names = self.matrix.id_to_team
 
     # ------------------------------------------------------------------ #
-    #  Market lines (ILLUSTRATIVE STATIC — replace with live feed)        #
+    #  Live market sources                                                #
     # ------------------------------------------------------------------ #
-    def _fetch_market_books(self, market_type: str):
-        """Return an internally consistent book for the chosen derivative market.
+    def _polymarket(self) -> PolymarketClient:
+        if self._pm is None:
+            self._pm = PolymarketClient()
+        return self._pm
 
-        Shapes by kind:
-          * multinomial : {team: decimal_odds, ..., "Field": decimal_odds}
-                          (one complete mutually-exclusive winner book)
-          * grouped     : [ {team: odds, ..., "Field": odds}, ... ]
-                          (one complete book per group)
-          * binary      : {team: yes_decimal_odds}
-                          (NO side reconstructed at _REACH_MARGIN)
-        """
-        if market_type == "outrights":
-            # 12 favourites + Field bucket => booksum ~1.15 (realistic outright margin)
-            return {
-                "Spain": 6.50, "Argentina": 7.00, "France": 7.50, "Brazil": 8.00,
-                "England": 8.50, "Germany": 11.00, "Portugal": 15.00, "Netherlands": 17.00,
-                "Colombia": 26.00, "Uruguay": 34.00, "USA": 81.00, "Mexico": 101.00,
-                "Field": 6.00,
-            }
-        elif market_type == "win_group":
-            # One complete book per group (favourite, challenger, Field for the rest).
-            return [
-                {"Spain": 1.50, "Germany": 2.40, "Field": 4.50},
-                {"Argentina": 1.40, "Mexico": 5.00, "Field": 4.00},
-                {"France": 1.35, "USA": 6.00, "Field": 4.50},
-                {"England": 1.45, "Colombia": 4.50, "Field": 4.50},
-                {"Brazil": 1.30, "Uruguay": 5.00, "Field": 5.00},
-            ]
-        elif market_type == "reach_r16":
-            return {
-                "Spain": 1.15, "Argentina": 1.20, "France": 1.22, "Brazil": 1.18,
-                "England": 1.25, "Germany": 1.30, "Portugal": 1.40, "Netherlands": 1.45,
-                "Colombia": 1.65, "Uruguay": 1.80, "USA": 2.10, "Mexico": 2.30,
-            }
-        elif market_type == "reach_qf":
-            return {
-                "Spain": 1.70, "Argentina": 1.80, "France": 1.90, "Brazil": 1.60,
-                "England": 2.10, "Germany": 2.20, "Portugal": 2.50, "Netherlands": 2.60,
-                "Colombia": 3.40, "Uruguay": 4.00, "USA": 6.00, "Mexico": 7.00,
-            }
-        elif market_type == "reach_sf":
-            return {
-                "Spain": 2.80, "Argentina": 3.00, "France": 3.20, "Brazil": 2.90,
-                "England": 3.80, "Germany": 4.00, "Portugal": 4.50, "Netherlands": 5.00,
-                "Colombia": 7.00, "Uruguay": 9.00, "USA": 15.00, "Mexico": 21.00,
-            }
-        elif market_type == "reach_final":
-            return {
-                "Spain": 3.80, "Argentina": 4.00, "France": 4.20, "Brazil": 3.90,
-                "England": 5.00, "Germany": 5.50, "Portugal": 6.50, "Netherlands": 7.50,
-                "Colombia": 11.00, "Uruguay": 15.00, "USA": 34.00, "Mexico": 51.00,
-            }
-        return {}
+    def fetch_outright_book(self):
+        """Polymarket tournament-winner book as {team: decimal_odds}, or None.
 
-    @staticmethod
-    def _devig_market(kind: str, book):
-        """De-vig a market book. Returns (fair_probs, raw_odds) keyed by team.
+        Polymarket prices are probabilities on a near-zero-margin exchange, so
+        decimal odds = 1/p; de-vigging then reduces to proportional
+        normalisation (devig_book handles that automatically)."""
+        try:
+            probs = self._polymarket().get_wc_winner_probabilities()
+        except Exception as e:
+            print(f"⚠ Outright fetch failed ({e}) — skipping outright market this scan.", file=sys.stderr)
+            return None
+        book = {}
+        for name, p in probs.items():
+            canon = predictor.TEAM_NAME_MAPPING.get(name.strip().lower(), name.strip())
+            if p > 0.001:
+                book[canon] = round(1.0 / p, 2)
+        return book or None
 
-        'Field' buckets are used for de-vigging only and excluded from the output.
-        """
-        fair, odds = {}, {}
-        if kind == "multinomial":
-            teams = list(book.keys())
-            implied = [1.0 / book[t] for t in teams]
-            probs = devig_book(implied, method="shin")
-            for t, p in zip(teams, probs):
-                if t != "Field":
-                    fair[t] = p
-                    odds[t] = book[t]
-        elif kind == "grouped":
-            for group in book:
-                teams = list(group.keys())
-                implied = [1.0 / group[t] for t in teams]
-                probs = devig_book(implied, method="shin")
-                for t, p in zip(teams, probs):
-                    if t != "Field":
-                        fair[t] = p
-                        odds[t] = group[t]
-        elif kind == "binary":
-            for t, yes_odds in book.items():
-                pi_yes = 1.0 / yes_odds
-                pi_no = max(1e-9, (1.0 + _REACH_MARGIN) - pi_yes)
-                probs = devig_book([pi_yes, pi_no], method="shin")
-                fair[t] = probs[0]
-                odds[t] = yes_odds
-        return fair, odds
+    def fetch_match_books(self):
+        """Polymarket per-match 1X2 books keyed 'A|B' (raw decimal odds +
+        liquidity tags), thin lines dropped at the source."""
+        try:
+            data = self._polymarket().get_match_1x2_probabilities(min_liquidity=self.min_liquidity)
+            return data.get("probabilities", {})
+        except Exception as e:
+            print(f"⚠ Match-book fetch failed ({e}) — skipping match markets this scan.", file=sys.stderr)
+            return {}
 
-    def calculate_kelly_stake(self, prob_model: float, decimal_odds: float) -> float:
-        """Recommended bankroll fraction to wager using Fractional Kelly (raw payout odds)."""
-        b = decimal_odds - 1.0
-        q = 1.0 - prob_model
-        if b <= 0:
-            return 0.0
-        kelly_pct = (b * prob_model - q) / b
-        return max(0.0, kelly_pct * self.kelly_fraction)
+    def load_manual_books(self):
+        """Derivative books from --books JSON:
+        {"books": [{"name": "Reach SF", "kind": "binary"|"multinomial"|"grouped",
+                    "margin": 0.05?, "book": {...} | [{...}, ...]}]}"""
+        if not self.books_path:
+            return []
+        try:
+            with open(self.books_path, "r", encoding="utf-8") as f:
+                return json.load(f).get("books", [])
+        except Exception as e:
+            print(f"⚠ Failed to load manual books {self.books_path}: {e}", file=sys.stderr)
+            return []
 
-    def scan_all_markets(self, live_state: dict = None):
-        sys.stdout.write(f"\n[{datetime.now().strftime('%H:%M:%S')}] Executing Vectorized Pricing Engine ({self.N:,} sims)...\n")
-
+    # ------------------------------------------------------------------ #
+    #  Model probabilities                                                #
+    # ------------------------------------------------------------------ #
+    def model_tournament_probs(self, live_state: dict = None) -> dict:
         sim = VectorizedSimulator(self.matrix, n_sims=self.N)
         start_time = time.time()
         g_winners, stage_reach, _, champs, _ = sim.simulate(live_state=live_state)
-        calc_time = time.time() - start_time
+        elapsed = time.time() - start_time
 
-        sys.stdout.write(f"[{datetime.now().strftime('%H:%M:%S')}] Pricing complete in {calc_time:.3f}s. Fetching market lines...\n")
-
-        # --- Model probabilities per derivative ---
         counts = np.bincount(champs, minlength=self.matrix.N_TEAMS)
-        probs_outright = counts / float(self.N)
-        probs_r16 = np.mean(stage_reach >= 2, axis=0)
-        probs_qf = np.mean(stage_reach >= 3, axis=0)
-        probs_sf = np.mean(stage_reach >= 4, axis=0)
-        probs_final = np.mean(stage_reach >= 5, axis=0)
-
-        probs_wingroup = np.zeros(self.matrix.N_TEAMS)
+        probs = {
+            "outright": counts / float(self.N),
+            "r16": np.mean(stage_reach >= 2, axis=0),
+            "qf": np.mean(stage_reach >= 3, axis=0),
+            "sf": np.mean(stage_reach >= 4, axis=0),
+            "final": np.mean(stage_reach >= 5, axis=0),
+        }
+        wingroup = np.zeros(self.matrix.N_TEAMS)
         for g_idx, g_name in enumerate(self.matrix.group_names):
-            winners = g_winners[:, g_idx]
-            g_counts = np.bincount(winners, minlength=self.matrix.N_TEAMS)
+            g_counts = np.bincount(g_winners[:, g_idx], minlength=self.matrix.N_TEAMS)
             for t in tb.GROUPS[g_name]:
                 t_id = self.matrix.team_to_id[t]
-                probs_wingroup[t_id] = g_counts[t_id] / float(self.N)
+                wingroup[t_id] = g_counts[t_id] / float(self.N)
+        probs["wingroup"] = wingroup
+        probs["_elapsed"] = elapsed
+        return probs
 
-        # (market label, kind, book, model-prob array)
-        market_specs = [
-            ("Outright Winner", "multinomial", self._fetch_market_books("outrights"), probs_outright),
-            ("Reach R16",       "binary",      self._fetch_market_books("reach_r16"), probs_r16),
-            ("Reach QF",        "binary",      self._fetch_market_books("reach_qf"),  probs_qf),
-            ("Reach SF",        "binary",      self._fetch_market_books("reach_sf"),  probs_sf),
-            ("Reach Final",     "binary",      self._fetch_market_books("reach_final"), probs_final),
-            ("Win Group",       "grouped",     self._fetch_market_books("win_group"), probs_wingroup),
-        ]
+    def model_match_1x2(self, team_a: str, team_b: str, phase: str = None):
+        """PURE-model 90-minute 1X2 prior for one fixture (no market blending).
 
-        scoreboard = []
-        for mkt_name, kind, book, probs_array in market_specs:
-            fair, odds = self._devig_market(kind, book)
-            for team, p_fair in fair.items():
-                if team not in self.matrix.team_to_id:
-                    continue
-                t_id = self.matrix.team_to_id[team]
-                p_mod = float(probs_array[t_id])
-                decimal_odds = odds[team]
+        Probabilities come from grid_90 regardless of phase, because exchange
+        1X2 lines settle on the 90-minute result — for KO fixtures the
+        (phase-adjusted) 90' grid is the correct comparison, NOT the
+        shootout-total tipping grid."""
+        if self._group_contexts is None:
+            import schedule_context
+            self._group_contexts, _ = schedule_context.get_group_match_contexts()
 
-                edge = p_mod - p_fair                       # de-vigged true edge
-                ev = (p_mod * decimal_odds) - 1.0           # EV on raw payout odds
+        row = {"team_a": team_a, "team_b": team_b}
+        ctx = self._group_contexts.get((team_a, team_b))
+        swapped = False
+        if ctx is None:
+            ctx = self._group_contexts.get((team_b, team_a))
+            swapped = ctx is not None
+        if ctx is not None:
+            row["phase"] = "GROUP"
+            for k, v in ctx.items():
+                if swapped and k.endswith("_a"):
+                    row[k[:-2] + "_b"] = str(v)
+                elif swapped and k.endswith("_b"):
+                    row[k[:-2] + "_a"] = str(v)
+                else:
+                    row[k] = str(v)
+        else:
+            row["phase"] = phase or "R32"
 
-                if edge > self.edge_threshold and ev > 0:
-                    stake = self.calculate_kelly_stake(p_mod, decimal_odds)
-                    scoreboard.append({
-                        "team": team,
-                        "market": mkt_name,
-                        "odds": decimal_odds,
-                        "p_fair": p_fair,
-                        "p_mod": p_mod,
-                        "edge": edge,
-                        "ev": ev,
-                        "stake": stake,
-                    })
+        form_a, form_b = tb.compute_xg_form_multipliers(team_a, team_b)
+        row["form_a"] = str(form_a)
+        row["form_b"] = str(form_b)
+        if team_a in tb.HOST_TEAMS:
+            row["status_a"] = "True Home"
+            row["fan_pct_a"] = "0.70"
+            row["fan_pct_b"] = "0.30"
+        elif team_b in tb.HOST_TEAMS:
+            row["status_b"] = "True Home"
+            row["fan_pct_a"] = "0.30"
+            row["fan_pct_b"] = "0.70"
+        elev, accl_a, accl_b = tb._get_match_elevation(team_a, team_b)
+        if elev > 1000:
+            row["elevation"] = str(elev)
+            row["accl_days_a"] = str(accl_a)
+            row["accl_days_b"] = str(accl_b)
 
-        print("\n" + "=" * 109)
-        print("📈 WORLD CUP 2026 DEEP DERIVATIVE SCOREBOARD  (edge vs. de-vigged market)")
-        print("=" * 109)
-        print(f"{'Market':<20} | {'Team':<15} | {'Odds':>8} | {'MktFair':>8} | {'Model':>8} | {'Edge':>8} | {'Rec. Stake':>10}")
-        print("-" * 109)
+        res = predictor.predict_single_match(row)
+        grid_90 = res["grid_90"]
+        p_h = p_d = p_a = 0.0
+        for ga, inner in grid_90.items():
+            for gb, p in inner.items():
+                if ga > gb:
+                    p_h += p
+                elif ga == gb:
+                    p_d += p
+                else:
+                    p_a += p
+        tot = p_h + p_d + p_a
+        if tot > 0:
+            p_h, p_d, p_a = p_h / tot, p_d / tot, p_a / tot
+        return p_h, p_d, p_a
 
-        if not scoreboard:
+    # ------------------------------------------------------------------ #
+    #  Pure evaluation (no I/O — unit-testable)                           #
+    # ------------------------------------------------------------------ #
+    def _flag(self, p_mod: float, p_fair: float, odds: float) -> bool:
+        return (p_mod - p_fair) > self.edge_threshold and (p_mod * odds - 1.0) > 0.0
+
+    def _entries_from_exclusive_book(self, market_name: str, legs: list) -> list:
+        """legs: [(label, decimal_odds, p_fair, p_mod), ...] of ONE mutually
+        exclusive book. Flag by de-vigged edge; size flagged legs JOINTLY."""
+        flagged = [(lbl, o, pf, pm) for (lbl, o, pf, pm) in legs if self._flag(pm, pf, o)]
+        if not flagged:
+            return []
+        stakes = kelly_mutually_exclusive([pm for (_, _, _, pm) in flagged],
+                                          [o for (_, o, _, _) in flagged],
+                                          fraction=self.kelly_fraction)
+        out = []
+        for (lbl, o, pf, pm), stake in zip(flagged, stakes):
+            out.append({
+                "market": market_name, "team": lbl, "odds": o,
+                "p_fair": pf, "p_mod": pm,
+                "edge": pm - pf, "ev": pm * o - 1.0,
+                "stake_raw": stake, "stake": stake,
+            })
+        return out
+
+    def evaluate_outright(self, book: dict, probs_outright: np.ndarray) -> list:
+        teams = list(book.keys())
+        implied = [1.0 / book[t] for t in teams]
+        fair = devig_book(implied, method="shin")
+        legs = []
+        for t, pf in zip(teams, fair):
+            if t == "Field" or t not in self.matrix.team_to_id:
+                continue
+            pm = float(probs_outright[self.matrix.team_to_id[t]])
+            legs.append((t, book[t], pf, pm))
+        return self._entries_from_exclusive_book("Outright Winner", legs)
+
+    def evaluate_manual_books(self, manual_books: list, model_probs: dict) -> list:
+        """Manual derivative books. Binary reach lines size per leg (a binary
+        book is its own exclusive book); multinomial/grouped books size jointly."""
+        model_key = {"reach r16": "r16", "reach qf": "qf", "reach sf": "sf",
+                     "reach final": "final", "win group": "wingroup",
+                     "outright winner": "outright"}
+        entries = []
+        for spec in manual_books:
+            name = spec.get("name", "?")
+            kind = spec.get("kind")
+            book = spec.get("book")
+            arr = model_probs.get(model_key.get(name.strip().lower(), ""), None)
+            if arr is None or book is None:
+                print(f"⚠ Manual book '{name}': no matching model probabilities — skipped.", file=sys.stderr)
+                continue
+            if kind == "binary":
+                margin = float(spec.get("margin", _REACH_MARGIN))
+                for t, yes_odds in book.items():
+                    if t not in self.matrix.team_to_id:
+                        continue
+                    pi_yes = 1.0 / yes_odds
+                    pi_no = max(1e-9, (1.0 + margin) - pi_yes)
+                    pf = devig_book([pi_yes, pi_no], method="shin")[0]
+                    pm = float(arr[self.matrix.team_to_id[t]])
+                    entries.extend(self._entries_from_exclusive_book(
+                        name, [(t, yes_odds, pf, pm)]))
+            elif kind == "multinomial":
+                teams = list(book.keys())
+                fair = devig_book([1.0 / book[t] for t in teams], method="shin")
+                legs = [(t, book[t], pf, float(arr[self.matrix.team_to_id[t]]))
+                        for t, pf in zip(teams, fair)
+                        if t != "Field" and t in self.matrix.team_to_id]
+                entries.extend(self._entries_from_exclusive_book(name, legs))
+            elif kind == "grouped":
+                for group_book in book:
+                    teams = list(group_book.keys())
+                    fair = devig_book([1.0 / group_book[t] for t in teams], method="shin")
+                    legs = [(t, group_book[t], pf, float(arr[self.matrix.team_to_id[t]]))
+                            for t, pf in zip(teams, fair)
+                            if t != "Field" and t in self.matrix.team_to_id]
+                    entries.extend(self._entries_from_exclusive_book(name, legs))
+        return entries
+
+    def evaluate_match_books(self, match_books: dict, model_1x2_fn=None) -> list:
+        """Polymarket 1X2 books: one mutually exclusive 3-leg book per match."""
+        model_1x2_fn = model_1x2_fn or self.model_match_1x2
+        entries = []
+        for key, line in match_books.items():
+            if "|" not in key:
+                continue
+            name_a, name_b = key.split("|", 1)
+            team_a = predictor.TEAM_NAME_MAPPING.get(name_a.strip().lower(), name_a.strip())
+            team_b = predictor.TEAM_NAME_MAPPING.get(name_b.strip().lower(), name_b.strip())
+            if team_a not in self.matrix.team_to_id or team_b not in self.matrix.team_to_id:
+                continue
+            if not all(k in line for k in ("1", "X", "2")):
+                continue
+            liq = float(line.get("liquidity", float("inf")))
+            if liq < self.min_liquidity:
+                continue
+            odds = [float(line["1"]), float(line["X"]), float(line["2"])]
+            fair = devig_book([1.0 / o for o in odds], method="shin")
+            try:
+                p_h, p_d, p_a = model_1x2_fn(team_a, team_b)
+            except Exception as e:
+                print(f"⚠ Model 1X2 failed for {team_a} vs {team_b}: {e}", file=sys.stderr)
+                continue
+            legs = [(f"{team_a} (1)", odds[0], fair[0], p_h),
+                    (f"Draw ({team_a}/{team_b})", odds[1], fair[1], p_d),
+                    (f"{team_b} (2)", odds[2], fair[2], p_a)]
+            entries.extend(self._entries_from_exclusive_book(
+                f"1X2 {team_a} vs {team_b}", legs))
+        return entries
+
+    def apply_risk_caps(self, entries: list) -> list:
+        """Per-leg cap, then proportional scale-down to the global cap."""
+        for e in entries:
+            e["stake"] = min(e["stake_raw"], self.max_market_frac)
+        total = sum(e["stake"] for e in entries)
+        if total > self.max_total_frac and total > 0:
+            scale = self.max_total_frac / total
+            for e in entries:
+                e["stake"] *= scale
+        return entries
+
+    # ------------------------------------------------------------------ #
+    #  Ledger + scan orchestration                                        #
+    # ------------------------------------------------------------------ #
+    def write_ledger(self, entries: list, meta: dict):
+        os.makedirs(os.path.dirname(self.ledger_path), exist_ok=True)
+        record = dict(meta)
+        record["entries"] = entries
+        with open(self.ledger_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(record, ensure_ascii=False) + "\n")
+
+    def scan_all_markets(self, live_state: dict = None, outright_book: dict = None,
+                         match_books: dict = None, manual_books: list = None) -> list:
+        sys.stdout.write(f"\n[{datetime.now().strftime('%H:%M:%S')}] Executing Vectorized Pricing Engine ({self.N:,} sims)...\n")
+        model_probs = self.model_tournament_probs(live_state=live_state)
+        sys.stdout.write(f"[{datetime.now().strftime('%H:%M:%S')}] Pricing complete in {model_probs['_elapsed']:.3f}s. Fetching market lines...\n")
+
+        if outright_book is None:
+            outright_book = self.fetch_outright_book()
+        if match_books is None:
+            match_books = self.fetch_match_books()
+        if manual_books is None:
+            manual_books = self.load_manual_books()
+
+        entries = []
+        if outright_book:
+            entries.extend(self.evaluate_outright(outright_book, model_probs["outright"]))
+        if manual_books:
+            entries.extend(self.evaluate_manual_books(manual_books, model_probs))
+        if match_books:
+            entries.extend(self.evaluate_match_books(match_books))
+
+        entries = self.apply_risk_caps(entries)
+        entries.sort(key=lambda x: x["ev"], reverse=True)
+
+        meta = {
+            "ts": datetime.now(timezone.utc).isoformat(),
+            "mode": "paper",
+            "commit": _git_commit_label(),
+            "n_sims": self.N,
+            "edge_threshold": self.edge_threshold,
+            "kelly_fraction": self.kelly_fraction,
+            "caps": {"per_market": self.max_market_frac, "total": self.max_total_frac},
+            "sources": {
+                "outright": bool(outright_book),
+                "match_books": len(match_books or {}),
+                "manual_books": len(manual_books or []),
+            },
+        }
+        self.write_ledger(entries, meta)
+
+        print("\n" + "=" * 112)
+        print("📈 WORLD CUP 2026 DERIVATIVE SCOREBOARD  (edge vs. de-vigged market — PAPER MODE)")
+        print("=" * 112)
+        print(f"{'Market':<28} | {'Leg':<24} | {'Odds':>7} | {'MktFair':>8} | {'Model':>7} | {'Edge':>7} | {'Stake':>9}")
+        print("-" * 112)
+        if not entries:
             print("Status: No actionable edges found. Market is currently efficient (after de-vigging).")
         else:
-            scoreboard.sort(key=lambda x: x["ev"], reverse=True)
-            for item in scoreboard:
-                print(f"🚨 {item['market']:<17} | {item['team']:<15} | {item['odds']:>8.2f} | "
-                      f"{item['p_fair']*100:>7.1f}% | {item['p_mod']*100:>7.1f}% | "
-                      f"{item['edge']*100:>+7.1f}% | {item['stake']*100:>9.2f}% Bnk")
-
-        print("=" * 109)
-        if scoreboard:
-            print(f"Status: EDGE DETECTED. Execute fractional Kelly stakes ({self.kelly_fraction}x multiplier).")
+            for e in entries:
+                print(f"🚨 {e['market']:<25} | {e['team']:<24} | {e['odds']:>7.2f} | "
+                      f"{e['p_fair']*100:>7.1f}% | {e['p_mod']*100:>6.1f}% | "
+                      f"{e['edge']*100:>+6.1f}% | {e['stake']*100:>7.2f}% Bnk")
+        print("=" * 112)
+        if entries:
+            total = sum(e["stake"] for e in entries)
+            print(f"Status: {len(entries)} paper recommendation(s), Σ stake {total*100:.2f}% bankroll "
+                  f"(joint Kelly x{self.kelly_fraction}, caps {self.max_market_frac:.0%}/leg, "
+                  f"{self.max_total_frac:.0%} total). Ledger: {os.path.relpath(self.ledger_path, _PROJECT_ROOT)}")
+        return entries
 
     def run_daemon(self, interval_seconds: int = 60, live_state_path: str = None):
-        print(f"[{datetime.now().strftime('%H:%M:%S')}] Daemon active. Scanning every {interval_seconds} seconds. Press Ctrl+C to abort.")
+        print(f"[{datetime.now().strftime('%H:%M:%S')}] Daemon active (paper mode). Scanning every {interval_seconds}s. Ctrl+C to abort.")
         try:
             while True:
                 live_state = None
@@ -257,22 +448,35 @@ class EdgeScanner:
                             live_state = json.load(f)
                     except Exception as e:
                         sys.stderr.write(f"⚠ Failed to reload live state: {e}\n")
-                self.scan_all_markets(live_state=live_state)
+                try:
+                    self.scan_all_markets(live_state=live_state)
+                except Exception as e:
+                    sys.stderr.write(f"⚠ Scan failed ({e}) — retrying next interval.\n")
                 time.sleep(interval_seconds)
         except KeyboardInterrupt:
             print("\nDaemon terminated by user.")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Live Market Edge Scanner Daemon")
-    parser.add_argument("--threshold", type=float, default=0.015, help="Minimum de-vigged probability edge to trigger alert")
+    parser = argparse.ArgumentParser(description="Market Edge Scanner Daemon (paper mode)")
+    parser.add_argument("--threshold", type=float, default=0.015, help="Minimum de-vigged probability edge to flag")
     parser.add_argument("--kelly", type=float, default=0.25, help="Fractional Kelly multiplier")
-    parser.add_argument("--daemon", action="store_true", help="Run in continuous polling loop")
+    parser.add_argument("--sims", type=int, default=100000, help="Monte Carlo simulations per scan")
+    parser.add_argument("--max-market", type=float, default=0.05, help="Bankroll cap per leg")
+    parser.add_argument("--max-total", type=float, default=0.20, help="Bankroll cap per scan (all legs)")
+    parser.add_argument("--min-liquidity", type=float, default=THIN_LIQUIDITY,
+                        help="Skip match books with thinnest-leg liquidity below this (USD)")
+    parser.add_argument("--books", type=str, default=None, help="Manual derivative books JSON")
+    parser.add_argument("--ledger", type=str, default=DEFAULT_LEDGER, help="Paper scan ledger (JSONL)")
+    parser.add_argument("--daemon", action="store_true", default=False, help="Run in continuous polling loop")
     parser.add_argument("--interval", type=int, default=60, help="Polling interval in seconds")
     parser.add_argument("--live-state", type=str, default=None, help="Path to live_state.json")
     args = parser.parse_args()
 
-    scanner = EdgeScanner(edge_threshold=args.threshold, kelly_fraction=args.kelly)
+    scanner = EdgeScanner(edge_threshold=args.threshold, kelly_fraction=args.kelly,
+                          n_sims=args.sims, max_market_frac=args.max_market,
+                          max_total_frac=args.max_total, ledger_path=args.ledger,
+                          books_path=args.books, min_liquidity=args.min_liquidity)
 
     live_state = None
     if args.live_state:
