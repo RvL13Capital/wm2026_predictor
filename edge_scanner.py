@@ -27,7 +27,7 @@ import numpy as np
 from datetime import datetime
 
 import predictor
-from vectorized_mc import MatrixPrecomputer, VectorizedSimulator
+from vectorized_mc import MatrixPrecomputer, VectorizedSimulator, build_matrix
 import tournament_bonusfragen as tb
 from utils.math_utils import devig_book
 
@@ -62,7 +62,8 @@ class EdgeScanner:
                 if team in predictor.WORLD_CUP_2026_TEAMS:
                     predictor.WORLD_CUP_2026_TEAMS[team]["elo"] += adj
 
-        self.matrix = MatrixPrecomputer(host_teams=tb.HOST_TEAMS)
+        # Cached precompute (S13): warm scanner restarts in seconds, not minutes
+        self.matrix = build_matrix(host_teams=tb.HOST_TEAMS, verbose=True)
         self.team_names = self.matrix.id_to_team
 
     # ------------------------------------------------------------------ #

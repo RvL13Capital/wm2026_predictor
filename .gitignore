@@ -40,3 +40,6 @@ von_linck_capital_*.pdf
 
 # Generated Golden Boot ranking (goalscorer.py)
 data/goldenboot.json
+
+# Precomputed matrix cache (S13) — regenerated on demand, fingerprint-keyed
+data/matrix_cache/
