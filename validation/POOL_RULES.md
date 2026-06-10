@@ -1,7 +1,7 @@
-# Gate G1 — Kicktipp Pool Scoring Rules (DECISION REQUIRED)
+# Gate G1 — Kicktipp Pool Scoring Rules (RESOLVED)
 
-**Status:** ⏳ AWAITING USER VERIFICATION · **Deadline:** before R32 tips (Jun 27, 2026)
-**Owner of the decision:** pool participant (read the pool's settings page)
+**Status:** ✅ VERIFIED 2026-06-10 — pool scores knockout games **"inkl. Elfmeterschießen"** → engine convention **`shootout_total`**
+**Owner of the decision:** pool participant (answer given in session)
 **Engineering dependency:** `IMPLEMENTATION_PLAN.md` step S12 (`kicktipp_ko_convention`)
 
 ## The question
@@ -26,14 +26,33 @@ of KO matches end as scored draws that the current grid assigns probability
 zero**, and any non-draw tip on those games is a guaranteed 0 points.
 Historically ~4–5 of the 32 knockout matches per World Cup go to penalties.
 
-## Default if unverified
-
-Per `validation/F9_OUT_OF_SAMPLE.md`, the pre-agreed default is **`120min`**
-(after extra time, shootout goals excluded). S12 implements all three modes
-switchable via `config.json`.
-
 ## Verified answer
 
-- **Pool rule:** _(fill in: 90min / 120min / shootout_total)_
-- **Verified by / date:** _______
-- **Evidence:** _(screenshot or settings text of the pool's "Spielwertung")_
+- **Pool rule:** `shootout_total` — "inkl. Elfmeterschießen"
+- **Verified by / date:** pool participant, 2026-06-10 (in session)
+
+## Consequences
+
+1. **The production KO grid is the correct model for this pool.**
+   `generate_ko_final_grid` (no draws; all goals from 90' + ET + every
+   converted shootout kick summed into the final score) matches the pool's
+   outcome space. `kicktipp_ko_convention` defaults to `shootout_total`.
+2. **The predictor CLI's KO path was the wrong one for this pool** — it
+   solved tips on the phase-adjusted 90-minute grid (draws retained,
+   P(draw)≈34% on a close QF) instead of the 3-layer grid. Fixed by S12's
+   CLI/library unification: `main()` now routes through
+   `predict_single_match`, so there is exactly one KO code path.
+3. The honest historical backtests (`backtest_kicktipp_folds.py`,
+   F9) score shootout games as ET draws (`120min`) because that is how the
+   historical datasets record results. This is a **dataset convention**, not
+   the pool's; for like-for-like 2026 evaluation, S21 must score KO games
+   under `shootout_total` using shootout-inflated actuals.
+
+## Residual check (optional, 2 min)
+
+Kicktipp's numeric representation under "inkl. Elfmeterschießen" is modeled
+here as *all shootout goals added* (e.g. 2022 final: 3:3 + 4:2 pens → 7:5).
+If the pool ran in 2022/2024, open one historical shootout game in the pool
+and confirm the entered scoreline matches this convention. If the pool shows
+a different representation (e.g. winner +1 goal), update
+`kicktipp_ko_convention` handling in S12 accordingly.

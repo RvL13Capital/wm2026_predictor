@@ -68,10 +68,9 @@ Effort totals: Phase 0 ≈ 1 dev-day · Phase 1 ≈ 5–7 dev-days · Phase 2 �
 - **Change:** after generating any matchday/bonusfragen output, append JSONL: `{utc, commit(+dirty flag), seed, command, matchday/phase, per-match: tip, p_home/p_draw/p_away, λs}`. Entries are committed **before** kickoff.
 - **DoD:** MD1 entry committed before the Jun 11 opener. This is the only mechanism that ever turns the altitude/heat/PPDA layer into evidence (no historical analog exists — repo's own note).
 
-### S8 · **Gate G1 — verify the pool's KO scoring rule** — P0, user action, ~10 min
-- **Action:** read the Kicktipp pool settings ("Spielwertung": 90 min / nach Verlängerung / nach Elfmeterschießen) and record the answer in `validation/POOL_RULES.md`.
-- **Default if unobtainable:** "after extra time, shootout goals excluded" — the convention F9 already validated against (`backtest_kicktipp_folds.py` ln 21–25).
-- **Blocks:** S12's default. This is decisive: under the F9 convention the production KO grid assigns probability 0 to ~12–15 % of real KO outcomes.
+### S8 · **Gate G1 — verify the pool's KO scoring rule** — ✅ RESOLVED 2026-06-10
+- **Verified answer:** the pool scores KO games **"inkl. Elfmeterschießen"** → convention **`shootout_total`** (`validation/POOL_RULES.md`).
+- **Consequence:** the production 3-layer KO grid is the *correct* tipping target for this pool; S12's default flips from `120min` to `shootout_total`, and the urgent part of S12 becomes the **CLI/library unification** — the CLI's 90-minute KO path is the wrong grid for this pool.
 
 ### S9 · Clean-tree MD1 regeneration — P0, ~30 min (after S1–S3 are merged)
 - **Action:** commit everything, regenerate MD1 tips (`matchday_tips.py --md 1 --seed <fixed>`), run `tests/gate_check.py`, log via S7, submit.
@@ -95,15 +94,16 @@ Effort totals: Phase 0 ≈ 1 dev-day · Phase 1 ≈ 5–7 dev-days · Phase 2 �
   4. Renormalize the champion market blend (`vectorized_mc.py` ln 695–705); hoist the `squad_data` import out of the pair loop (ln 263).
 - **DoD:** new cross-engine equivalence test — same Elo table and config, N = 20 000, scalar vs vectorized: max |Δ champion prob| < 1.5 pp, max |Δ stage-reach prob| < 2 pp. This test is the deliverable; it makes future divergence impossible to ship silently.
 
-### S12 · KO outcome-space cutover (C2) — P1, ~2–3 days, **hard deadline Jun 27**
-- **Files:** `predictor.py` (`CONSTANTS`, `generate_ko_120_grid` new, `predict_single_match` ln 2088–2136, `main()` ln 2605–2620), `config.json`, tests.
+### S12 · KO convention switch + CLI/library unification (C2) — P1, ~2–3 days, **hard deadline Jun 27**
+- **G1 resolved 2026-06-10:** the pool scores **`shootout_total`** ("inkl. Elfmeterschießen") — the production 3-layer KO grid is the *correct* tipping target. The urgent item is therefore #4 below: the **CLI's KO path uses the 90-minute grid (wrong for this pool)**.
+- **Files:** `predictor.py` (`CONSTANTS`, `load_config`, `generate_ko_120_grid` new, `predict_single_match`, `main()`), `config.json`, tests.
 - **Changes:**
-  1. New constant `kicktipp_ko_convention ∈ {"90min", "120min", "shootout_total"}`; default from **G1** (fallback `"120min"` per F9).
-  2. `generate_ko_120_grid(config)`: Layers 1+2 of the existing 3-layer builder with ties **retained as draws** (no shootout-goal addition). `"90min"` = the phase-adjusted `grid_90`. `"shootout_total"` = current behavior, kept for pools that score it.
-  3. `predict_single_match` KO branch selects the tipping grid by convention. **Advancement probabilities** (used by the simulators and scanner) still come from the 3-layer grid + `_penalty_win_prob` — winner-probability and tip-target are now explicitly separate concerns.
-  4. **Unify CLI and library** (the fourth split-brain, demonstrated: CLI shows P(draw)=34 % where the library shows 0 % for the same QF): `main()` delegates to `predict_single_match` so there is exactly one KO code path.
-- **Tests (DoD):** convention matrix — under `"120min"` draw tips are admissible and shootout-inflated tips (e.g. `4:5`) cannot appear in the ranking; under `"shootout_total"` behavior is byte-identical to today; advancement probabilities invariant across conventions; CLI and library outputs identical for the same inputs.
-- **Expected effect:** most #1 tips unchanged (measured: `0:1` survives on Croatia–Brazil); ≈ +1–3 points expected across the 32 KO matches, concentrated in the ~4–5 expected shootout games where a non-draw tip is a guaranteed 0 under the F9 convention.
+  1. New constant `kicktipp_ko_convention ∈ {"90min", "120min", "shootout_total"}`; **default `"shootout_total"` per G1**. `load_config` becomes type-preserving (string defaults stay strings).
+  2. `generate_ko_120_grid(config)`: Layers 1+2 of the existing 3-layer builder with ties **retained as draws** (no shootout-goal addition) — for `120min` pools and for the F9-convention historical harnesses. `"90min"` = the phase-adjusted `grid_90`.
+  3. `predict_single_match` KO branch selects the tipping grid by convention. **Advancement probabilities** stay on the 3-layer grid + `_penalty_win_prob` — winner-probability and tip-target are explicitly separate concerns.
+  4. **Unify CLI and library** (the fourth split-brain, demonstrated: CLI shows P(draw)=34 % where the library shows 0 % for the same QF): `main()` delegates to `predict_single_match` so there is exactly one KO code path — under G1 this *corrects the CLI*, not the library.
+- **Tests (DoD):** convention matrix — `"shootout_total"` byte-identical to today's library path and zero draw mass; `"120min"` admits draw tips and caps per-side goals at 90'+ET (no shootout inflation); `"90min"` equals the phase-adjusted group-style solve; CLI and library agree for the same inputs (subprocess test).
+- **Expected effect:** library tips unchanged (already correct); CLI KO tips now target the pool's actual outcome space; S21 evaluation gains the convention switch it needs to score 2026 like-for-like.
 
 ### S13 · Precomputer persistence — P1, ~1 day
 - **Files:** `vectorized_mc.py :: MatrixPrecomputer` (+ `save`/`load`), callers (`edge_scanner.py`, `run_monte_carlo`).
@@ -190,7 +190,7 @@ S7 (logging) ───────────► S21 (post-mortem) ──► S2
 
 | Risk | Likelihood | Mitigation |
 |---|---|---|
-| G1 unanswered before Jun 27 → KO tips on wrong convention | Medium | F9 default (`"120min"`) is pre-agreed and already validated; S12 ships all three modes switchable by config |
+| ~~G1 unanswered before Jun 27~~ → **resolved 2026-06-10**: pool = `shootout_total` | — | Residual: confirm Kicktipp's numeric representation against a historical shootout game in the pool (see `validation/POOL_RULES.md`) |
 | Polymarket schema drift breaks the feed mid-tournament | Medium | `_extract_game_1x2` already defensive; S17 adds schema-mismatch alerts + scanner degrades to model-only with a loud warning |
 | Mid-tournament hotfix breaks determinism/equivalence | Low–Med | Change freeze + S10/S11 tests are merge-blocking in CI |
 | Real-odds data for 2014 unobtainable | Low | 2018+2022 (128 matches) suffice for G2; manual-entry fallback budgeted |
