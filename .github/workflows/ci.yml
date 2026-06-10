@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # The 100k-sim wall-clock budget is hardware-dependent and only asserted
+      # when WM2026_BENCH=1 (never in CI). The vectorized module still runs:
+      # its one-off matrix precompute (~4 min pure Python) dominates job time.
+      - name: Run test suite
+        run: python -m unittest discover tests -v
+
+      - name: CLI smoke test (engine end-to-end)
+        run: |
+          python predictor.py --teamA Spain --teamB Qatar --json > /dev/null
+          python predictor.py --teamA Croatia --teamB Brazil --phase QF --json > /dev/null
