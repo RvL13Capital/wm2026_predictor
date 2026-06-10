@@ -28,9 +28,9 @@ A sports quantitative forecasting engine and exchange-trading research system. D
    - **Live State Ingestion**: bypasses stochastic sampling and enforces deterministic score overrides (by `"Team A vs Team B"` key or match id `"M73"`…), propagating updated standings through the bracket.
    - **Fatigue carry-over**: teams that played Extra Time / penalties carry a bench-depth-scaled exhaustion penalty into their next match.
 
-5. **Derivative Edge Scanner (`edge_scanner.py`)**
-   - De-vigs each market book using **Shin's Method** (solved iteratively via Newton–Raphson with a bisection fallback — there is no closed form for 3+ outcomes), then computes edge against the **de-vigged** market and sizes with the **0.25x Fractional Kelly Criterion** on raw payout odds.
-   - **The built-in market lines are ILLUSTRATIVE STATIC books** shaped like exchange feeds; live Polymarket wiring is planned (plan step S17). Kelly's guarantees hold only if the model probabilities are correct — an unproven premise; see `validation/SHIN_EVALUATION.md`. Real-money use is gated on the real-odds backtest (plan gate G2).
+5. **Derivative Edge Scanner (`edge_scanner.py`) — PAPER MODE**
+   - Live sources: the Polymarket tournament-winner book and per-match 1X2 books (liquidity-guarded); other derivative books (Reach X / Win Group) via a `--books` JSON of real lines. De-vigs every book with **Shin's Method** (iterative Newton–Raphson + bisection — no closed form for 3+ outcomes), flags on the **de-vigged** edge, and sizes legs of each mutually exclusive book **jointly** (`utils.math_utils.kelly_mutually_exclusive`, brute-force-verified) at 0.25× Kelly on raw payout odds, under per-leg and per-scan bankroll caps.
+   - Every scan appends to `scan_ledger/2026.jsonl`. **There is deliberately no order-execution path**: Kelly's guarantees hold only if the model probabilities are correct — an unproven premise (`validation/SHIN_EVALUATION.md`) — so real-money use is gated on the real-odds backtest `backtest_real_market.py` (gate G2, currently *awaiting odds data*; until it passes, the scanner stays paper-only).
 
 6. **Point-in-Time Backtesting (`backtest_harness.py`)**
    - Steps chronologically through past tournaments (2014, 2018, 2022) with pre-tournament Elo snapshots.
