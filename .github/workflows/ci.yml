@@ -1,8 +1,10 @@
 name: CI
 
+# push limited to main so PR branches don't run every job twice
+# (pull_request already covers them).
 on:
   push:
-    branches: ["**"]
+    branches: ["main"]
   pull_request:
 
 jobs:
