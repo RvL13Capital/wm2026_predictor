@@ -396,7 +396,14 @@ class VectorizedSimulator:
     def _sample_match_cdf(self, tA: np.ndarray, tB: np.ndarray, phase_idx: int,
                           fatigue_status: np.ndarray, m_id: str = None,
                           live_state: dict = None) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """O(1) Inverse Transform Boolean Sampling (L3 Cache Compatible)."""
+        """O(1) Inverse Transform Boolean Sampling (L3 Cache Compatible).
+
+        Live-state override semantics: a key equal to the match id (e.g. "M73")
+        forces that [goals_a, goals_b] score in BRACKET orientation (tA, tB as
+        passed) for every pairing occupying the slot; "TeamA vs TeamB" keys
+        match a specific pairing and are auto-swapped if listed the other way
+        round. The m_id key takes precedence over name keys.
+        """
         U = np.random.rand(self.N, 1).astype(DTYPE_FLOAT)
         indices = np.zeros(self.N, dtype=np.int16)
         went_to_et = np.zeros(self.N, dtype=bool)
@@ -419,9 +426,12 @@ class VectorizedSimulator:
                 tb_name = self.mx.id_to_team[b]
                 
                 score = None
+                val_a = val_b = None   # bound per setup; never reuse a previous iteration's values
                 if live_state:
                     if m_id and m_id in live_state:
                         score = live_state[m_id]
+                        if score is not None:
+                            val_a, val_b = score[0], score[1]
                     else:
                         score = live_state.get(f"{ta_name} vs {tb_name}")
                         if score is not None:
@@ -430,8 +440,8 @@ class VectorizedSimulator:
                             score = live_state.get(f"{tb_name} vs {ta_name}")
                             if score is not None:
                                 val_a, val_b = score[1], score[0]
-                                
-                if score is not None:
+
+                if score is not None and val_a is not None:
                     indices[mask] = np.clip(int(val_a) * 15 + int(val_b), 0, 224)
                     probs = self.mx.ko_et_probs[phase_idx, s, a, b, indices[mask]]
                     U_et = np.random.rand(np.sum(mask))

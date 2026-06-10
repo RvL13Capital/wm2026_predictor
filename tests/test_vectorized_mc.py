@@ -71,6 +71,49 @@ class TestVectorizedEngine(unittest.TestCase):
         np.testing.assert_array_equal(g_a, 3)
         np.testing.assert_array_equal(g_b, 0)
 
+    def test_live_state_injection_by_match_id(self):
+        """m_id-keyed override forces the score in bracket orientation for ALL pairings.
+
+        Regression guard: this path previously never bound val_a/val_b and
+        raised UnboundLocalError on the first setup (or could have reused a
+        previous setup's values had one been bound)."""
+        N = 100
+        sim = VectorizedSimulator(self.matrix, n_sims=N)
+
+        # Mix two different pairings in one call -> two unique setups, so the
+        # per-iteration binding (not just the first) is exercised.
+        tA = np.zeros(N, dtype=np.int8)            # Team 0 in every sim
+        tB = np.full(N, 2, dtype=np.int8)          # Team 2 ...
+        tB[N // 2:] = 3                            # ... or Team 3
+        fatigue_status = np.zeros((N, self.matrix.N_TEAMS), dtype=bool)
+
+        g_a, g_b, went_to_et = sim._sample_match_cdf(
+            tA, tB, phase_idx=0, fatigue_status=fatigue_status,
+            m_id="M75", live_state={"M75": [2, 1]}
+        )
+
+        np.testing.assert_array_equal(g_a, 2)
+        np.testing.assert_array_equal(g_b, 1)
+        self.assertEqual(len(went_to_et), N)
+
+    def test_live_state_unmatched_falls_through_to_sampling(self):
+        """A live_state matching neither m_id nor team names must sample normally."""
+        N = 50
+        sim = VectorizedSimulator(self.matrix, n_sims=N)
+        tA = np.zeros(N, dtype=np.int8)
+        tB = np.ones(N, dtype=np.int8)
+        fatigue_status = np.zeros((N, self.matrix.N_TEAMS), dtype=bool)
+
+        g_a, g_b, _ = sim._sample_match_cdf(
+            tA, tB, phase_idx=0, fatigue_status=fatigue_status,
+            m_id="M73", live_state={"M99": [9, 9], "Foo vs Bar": [5, 5]}
+        )
+
+        self.assertEqual(len(g_a), N)
+        # Sampled scores must not be the unrelated overrides applied verbatim.
+        self.assertFalse(np.all((g_a == 9) & (g_b == 9)))
+        self.assertFalse(np.all((g_a == 5) & (g_b == 5)))
+
     def test_fatigue_propagation(self):
         """Verify that fatigue carries over and executes without array shape mismatch."""
         N = 10
