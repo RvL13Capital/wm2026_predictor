@@ -4,79 +4,83 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A FIFA World Cup 2026 prediction engine that computes mathematically optimal **Kicktipp** score tips (4/3/2 scoring) for individual matches, full-tournament Monte Carlo outcomes ("Bonusfragen" / prop questions), and per-matchday tip sheets. The core prediction path is pure Python standard library; the vectorized/quant layer (`vectorized_mc.py`, `edge_scanner.py`, `backtest_harness.py`) **requires numpy** (`pip install -r requirements.txt`). Current work program: `IMPLEMENTATION_PLAN.md`.
+A FIFA World Cup 2026 prediction engine for a **Kicktipp** pool (4/3/2 scoring), plus a research-grade betting layer. It produces: EV-optimal score tips per match/matchday/KO-round, full-tournament Monte-Carlo answers to the pool's "Bonusfragen" (champion, semifinalists, top-scorer team, group winners), and a **paper-mode** derivative edge scanner. The living work program is `IMPLEMENTATION_PLAN.md` (step IDs S1–S24, gates G1/G2); current status lives in its "Status" section. Development happens on PR #1.
+
+**Pool rules (verified — gate G1, `validation/POOL_RULES.md`):** 4/3/2 scoring where a non-exact draw tip on a draw result scores 3 (Kicktipp "Tordifferenz" rule — see `get_points`), and KO games are scored **"inkl. Elfmeterschießen"** → engine convention `kicktipp_ko_convention = "shootout_total"` (no draws; 90' + ET + every converted shootout kick summed into the final score).
 
 ## Environment
 
-- Runs on any Python 3.10+; verified on system `python3` (3.14). Invoke modules directly with `python3`.
-- The bundled `venv/` was created under a previous path (`~/.gemini/antigravity/scratch/...`) and is stale — don't rely on it; system `python3` works because the code is stdlib-only.
-- No `.gitignore` exists. `__pycache__/*.pyc` are committed and `temp_*.csv` / `tmp*.csv` (test artifacts written to cwd) accumulate — ignore them as noise; don't treat them as source.
+- Python 3.10+ via system `python3`. **Core prediction path is stdlib-only; the quant layer (`vectorized_mc.py`, `edge_scanner.py`, `backtest_harness.py`) requires numpy**: `pip install -r requirements.txt`. Ignore the stale bundled `venv/`.
+- Polymarket/the-odds-api fetches need outbound network; sandboxed containers may 403 — all fetch paths degrade gracefully to Elo-only/skip.
+- Env vars: `WM2026_BENCH=1` asserts the 100k-sim wall-clock budget (off by default — hardware-dependent); `WM2026_NO_MATRIX_CACHE=1` forces a cold matrix rebuild; `WM2026_NO_FRIENDLY_ELO=1` disables the post-friendlies Elo overlay.
 
 ## Commands
 
 ```bash
-# Single-match prediction (per-match CLI; --help lists ~40 context flags)
+# Single match (CLI delegates to predict_single_match — same pipeline as batch/library)
 python3 predictor.py --teamA Spain --teamB Qatar
-python3 predictor.py --teamA France --teamB Brazil --phase FINAL --json
-python3 predictor.py --batch data/sample_matchday.csv          # batch over a CSV
-python3 predictor.py --teamA X --teamB Y --config config.json  # override model constants
+python3 predictor.py --teamA Croatia --teamB Brazil --phase QF --json   # KO: shootout_total grid
+python3 predictor.py --batch data/sample_matchday.csv
 
-# Full-tournament Monte Carlo + Bonusfragen (champion, top scorer, etc.)
-python3 tournament_bonusfragen.py --sims 100000 --seed 42 --output data/run.txt
-python3 tournament_bonusfragen.py --sims 10000 --odds-snapshot data/polymarket_snapshot_20260605_1230.json  # reproducible market blend
-python3 tournament_bonusfragen.py --sims 10000 --fetch-odds    # live Polymarket fetch
+# Tip sheets (group matchdays / KO rounds; full stack: squad+injury Elo, xG form, context)
+python3 matchday_tips.py --md 1 --simulations 1000 --seed 42 --output data/matchdayN_tips_vX.txt
+python3 ko_tips.py --round R32 --matches "Spain vs Uruguay; France vs Germany" --fatigued "Croatia" --seed 42
 
-# Per-matchday tip sheet (uses the FULL stack — see Architecture)
-python3 matchday_tips.py --md 1 --simulations 1000 --seed 42 --output data/matchday1_tips.txt
+# Tournament Monte Carlo / Bonusfragen
+python3 tournament_bonusfragen.py --sims 100000 --seed 42 --output data/run.txt   # scalar engine
+python3 vectorized_mc.py --sims 100000 --seed 42 --live-state data/live_state.json # vectorized engine
+bash resim.sh                                  # daily pair (one seed, one odds snapshot)
 
-# Backtest optimized vs. baseline on historical results; ablation flags isolate each feature
-python3 backtest.py --csv data/wc2022.csv --details
-python3 backtest.py --csv data/wc2022.csv --no-context --no-nb --no-phase --no-dc
-python3 backtest_wm2018.py    # standalone historical folds (2014/2018/2022 each self-contained)
+# Edge scanner — PAPER MODE ONLY (real money is gated on G2)
+python3 edge_scanner.py [--daemon] [--books manual_books.json] [--live-state data/live_state.json]
 
-# Daily regeneration pipeline (fetch odds → 100k sims → save txt+json with provenance header)
-bash resim.sh
+# Tournament ops (run after every final whistle — docs/LIVE_STATE.md)
+python3 scripts/validate_live_state.py data/live_state.json     # typos are silent no-ops in the sims!
+python3 scripts/log_predictions.py --kind matchday --file data/matchdayN_tips_vX.txt  # pre-register BEFORE kickoff
+python3 tests/gate_check.py --bonus <bonus.txt> --matchday <tips.txt>
+
+# Validation / backtests
+python3 backtest_real_market.py            # gate G2 vs REAL closing odds — exits 2 until data/wcXXXX_odds.csv exist
+python3 backtest_kicktipp_folds.py         # F9: 192 real matches, features vs baseline
+python3 recalibrate_lambda.py              # LOTO calibration grid (λ tuning is FROZEN — see below)
+python3 backtest_harness.py --tournament 2022   # FEATURE ABLATION vs synthetic self-market (NOT market alpha)
 ```
 
 ### Tests
 
 ```bash
-python3 tests/run_e2e.py                                   # discovers & runs ALL tests/test_*.py
-python3 -m unittest tests.test_tier1_feature_coverage -v   # one module (note: dotted path, not slash)
-python3 -m unittest tests.test_v4_features.SomeClass.test_x  # one test
-python3 tests/gate_check.py <output_file>                  # validate provenance header + champion-prob stability of a generated output
+python3 -m unittest discover tests          # 229 tests; ~4 min (vectorized matrix precompute dominates)
+python3 -m unittest tests.test_ko_convention -v        # one module (dotted path)
 ```
 
-- Test suite is stdlib `unittest` plus numpy for `test_vectorized_mc`. Tiered: `test_tier1`..`test_tier4` (feature → boundary → cross-feature → real-world), plus `test_v4_features`, `test_adversarial_*`, `test_solver`, `test_predictor`, `test_shin_bayesian`, `test_vectorized_mc`, `test_matchday_elo_restore`.
-- The suite is green (180+ tests). The 100k-sim wall-clock budget in `test_vectorized_mc` is only asserted when `WM2026_BENCH=1` (it is hardware-dependent). Several test files write temp CSVs into the working directory.
+CI (`.github/workflows/ci.yml`) runs the full suite + CLI smoke tests on every PR. Key suites: `test_lambda_points_floor` (calibration regression gate, ≥295/192 pts), `test_ko_convention` (G1 conventions + CLI≡library), `test_joint_kelly` (vs brute-force E[log-growth]), `test_edge_scanner` (offline, stub matrix), `test_vectorized_mc` (incl. cache roundtrip; builds the full matrix once in `setUpClass`). Several tests write temp CSVs into cwd.
 
 ## Architecture
 
-Three executable layers built on one engine. Data flows **engine → solver → simulators**; everything imports `predictor`.
+Everything flows through one engine; **`predictor.predict_single_match(row) -> dict` is the single pipeline** for CLI, batch, matchday and KO tips (the CLI `main()` delegates to it — never add a second solving path).
 
-**`predictor.py`** — the engine and single source of truth (~2400 lines, sectioned by `# ===` headers):
-1. **Inlined solver** (`solve_optimal_tip_from_grid`, `get_points`) — `solver.py` was deleted and folded in here. Do **not** recreate `solver.py`; edit predictor's section 1.
-2. **Team data** — `WORLD_CUP_2026_TEAMS` (Elo + FIFA rank, English keys are canonical) and `TEAM_NAME_MAPPING` (German/alt spellings → canonical). Always resolve names through the mapping.
-3. **Distributions** — Poisson, Negative Binomial (overdispersion), Dixon-Coles low-score correlation (`get_dixon_coles_adjustment`, `generate_joint_grid`).
-4. **Contextual factors** — `get_adjusted_lambdas` composes altitude (`calculate_altitude_factor`), heat/humidity (`calculate_wbgt`/`calculate_thermal_factor`), travel/rest/timezone (`calculate_travel_penalty`), and host/fan support (`calculate_context_adjustments`) into adjusted λs.
-5. **KO/penalty** — `generate_ko_final_grid`, `penalty_shootout_distribution` (a state-machine shootout model).
-6. **Pipeline** — `predict_single_match(row: dict) -> dict` runs the whole chain and returns the grid + optimal tip + EV; `run_batch_prediction` maps it over a CSV.
+**`predictor.py`** — the engine (sectioned by `# ===` headers): inlined 4/3/2 EV solver (`solve_optimal_tip_from_grid`, `get_points`); `WORLD_CUP_2026_TEAMS` Elo (+ `data/elo_2026_post_friendlies.json` overlay at import) and `TEAM_NAME_MAPPING` (always resolve names through it); Poisson/NB + Dixon-Coles (`generate_joint_grid`, renormalized); context layer (`get_adjusted_lambdas`: altitude, WBGT/PPDA heat, travel, host/fans, squad-value VORP); KO grids — `generate_ko_final_grid` (3-layer, shootout_total), `generate_ko_120_grid` (ties retained), selected by `CONSTANTS["kicktipp_ko_convention"]`; advancement probabilities always use the 3-layer model + `penalty_shootout_distribution`. `load_config` is type-preserving (string constants stay strings).
 
-**Interface contract:** the engine emits a joint score grid (`max_goals`×`max_goals`, default 12); the solver picks the tip `(t_a, t_b)` maximizing `EV = 4·P(exact) + 3·P(diff) + 2·P(tendency)`. **Scoring nuance** (`get_points`): exact = 4; correct goal-difference = 3, and per the Kicktipp "Tordifferenz" rule a non-exact draw tip on a draw result counts as correct difference (3, not 2); correct tendency = 2; else 0.
+**Two tournament engines — KNOWN, documented divergence (plan S11, undecided):** `tournament_bonusfragen.py` (scalar; dynamic in-tournament Elo "Cinderella momentum", H2H tiebreakers) vs `vectorized_mc.py` (numpy; static λ with ET-fatigue carry-over states, lexsort tiebreakers without H2H, conditional MD3 dampening). **The vectorized engine is canonical for the scanner.** Do not "fix" one to match the other without the S11 canonical-dynamics decision. `vectorized_mc.build_matrix()` caches the ~4-min precompute to `data/matrix_cache/*.npz`, keyed by a SHA-256 fingerprint over every tensor input — **bump `CACHE_VERSION` whenever grid-generation logic changes upstream.**
 
-**`tournament_bonusfragen.py`** — Monte Carlo simulator of the entire bracket. Owns tournament data (`GROUPS`, `HOST_TEAMS`, `INJURY_ELO_ADJUSTMENTS`, `SQUAD_MARKET_VALUES`) and the extra strength layers (`compute_squad_elo_adjustments`, `compute_xg_form_multipliers`). `precompute_grids` → `simulate_tournament` (group → third-place → KO) → `run_monte_carlo` aggregates Bonusfragen probabilities. Blends market odds when `--fetch-odds`/`--odds-snapshot` is given.
+**Tip generators:** `matchday_tips.py` (group MDs; flat ×0.87 MD3 trim — the only validated MD3 effect) and `ko_tips.py` (KO rounds; Dead-Legs fatigue via `--fatigued`). Both inject squad+injury Elo through the exception-safe `_elo_overrides` context manager and emit the provenance-headed format `scripts/log_predictions.py` parses.
 
-**`matchday_tips.py`** — the "full stack" deliverable generator. Composes `predictor` *plus* `tournament_bonusfragen`'s extra layers (squad value, injury, xG form) and `schedule_context` (rest/travel/elevation). Squad/injury adjustments are injected via the `_elo_overrides` context manager, which **temporarily mutates the global `predictor.WORLD_CUP_2026_TEAMS` Elo dict** and restores it in a `finally` block (exception-safe). Per-match determinism uses `match_seed = seed + match_index`.
+**Betting layer (paper only):** `edge_scanner.py` — live Polymarket outright + 1X2 books (`odds_client.py`, liquidity-guarded), manual `--books` JSON for other derivatives; pure-model priors (never blend the market into a prior you difference against the market); Shin de-vig (`utils/math_utils.devig_shin` — canonical iterative, see `validation/SHIN_EVALUATION.md` for the fake-Shin post-mortem); **joint sizing per mutually exclusive book** (`kelly_mutually_exclusive`); per-leg/per-scan caps; JSONL ledger `scan_ledger/2026.jsonl`. Match-market model 1X2 always derives from `grid_90` (exchange 1X2 settles on 90', even for KO fixtures).
 
-**Supporting modules:**
-- `odds_client.py` — Polymarket / the-odds-api fetching → 1x2 probabilities → λ (`odds_to_lambdas`, `blend_lambdas` in predictor).
-- `schedule_context.py` + `stadium_data.py` — FIFA 2026 schedule, stadium elevations/coords, `haversine_distance`, `tz_difference` → per-match travel/rest/elevation context. `build_schedule.py` / `build_real_schedule.py` regenerate the schedule JSON.
-- `config.json` — tunable model constants (elevation/thermal/travel/host coefficients, KO ρ multipliers). `predictor.load_config` overrides only keys already present in `CONSTANTS`, coercing to float.
+**Support:** `schedule_context.py` + `stadium_data.py` (schedule/travel/elevation/roofs), `utils/live_state.py` (+ `scripts/validate_live_state.py`), `squad_data.py` (note: fixed 65/35 XI/bench split → depth terms are collinear with squad value until real per-player data exists — plan S23).
+
+## Validation truths (do not regress these)
+
+- **F9 (`validation/F9_OUT_OF_SAMPLE.md`):** over 192 real matches, DC+NB+context+phase are points-neutral and calibration-neutral. The simple Elo→Poisson→EV path carries the performance.
+- **λ calibration (`validation/points_recalibration.md`):** production `elo_baseline_goals=1.0` scores **299/192** (best tested; mechanism: low λ → EV-optimal `0:0` tips under the Tordifferenz rule). **λ tuning is frozen until post-tournament**; `tests/test_lambda_points_floor.py` enforces ≥295 — any deliberate calibration change must beat the floor or update it *with a measurement in that doc*. Points and calibration are different objectives (tipping optimizes points; the betting track needs calibration).
+- **Gate G2 (`backtest_real_market.py`):** the scanner stays **paper-only** until the pre-registered real-odds verdict passes (model/blend beats the close on ≥2/3 tournaments AND flat-ROI 95% CI > 0). Never fabricate odds data; the script exits 2 until `data/wc{2014,2018,2022}_odds.csv` are supplied. `backtest_harness.py` is a feature ablation against a self-referential synthetic market — its dollar metrics are not market alpha.
 
 ## Conventions & gotchas
 
-- **Provenance discipline.** Generated outputs carry a header (timestamp / seed / git commit / command); `tests/gate_check.py` enforces it. Do **not** generate committed outputs from a dirty tree — past dirty-tree runs produced outputs citing commits that didn't contain the generating code (the "phantom history" problem). Commit code before regenerating, and reseed deterministically.
-- **Output versioning.** `data/` holds versioned families (`bonusfragen_*`, `matchday1_tips_v3/v4/v5.txt`, timestamped `polymarket_snapshot_*.json`). New runs add a new version rather than overwriting.
-- **Dead scripts at repo root** reference modules that were removed (`solver.py`, `tournament_sim.py`) or use `pandas`: `verify_solver_equivalence.py`, `test_tournament_sim.py`, `test_wiki.py`, `temp_verify.py`. They are not part of the live stack — don't use them as references for current behavior.
-- **Project status** lives in `PROJECT.md` (milestone table) and the most recent `FORENSIC_RECHECK_*.md` audit. The repo is mid-"V5". The following audited defects are now **fixed in the worktree** (uncommitted): host status in `matchday_tips.py` (`"host"`→`"True Home"`, fan share as decimals); `Congo DR` aliases in `TEAM_NAME_MAPPING`; the silent odds-parse `except` now warns; the Bonusfragen KO shootout uses `predictor.penalty_shootout_distribution` + `PENALTY_STRENGTH` via `tbf._penalty_win_prob` (no more coinflip clamp); `market_probs` is wired end-to-end through a shared `tbf.apply_market_odds_to_row` (matchday gained `--odds-snapshot`); provenance headers carry a `-dirty` flag (`tbf.git_commit_label`); `.gitignore` added and `*.pyc` untracked.
-- **F9 (validation honesty) — resolved**: two honest harnesses over the same 192 real matches (2014+2018+2022, pre-tournament Elo, no lookahead; datasets `data/wc20XX_results.csv`). `backtest_kicktipp_folds.py`: optimized **ties** baseline on points (291–291) — DC+NB never move the EV-optimal tip. `backtest_calibration_tuning.py`: DC+NB are marginally **worse** on all calibration metrics (Brier/RPS/log-loss/exact-log-loss), and leave-one-tournament-out tuning of ρ/α **loses** to baseline on points (−4) and RPS (+0.0015); Negative Binomial monotonically hurts points. **Net: R4 not met on any measured criterion; the simple Elo→Poisson→EV path is at least as good.** Circular MC defense withdrawn (`validation/backtest_engine_real.md`); full writeup `validation/F9_OUT_OF_SAMPLE.md`. A lower-variance follow-up against **non-penalty xG** (StatsBomb open data, 2018+2022; `build_xg_data.py` → `data/wc20XX_xg.csv` → `backtest_xg_calibration.py`) found the core Elo→λ has real margin skill (npxG-margin r≈+0.57) but is **over-scaled** (overstates favorites; MAE worse than a constant) → recalibrate `elo_baseline_goals`/`elo_scale_factor`; context showed a per-team MAE gain that **disappeared on the bias-invariant margin** (confound, not signal). **Status of those recommendations**: the Elo→λ recalibration **was applied** (`elo_baseline_goals` 1.35 → 1.00, commit 13da0cd) and subsequently **points-validated** on the same 192 matches (299 pts vs 291 old default; paired bootstrap +8.1, 95% CI [−16, +33] — best tested config, though within noise). NB stays off by default (α=0); ρ=−0.05 remains (tip-neutral per F9). Further λ tuning is frozen until after the tournament (see `IMPLEMENTATION_PLAN.md` S10). (Altitude/heat curves remain untestable on free xG — no 2014, no qualifiers.)
+- **Provenance discipline.** Commit code BEFORE regenerating any published output; headers carry a `(dirty)` flag; `log_predictions.py` refuses dirty artifacts; `tests/gate_check.py` validates header pairs. Pre-register tips in `predictions_log/2026.jsonl` BEFORE kickoff — that log is the post-tournament evidence base (plan S21).
+- **Harness-first.** Any change that can move a tip or probability re-runs the 192-match folds before merge (the λ episode proved intuition flips sign here).
+- **`.gitignore` policy:** generated tip sheets / bonusfragen outputs / snapshots / `data/matrix_cache/` stay **local**; the JSONL logs (`predictions_log/`, `scan_ledger/`) are **committed**.
+- **Change freeze from Jun 28** (first KO match): only P0 fixes merge, each with the full suite + points-floor + equivalence tests green.
+- **One commit per plan step ID**, message referencing the step (S-number).
+- **Dead scripts at repo root** (`verify_solver_equivalence.py`, `test_tournament_sim.py`, `temp_verify.py`, `test_wiki.py`, `fetch_github.py`) reference removed modules or pandas — not part of the live stack; deletion is plan S24.
+- **Open items:** S11 canonical-dynamics decision; S15 third-place match M103 (absent from both engines — Golden Boot misses its goals); G2 odds data; optional pool-history check of the shootout score representation (`validation/POOL_RULES.md`).

@@ -1,70 +1,96 @@
-# Project: World Cup 2026 Prediction Engine
+# Project: World Cup 2026 Prediction Engine & Quant Suite
 
-## Architecture
-- Refactored `predictor.py` with advanced models and contextual factors.
-- `solver.py` for the Kicktipp EV maximizing solver.
-- `backtest.py` for backtesting comparison against the baseline.
-- `tests/` for E2E and unit tests.
+**Goal:** maximize Kicktipp points in a real pool (4/3/2 scoring, KO games scored
+"inkl. Elfmeterschießen" — gate G1, `validation/POOL_RULES.md`), answer the pool's
+Bonusfragen via tournament Monte Carlo, and — strictly evidence-gated — scan
+derivative markets for edge. The living work program is
+[`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md) (steps S1–S24, gates G1/G2);
+the audit trail lives in [`validation/`](validation/) and the forensic/review
+documents. Tournament: Jun 11 – Jul 19, 2026.
+
+## Architecture (current)
+
+- **`predictor.py`** — the engine and single pipeline (`predict_single_match`):
+  Elo→λ (production `elo_baseline_goals=1.0`, points-validated), Poisson/NB +
+  Dixon-Coles grid, context layer (altitude/WBGT·PPDA/travel/host/squad), KO
+  grids per scoring convention (`shootout_total` default; `120min`/`90min`
+  implemented), inlined 4/3/2 EV solver. CLI, batch, and tip generators all
+  delegate here — there is exactly one solving path.
+- **Tournament engines:** `tournament_bonusfragen.py` (scalar; dynamic
+  in-tournament Elo) and `vectorized_mc.py` (numpy; ET-fatigue carry-over,
+  bitmask third-place routing, fingerprint-keyed matrix cache). Their dynamics
+  deliberately differ — unification awaits the S11 canonical-dynamics decision;
+  the vectorized engine is canonical for the scanner.
+- **Deliverable generators:** `matchday_tips.py` (group MDs), `ko_tips.py`
+  (KO rounds, Dead-Legs fatigue), both with provenance headers consumed by
+  `scripts/log_predictions.py` (pre-registered prediction log).
+- **Betting layer (paper-only until G2):** `edge_scanner.py` — live Polymarket
+  books, Shin de-vig (`utils/math_utils`), **joint** Kelly per mutually
+  exclusive book, per-leg/per-scan caps, JSONL scan ledger.
+- **Ops:** `resim.sh` (deterministic daily pair), `docs/LIVE_STATE.md` +
+  `scripts/validate_live_state.py`, CI in `.github/workflows/ci.yml`
+  (229 tests).
 
 ## Milestones
-| # | Name | Scope | Dependencies | Status |
-|---|------|-------|-------------|--------|
-| 1 | E2E Testing Track | Design and build the E2E test suite (Tiers 1-4). Outputs: `TEST_INFRA.md`, `tests/run_e2e.py`, `TEST_READY.md`, and E2E test suite in `tests/` | None | DONE (Conv: 4606a3e4-1e6e-445b-8297-9307c4ee54d6) |
-| 2 | Advanced Probability Engine | Negative Binomial with Dixon-Coles and contextual factors (elevation, climate, travel, host support) | None | DONE (Conv: 4f3269e2-ee07-40b5-a16d-ccb850258a93 / 5e253a0d-1ef6-433b-8ff5-37ec851b88d5) |
-| 3 | Kicktipp Solver | EV Maximization under 4/3/2 scoring rules | M2 | DONE (Conv: 5ec5b1fc-eba4-46ab-9594-0883a7e5092d) |
-| 4 | Backtesting Suite | Backtest optimized model vs baseline on WC 2022 data | M2, M3 | DONE (Conv: 1c17fbc0-a37c-479d-9f52-97f97dfa44dc) |
-| 5 | E2E Validation & Adversarial Hardening | E2E testing validation + Tier 5 coverage audit and fix | M1, M4 | DONE (Conv: 1ff89a9c-a7fd-4f6c-8d6a-d4b718379ee3) |
-| 6 | In-Play Oracle & Path-Dependent Fatigue | Live state overrides, 4D fatigue arrays, conditional ET probabilities, and multi-derivative scanner | M2, M3, M5 | DONE (Conv: f91688cd-043a-4ce5-a835-496bd0fefa0a) |
-| 7 | Walk-Forward Backtesting Harness | Historical Point-in-Time chronological walk-forward simulation against Synthetic Elo Market baseline | M4, M6 | DONE (Conv: f91688cd-043a-4ce5-a835-496bd0fefa0a) |
 
-## Detailed Requirements Mapping
+| # | Name | Status / evidence |
+|---|------|-------------------|
+| 1 | E2E Testing Track (Tiers 1–4, `TEST_INFRA.md`) | DONE (Conv: 4606a3e4) |
+| 2 | Advanced Probability Engine (NB + Dixon-Coles + context) | DONE (Conv: 4f3269e2 / 5e253a0d) |
+| 3 | Kicktipp Solver (4/3/2 EV maximization) | DONE (Conv: 5ec5b1fc) |
+| 4 | Backtesting Suite (WC2022 vs baseline) | DONE (Conv: 1c17fbc0) — verdict superseded by F9, see R4 below |
+| 5 | E2E Validation & Adversarial Hardening | DONE (Conv: 1ff89a9c) |
+| 6 | In-Play Oracle & Path-Dependent Fatigue | DONE (Conv: f91688cd) — `m_id` override path fixed in S1 |
+| 7 | Walk-Forward Harness vs Synthetic Elo Market | DONE (Conv: f91688cd) — relabeled FEATURE ABLATION in S16 (self-referential baseline; not market alpha) |
+| 8 | Forensic audits & honest validation (F9, Shin post-mortem, λ recalibration) | DONE 2026-06-06..10 — `FORENSIC_RECHECK_V4_2026-06-06.md`, `validation/F9_OUT_OF_SAMPLE.md`, `validation/SHIN_EVALUATION.md`, `validation/points_recalibration.md` |
+| 9 | External code review → phased plan | DONE 2026-06-10 — `IMPLEMENTATION_PLAN.md`, PR #1 |
+| 10 | **Phase 0** (S1–S9): tournament-critical fixes, CI, deterministic resim, pre-registered MD1 tips | DONE 2026-06-10, before the opener |
+| 11 | **Phase 1** (S10, S12–S14, S19): λ points-floor gate, KO convention + CLI/library unification, matrix cache, KO-λ decontamination, `ko_tips.py` | DONE 2026-06-10 — S15 optional open; S11 awaiting canonical-dynamics decision |
+| 12 | **Phase 2** (S16–S18): G2 real-odds harness, paper scanner with joint Kelly + caps + ledger, live-state validator/runbook | DONE 2026-06-10 — **gate G2 awaiting `data/wc{2014,2018,2022}_odds.csv`** |
+| 13 | Phase 3 (S20): KO-stage operations under change freeze (from Jun 28) | PENDING — daily loop per `docs/LIVE_STATE.md` |
+| 14 | Phase 4 (S21–S24): post-tournament evaluation, fitted DC pipeline, per-player data, packaging | PENDING (elective, after Jul 19) |
 
-### R1. Advanced Probability Engine
-The engine replaces the simplistic independent Poisson model to resolve draw bias and overdispersion:
-- **Negative Binomial with Dixon-Coles Adjustments**: Uses a Negative Binomial distribution to model goal overdispersion, combined with a Dixon-Coles correlation parameter ($\rho$) to properly model draw tendencies for low scores (0-0, 1-0, 0-1, 1-1).
-- **Negative Binomial Model**: Handles overdispersion (high-scoring outliers) where variance exceeds the mean.
+## Requirements — honest status
 
-### R2. Contextual WM-Specific Factors
-Incorporates mathematical correction factors to adjust team strength parameters dynamically:
-- **Altitude Acclimation Curves**: Stadium elevations impact player endurance and ball physics, modeled using acclimation curves.
-- **Climatic Conditions**: Adjusts team performance based on heat and humidity index (wet-bulb temperature equivalents).
-- **Travel and Rest Days**: Penalizes teams based on travel mileage and timezone transitions relative to rest days.
-- **Fan Support / Host Advantage**: Adjusts base strength parameters to account for home-field / host country support.
+- **R1 Advanced probability engine** — implemented (NB2, standard DC-1997 τ with
+  NB generalization, renormalized grids). **Evidence verdict (F9): the added
+  complexity is points- and calibration-neutral over 192 real matches**; it
+  remains available behind defaults and is being evidence-tested live in 2026.
+- **R2 Context factors** — implemented (altitude curves, WBGT with PPDA
+  vulnerability and roof overrides, travel/rest/timezone, host/fans, squad
+  value). Evidence: no detectable outcome signal on the bias-invariant margin
+  (`validation/backtest_xg_calibration.txt`); the 2026 prediction log (S7/S21)
+  is the first real test of the heat/altitude curves.
+- **R3 Kicktipp solver** — implemented and exact, including the Tordifferenz
+  draw rule (non-exact draw tip on a draw = 3). EV decomposition is O(N²+T²).
+- **R4 "Optimized beats baseline on historical points"** — **NOT MET** (F9:
+  291–291 over 192 matches; circular MC defense withdrawn). What *did* pay:
+  the λ recalibration to 1.0 (**299/192**, `validation/points_recalibration.md`),
+  now protected by a CI points floor (≥295). λ tuning frozen until
+  post-tournament.
+- **R5 In-play oracle & fatigue** — implemented; the match-id override path was
+  broken (crash/stale reuse) until S1; live-state files are now validated
+  before use (S18).
+- **R6 Market backtest** — the synthetic-market harness is a feature ablation
+  (era-cleaned of 2026 tables in S16). The real test is
+  `backtest_real_market.py` with a **pre-registered verdict**: real-money use
+  only if model/blend log-loss beats the de-vigged close on ≥2/3 tournaments
+  AND flat-ROI 95% CI > 0. Until then the scanner is paper-only by
+  construction (no execution path exists).
 
-### R3. Kicktipp Solver (EV Maximization)
-Strictly implements the 4/3/2 scoring system solver:
-- For any pair of team strength inputs, the solver iterates over possible score tips $(t_A, t_B)$ and outputs the tip maximizing expected points:
-  $$E(t) = 4P(\text{Exact}) + 3P(\text{Diff}) + 2P(\text{Tendenz})$$
-- Points rules:
-  - **4 Points**: Exact score ($t_A = g_A$ and $t_B = g_B$)
-  - **3 Points**: Correct goal difference and tendency ($t_A - t_B = g_A - g_B$ and $\text{sign}(t_A - t_B) = \text{sign}(g_A - g_B)$)
-  - **2 Points**: Correct tendency only ($\text{sign}(t_A - t_B) = \text{sign}(g_A - g_B)$)
-  - **0 Points**: Otherwise
+## Decision log / open gates
 
-### R4. Backtesting and Validation
-Provides a backtesting suite (`backtest.py`) that:
-- Evaluates the model using historical data (e.g., World Cup 2022 match results).
-- Compares its simulated Kicktipp points performance against the baseline independent Poisson model.
-- Verifies if the optimized model achieves higher total points than the baseline on historical match data.
+| Item | Status |
+|---|---|
+| **G1** pool KO scoring rule | ✅ RESOLVED 2026-06-10: `shootout_total` ("inkl. Elfmeterschießen"). Residual: 2-min check of a historical shootout game's entered scoreline (`validation/POOL_RULES.md`) |
+| **G2** real-odds alpha gate | ⏳ AWAITING DATA (`data/wc{2014,2018,2022}_odds.csv`); expected outcome per plan: NOT PASSED → paper-only, recorded as loss prevention |
+| **S11** canonical in-tournament dynamics | ⏳ DECISION NEEDED: scalar dynamic Elo vs vectorized fatigue carry-over (then unify MD3 regime, ET model, tiebreakers + equivalence test) |
+| λ calibration | 🔒 FROZEN at 1.0 until post-tournament (points floor in CI) |
+| S15 third-place match M103 | Optional — absent from both engines (Golden Boot misses its goals) |
 
-### R5. In-Play Oracle & Path-Dependent Fatigue Engine
-- **In-Play State Injection**: Ingests live score updates at half-time or full-time to collapse prediction realities into a deterministic state and dynamically propagate updated standings.
-- **Path-Dependent Fatigue carry-over ("Dead Legs")**: Precomputes a 4-dimensional fatigue grid and dynamically flags matches that went to Extra Time/Penalties, applying a bench-depth-scaled physiological exhaustion penalty to the winning team in their next match.
+## Operations (tournament window)
 
-### R6. Chronological Walk-Forward Backtest
-- **Synthetic Elo Market Prior**: Compares the full model's predictive skill against a vanilla Elo baseline with a standard 5% overround.
-- **Kelly Execution**: Evaluates financial viability using 0.25x Fractional Kelly allocation on a $100,000 bankroll.
-- **Brier Skill Score**: Isolates genuine physiological alpha by comparing Brier Scores (Mean Squared Error) in extreme environmental conditions and fatigue carry-over matches.
-
-## Interface Contracts
-### predictor.py ↔ solver.py
-- **Prediction engine** outputs a full probability distribution over scores (up to `max_goals` × `max_goals` grid, e.g., $12 \times 12$).
-- **Solver** takes this probability distribution and outputs the optimal tip $(t_A, t_B)$ maximizing Kicktipp EV.
-
-## Code Layout
-- `predictor.py`: Core probability modeling (implements Poisson, Dixon-Coles, and contextual factors).
-- `vectorized_mc.py`: Fast Monte Carlo engine executing 100,000 bracket realities in 4.2 seconds under hardware L3 cache compression, supporting live state overrides and path-dependent fatigue.
-- `edge_scanner.py`: Asynchronous live bet exchange edge scanner daemon with Shin's Method and Kelly sizing.
-- `backtest_harness.py`: Chronological Point-in-Time walk-forward historical backtesting harness.
-- `matchday_tips.py` & `tournament_bonusfragen.py`: Kicktipp optimal tip solvers for matchdays and tournament-wide outright bonus questions.
-- `tests/`: Extensive unit and E2E test suite (176 tests).
+After every final whistle: update `data/live_state.json` → `scripts/validate_live_state.py` →
+re-sim (`resim.sh` / `vectorized_mc.py --live-state`) → next tips (`matchday_tips.py` /
+`ko_tips.py`) → `scripts/log_predictions.py` **before kickoff** → paper scan
+(`edge_scanner.py`). Change freeze from Jun 28: P0 fixes only, full suite green.
