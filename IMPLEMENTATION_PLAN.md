@@ -28,6 +28,13 @@ The plan is sequenced by **deadline, then dependency, then value**. Two decision
 
 Effort totals: Phase 0 ≈ 1 dev-day · Phase 1 ≈ 5–7 dev-days · Phase 2 ≈ 5–7 dev-days · Phase 3 ≈ 0.5 h/day ops · Phase 4 ≈ 3–6 elective weeks.
 
+## Status (updated 2026-06-10)
+
+- **Phase 0 — ✅ COMPLETE** (S1–S9 all merged; CI green on first run; MD1 tips pre-registered in `predictions_log/2026.jsonl` before the opener).
+- **Gate G1 — ✅ RESOLVED**: pool scores KO games "inkl. Elfmeterschießen" → `shootout_total`.
+- **Phase 1:** S10 ✅ (points floor 299/192 pinned) · S12 ✅ (convention switch + CLI/library unification; library bit-identical) · S13 ✅ (matrix cache) · S14 ✅ (KO-λ decontamination) · S19 ✅ (`ko_tips.py`) · S15 open (optional) · **S11 partially open** — see design note below.
+- **S11 design note:** MD3-regime/ET-model/tiebreaker unification and the champion-blend renormalization remain straightforward, **but a strict scalar↔vectorized equivalence test is blocked by a deliberate model divergence**: the scalar engine evolves dynamic in-tournament Elo ("Cinderella momentum", K=30/40) while the vectorized engine instead carries ET-fatigue states. Unifying requires a decision on which dynamic is canonical (or porting fatigue into the scalar / dynamic Elo into the vectorized engine). Decide before implementing; until then the two engines are *documented* as different models and the vectorized engine is the one feeding `edge_scanner`.
+
 ---
 
 ## Phase 0 — Today (Jun 10), before the opener
