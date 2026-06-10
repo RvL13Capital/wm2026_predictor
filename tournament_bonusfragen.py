@@ -1447,6 +1447,10 @@ def _run_monte_carlo_inner(n_sims: int = 10000, market_probs: dict = None,
         "all": {t: round(c / n_sims, 4) for t, c in ts_sorted[:10]},
     }
     
+    # per-team expected tournament goals consumed by goalscorer.py
+    results["team_expected_goals"] = {t: round(g / n_sims, 3)
+                                      for t, g in sorted(total_goals_sum.items(), key=lambda x: -x[1])}
+    
     return results
 
 

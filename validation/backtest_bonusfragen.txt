@@ -1,0 +1,33 @@
+==================================================================================
+BONUSFRAGEN BACKTEST — MC simulation vs naive highest-Elo, scored vs actual outcomes
+  3 World Cups, 20,000 sims each, point-in-time Elo. Points (illustrative): champion 16, SF 6/team, group winner 4/group.
+==================================================================================
+
+WC2014  (actual champion: Germany)
+  MC pick    champion=Argentina (16%)  → champ ✗, SF 2/4, groups 6/8  = 36 pts
+  Naive Elo  champion=Spain  → champ ✗, SF 2/4, groups 6/8  = 36 pts
+  Δ (MC − naive): +0 pts
+
+WC2018  (actual champion: France)
+  MC pick    champion=Brazil (22%)  → champ ✗, SF 0/4, groups 5/8  = 20 pts
+  Naive Elo  champion=Brazil  → champ ✗, SF 1/4, groups 5/8  = 26 pts
+  Δ (MC − naive): -6 pts
+
+WC2022  (actual champion: Argentina)
+  MC pick    champion=Brazil (34%)  → champ ✗, SF 1/4, groups 6/8  = 30 pts
+  Naive Elo  champion=Brazil  → champ ✗, SF 1/4, groups 6/8  = 30 pts
+  Δ (MC − naive): +0 pts
+
+──────────────────────────────────────────────────────────────────────────────────
+AGGREGATE bonus points (3 tournaments, max possible 216):
+  MC simulation : 86
+  Naive Elo     : 92
+  Δ (MC − naive): -6
+
+→ MC scores FEWER bonus points than naive Elo ranking here — the simulation's argmax
+  picks are no better (worse, on this sample) than just picking the highest-Elo team.
+
+CAVEAT: 3 tournaments is a tiny sample, and champion is near-unpredictable (top pick is
+only 16–33% likely and the favorite lost all 3). Group winners carry most of the points
+and are where any signal lives. Point weights are illustrative.
+==================================================================================

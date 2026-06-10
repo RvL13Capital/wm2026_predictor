@@ -1,0 +1,28 @@
+==========================================================================
+JUNE-2026 FRIENDLIES — impact on the canonical sampled bracket
+==========================================================================
+(same RNG seed both runs — every difference below is caused by the Elo update)
+
+Champion:   Spain          → Spain          (unchanged)
+Finalists:  Argentina, Spain
+        →   Argentina, Spain  (unchanged)
+
+Semifinalists pre : Argentina, Brazil, France, Spain
+Semifinalists post: Argentina, Brazil, France, Spain
+   (final four unchanged)
+
+Group-winner changes (2 of 12 groups):
+   Group B: Switzerland → Canada
+   Group G: Egypt → Iran
+
+--------------------------------------------------------------------------
+Biggest Elo moves driving any change:
+   Haiti            1532 →  1567.9  (+35.9)
+   Cape Verde       1576 →  1604.5  (+28.5)
+   Mexico           1867 →  1891.9  (+24.9)
+   Belgium          1888 →  1911.0  (+23.0)
+   New Zealand      1585 →  1562.8  (-22.2)
+   Ivory Coast      1676 →  1694.2  (+18.2)
+   France           2082 →  2063.8  (-18.2)
+   Netherlands      1944 →  1928.5  (-15.5)
+==========================================================================

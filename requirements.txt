@@ -1,0 +1,7 @@
+# The prediction engine is 100% pure Python standard library.
+# predictor.py and the entire live path (matchday_tips, odds_client, make_bracket_html,
+# tournament_bonusfragen) require ZERO third-party packages — that is the design.
+#
+# The only third-party dependency is pandas, used solely by one offline/peripheral test
+# (test_wiki.py); it is NOT on any prediction code path. Install it only to run that test.
+pandas

@@ -1,0 +1,32 @@
+============================================================================
+λ RECALIBRATION — does it make the end result more accurate? (LOTO, 192 matches)
+============================================================================
+
+MOST-LIKELY score accuracy (exact / tendency), out of 192 matches:
+  current default  (bg1.35 sf1600 ρ-0.05 α0.05): exact 22 (11%)  tendency 38%
+  LOTO (log-loss-selected, OOS)            : exact 23 (12%)  tendency 47%
+  in-sample BEST (1.15, 1200, 0.0, 0.06) (overfit ceiling): exact 31 (16%)  tendency 57%
+  LOTO held-out picks: 2014:bg1.25 sf2000 ρ0.0 α0.06 | 2018:bg1.25 sf1600 ρ0.0 α0.06 | 2022:bg1.25 sf1200 ρ0.0 α0.0
+
+EV-optimal tip accuracy (for reference — the points-maximising submission):
+  default                     : exact 25 (13%)  tendency 55%
+  best (1.15, 1200, 0.0, 0.06): exact 25 (13%)  tendency 55%
+
+HELD-OUT LOG-LOSS vs KICKTIPP-EV PAYOFF (per fold — the real North Star):
+  fold  LL-selected config              ΣNLL  def → sel   Kicktipp pts def → sel
+  2014  bg1.25 sf2000 ρ0.0 α0.06       185.9 → 186.8          104 → 105       
+  2018  bg1.25 sf1600 ρ0.0 α0.06       181.7 → 181.0          103 → 101       
+  2022  bg1.25 sf1200 ρ0.0 α0.0        190.8 → 194.6           84 → 89        
+  ALL                                  558.3 → 562.5          291 → 295       
+  per match: NLL 2.908 → 2.930   |   Kicktipp pts 1.516 → 1.536   (net +4 pts / 192)
+  ↳ does tighter calibration actually pay in Kicktipp points? YES on this sample.
+
+λ scale fit directly to non-penalty xG (2018+2022):
+  baseline_goals 0.91 (default 1.35) · scale_factor 1856 (default 1600)
+  → less favourite-stretch, lower base goals
+
+----------------------------------------------------------------------------
+VERDICT: out-of-sample exact-score change vs default: +1 matches (+0.5 pts).
+Exact-score accuracy is capped by the flat result distribution + ~23% finishing luck;
+recalibration mainly moves TENDENCY/calibration, not the exact scoreline.
+============================================================================

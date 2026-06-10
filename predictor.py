@@ -384,6 +384,27 @@ TEAM_NAME_MAPPING = {
     "cabo verde": "Cape Verde",
 }
 
+
+# --- AUTO-LOAD DYNAMIC ELO (single source of truth across every script) -------
+# Bug fix: make_bracket_html applied data/elo_2026_post_friendlies.json, but matchday_tips
+# (the LIVE tip generator) did not — it ran on stale hardcoded ratings (France was off by 18).
+# Overlaying at import time guarantees predictor / matchday_tips / bracket all use the same
+# freshest Elo. Set WM2026_NO_FRIENDLY_ELO=1 to fall back to the hardcoded pre-friendly dict.
+def _load_dynamic_elos():
+    import os, json
+    fpath = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "elo_2026_post_friendlies.json")
+    if os.path.exists(fpath) and os.environ.get("WM2026_NO_FRIENDLY_ELO") != "1":
+        try:
+            with open(fpath, "r", encoding="utf-8") as f:
+                post = json.load(f)
+            for t, d in post.items():
+                t_clean = TEAM_NAME_MAPPING.get(t.strip().lower(), t.strip())
+                if t_clean in WORLD_CUP_2026_TEAMS:
+                    WORLD_CUP_2026_TEAMS[t_clean]["elo"] = float(d["elo"])
+        except Exception:
+            pass
+_load_dynamic_elos()
+
 # ==============================================================================
 # PENALTY SHOOTOUT STRENGTH (team-specific conversion rate modifier)
 # ==============================================================================
@@ -485,6 +506,7 @@ DEFAULT_CONSTANTS = {
     "et_time_fraction": 0.333,       # 30 min / 90 min
     "et_fatigue_factor": 0.85,       # Teams are ~15% less effective due to exhaustion
     "et_rho_dampening": 0.5,         # Dixon-Coles effect is weaker in ET
+    "et_depth_asymmetry": 0.0,       # 5-sub squad-depth ET skew (0 = symmetric original; ~0.20 favours stronger side). UNVALIDATED — backtest before enabling.
     # Penalty model (Layer 3)
     "pen_conversion_rate": 0.75,     # Historical average: ~75% of penalties score
     "pen_sudden_death_conversion": 0.72,  # Slightly lower under sudden death pressure
@@ -613,11 +635,21 @@ def odds_to_lambdas(p_home: float, p_draw: float, p_away: float,
     p_away /= total
     
     def objective(la, lb):
-        """MSE between model and market probabilities."""
+        """Forward KL divergence D(market ‖ model): penalises the model for
+        starving outcomes the market gives real mass to (underdog/draw tails),
+        which plain MSE shrugs off in favour of the big favourite term."""
         if la <= 0.01 or lb <= 0.01 or la > 5.0 or lb > 5.0:
             return 1e10  # Out of bounds
         ph, pd, pa = _poisson_1x2_from_lambdas(la, lb, rho, max_goals)
-        return (ph - p_home)**2 + (pd - p_draw)**2 + (pa - p_away)**2
+        tot = ph + pd + pa
+        if tot <= 0.0:
+            return 1e10
+        ph, pd, pa = ph / tot, pd / tot, pa / tot   # model not self-normalised (DC + truncation)
+        kl = 0.0
+        if p_home > 0.0: kl += p_home * math.log(p_home / max(ph, 1e-12))
+        if p_draw > 0.0: kl += p_draw * math.log(p_draw / max(pd, 1e-12))
+        if p_away > 0.0: kl += p_away * math.log(p_away / max(pa, 1e-12))
+        return kl
     
     # Phase 1: Coarse grid search (step=0.1, range 0.2-4.0)
     best_la, best_lb = 1.3, 1.1
@@ -708,6 +740,35 @@ def blend_lambdas(elo_la: float, elo_lb: float,
         lb = w * market_lb + (1.0 - w) * elo_lb
         
     return round(la, 4), round(lb, 4)
+
+
+def extract_true_probs_power(oh: float, od: float, oa: float) -> Tuple[float, float, float]:
+    """
+    Strip bookmaker margin via the Power method (Buchdahl): solve for exponent k
+    such that (1/oh)^k + (1/od)^k + (1/oa)^k = 1, then renormalise.
+
+    Unlike proportional de-vigging (divide each inverse-odd by their sum), the
+    Power method removes proportionally MORE margin from longshots than from
+    favourites, countering the favourite-longshot bias books bake into the price.
+    Falls back to plain normalisation when the book carries no overround.
+    """
+    inv = [1.0 / oh, 1.0 / od, 1.0 / oa]
+    s = sum(inv)
+    if s <= 1.0:                      # no margin to strip — just normalise
+        return inv[0] / s, inv[1] / s, inv[2] / s
+    lo, hi = 1.0, 2.0                 # widen hi until it brackets the root
+    while sum(v ** hi for v in inv) > 1.0 and hi < 64.0:
+        hi *= 2.0
+    for _ in range(60):               # bisection: sum(inv**k) is monotone decreasing in k
+        mid = 0.5 * (lo + hi)
+        if sum(v ** mid for v in inv) > 1.0:
+            lo = mid
+        else:
+            hi = mid
+    k = 0.5 * (lo + hi)
+    p = [v ** k for v in inv]
+    tot = sum(p)
+    return p[0] / tot, p[1] / tot, p[2] / tot
 
 
 # ==============================================================================
@@ -1244,12 +1305,12 @@ def get_adjusted_lambdas(
     if math.isnan(exponent_A) or math.isinf(exponent_A):
         exponent_A = 0.0
     else:
-        exponent_A = max(-20.0, min(20.0, exponent_A))
+        exponent_A = max(-1.0, min(1.0, exponent_A))   # safety cap (was ±20): real WC2026 altitude extreme is ~0.59, so ±1 never clips legit physics
         
     if math.isnan(exponent_B) or math.isinf(exponent_B):
         exponent_B = 0.0
     else:
-        exponent_B = max(-20.0, min(20.0, exponent_B))
+        exponent_B = max(-1.0, min(1.0, exponent_B))   # NB: the proposed ±0.35 WOULD clip Azteca's 0.587 — too tight
         
     if math.isnan(lambda_A_base) or math.isinf(lambda_A_base) or lambda_A_base < 0.0:
         lambda_A_base = 0.0
@@ -1502,8 +1563,19 @@ def generate_ko_final_grid(config: MatchModelConfig, max_final_goals: int = 15,
     et_fatigue = CONSTANTS["et_fatigue_factor"]
     et_rho_damp = CONSTANTS["et_rho_dampening"]
     
-    lambda_a_et = config.mu_a * et_time * et_fatigue
-    lambda_b_et = config.mu_b * et_time * et_fatigue
+    # Squad-depth asymmetry (5-sub era): the stronger side tends to retain more
+    # in ET. Controlled by et_depth_asymmetry; 0.0 = original symmetric model.
+    # mu is only a proxy for depth, so this is OFF by default pending a backtest.
+    _asym = CONSTANTS.get("et_depth_asymmetry", 0.0)
+    if _asym != 0.0:
+        _tot_mu = config.mu_a + config.mu_b + 1e-6
+        _ratio_a = config.mu_a / _tot_mu
+        _fatigue_a = min(1.0, et_fatigue + (_ratio_a - 0.5) * _asym)
+        _fatigue_b = min(1.0, et_fatigue + ((1.0 - _ratio_a) - 0.5) * _asym)
+    else:
+        _fatigue_a = _fatigue_b = et_fatigue
+    lambda_a_et = config.mu_a * et_time * _fatigue_a
+    lambda_b_et = config.mu_b * et_time * _fatigue_b
     max_et_goals = 4  # Max goals per team in ET (very rare to score more)
     
     # Penalty parameters — team-specific if provided
@@ -2500,9 +2572,8 @@ def main():
     
     if odds_home is not None and odds_draw is not None and odds_away is not None:
         if odds_home > 1.0 and odds_draw > 1.0 and odds_away > 1.0:
-            raw_h, raw_d, raw_a = 1.0/odds_home, 1.0/odds_draw, 1.0/odds_away
-            total_raw = raw_h + raw_d + raw_a
-            p_h, p_d, p_a = raw_h/total_raw, raw_d/total_raw, raw_a/total_raw
+            total_raw = 1.0/odds_home + 1.0/odds_draw + 1.0/odds_away   # kept for vig display
+            p_h, p_d, p_a = extract_true_probs_power(odds_home, odds_draw, odds_away)
             
             market_la, market_lb = odds_to_lambdas(p_h, p_d, p_a, args.rho)
             mw = args.market_weight

@@ -16,7 +16,9 @@ Usage:
 """
 
 import json
+import math
 import os
+import sys
 import time
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -261,6 +263,56 @@ class OddsAPIClient:
 # POLYMARKET CLIENT
 # ==============================================================================
 
+THIN_LIQUIDITY = 5000.0   # USD; below this a Polymarket match line is thin -> warn (override w/ a sharp book)
+# Longshot leg (lowest-prob outcome) bid-ask spread, relative to its mid, above which the price is
+# "soft". Data-derived: across the 72 live WC games the longshot rel-spread runs median ~7%, p90 ~12%
+# -- 12% isolates the genuinely-widened lines (e.g. 2-tick on a longshot) from the structural floor.
+WIDE_LONGSHOT_REL_SPREAD = 0.12
+
+
+def _num(m, *keys):
+    """First parseable float among m[keys], else 0.0 (Polymarket sends some numbers as strings)."""
+    for k in keys:
+        v = m.get(k)
+        try:
+            if v is not None:
+                return float(v)
+        except (TypeError, ValueError):
+            pass
+    return 0.0
+
+
+def _fit_poisson_mean(rungs):
+    """
+    E[goals] implied by an O/U ladder: the Poisson mean whose survival P(N > k+0.5) = P(N >= k+1)
+    best fits the over-prices (least squares). `rungs` = [(k, over_price), ...] for lines k+0.5.
+
+    Why a fit and not a survival-sum: the bare sum is biased low (drops the tail) and a geometric
+    tail extrapolation EXPLODES on thin, near-flat top rungs (e.g. [.., 0.105, 0.10] -> r~0.95 ->
+    +1.9 goals of phantom tail). A bounded single-parameter fit leans on the liquid middle rungs,
+    ignores the noisy deep-OTM tail, and can't run away. Goals totals are ~Poisson; mild
+    over-dispersion barely moves the MEAN, which is all this needs.
+    """
+    if len(rungs) < 2:
+        return None
+    kmax = max(k for k, _ in rungs)
+    best_lam, best_sse = None, float("inf")
+    lam = 0.2
+    while lam <= 6.5:
+        pmf = math.exp(-lam)            # cumulative Poisson CDF up to kmax
+        cdf = pmf
+        cdf_at = [cdf]
+        for i in range(1, kmax + 1):
+            pmf *= lam / i
+            cdf += pmf
+            cdf_at.append(cdf)
+        sse = sum((over - (1.0 - cdf_at[k])) ** 2 for k, over in rungs)
+        if sse < best_sse:
+            best_sse, best_lam = sse, lam
+        lam += 0.02
+    return best_lam
+
+
 class PolymarketClient:
     """
     Fetches probabilities from Polymarket prediction markets.
@@ -269,32 +321,54 @@ class PolymarketClient:
     IMPORTANT: Requires User-Agent header or Gamma API returns 403.
     
     Data format notes:
-    - Polymarket currently has WC 2026 TOURNAMENT WINNER markets (not match-specific)
-    - Tournament winner probabilities can be used to derive relative team strength
-    - Match-specific markets typically appear closer to match day
+    - Per-match 1X2 games live under the **fifa-world-cup** tag as events titled "A vs. B", each
+      holding three binary Yes/No legs (home-win / draw / away-win). See _extract_game_1x2.
+    - The 'world-cup' tag carries ONLY outrights/group/player props -- never the match games.
+    - get_wc_winner_probabilities() still reads the tournament-winner outright (bracket equity).
     """
     
     GAMMA_URL = "https://gamma-api.polymarket.com"
     USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"
-    
+    MAX_RETRIES = 4
+
     def _request(self, endpoint: str, params: dict = None) -> list:
-        """Make request to Gamma API with proper headers."""
+        """
+        GET the Gamma API with a User-Agent (required — 403 without) and retry/backoff.
+
+        Gamma's documented limits are generous (/events 500 req/10s, /markets 300 req/10s) and it
+        THROTTLES (queues) rather than returning 429, so our ~5 paged /events calls never approach
+        the cap. But a daily cron still meets transient 5xx/timeouts — so back off and retry
+        (honoring Retry-After) instead of crashing the operational loop.
+        """
         if not HAS_URLLIB:
             raise RuntimeError("urllib not available")
-        
+
         url = f"{self.GAMMA_URL}/{endpoint}"
         if params:
             url += "?" + urllib.parse.urlencode(params)
-        
+
         req = urllib.request.Request(url)
         req.add_header("Accept", "application/json")
         req.add_header("User-Agent", self.USER_AGENT)
-        
-        try:
-            with urllib.request.urlopen(req, timeout=10) as response:
-                return json.loads(response.read().decode())
-        except (urllib.error.URLError, urllib.error.HTTPError) as e:
-            raise RuntimeError(f"Polymarket API error: {e}")
+
+        last = None
+        for attempt in range(self.MAX_RETRIES):
+            try:
+                with urllib.request.urlopen(req, timeout=15) as response:
+                    return json.loads(response.read().decode())
+            except urllib.error.HTTPError as e:
+                last = e
+                if e.code not in (429, 500, 502, 503, 504):
+                    break                                    # 4xx (bad query) — don't hammer
+                wait = min(30.0, float(e.headers.get("Retry-After", 0) or 0) or (2 ** attempt))
+                if attempt < self.MAX_RETRIES - 1:
+                    print(f"[odds] HTTP {e.code} from /{endpoint}; backoff {wait:.0f}s", file=sys.stderr)
+                    time.sleep(wait)
+            except urllib.error.URLError as e:
+                last = e
+                if attempt < self.MAX_RETRIES - 1:
+                    time.sleep(2 ** attempt)
+        raise RuntimeError(f"Polymarket API error after {self.MAX_RETRIES} tries: {last}")
     
     def get_wc_winner_probabilities(self) -> Dict[str, float]:
         """
@@ -330,137 +404,249 @@ class PolymarketClient:
         
         return teams
     
-    def derive_match_probabilities(self, team_a: str, team_b: str,
-                                     draw_factor: float = 0.27) -> Optional[MatchOdds]:
-        """
-        Derive match probabilities from tournament winner odds.
-        
-        This is an APPROXIMATION: if team A has 16% tournament win probability
-        and team B has 8%, team A is roughly 2x stronger. We convert this
-        relative strength into match 1x2 probabilities using a Bradley-Terry model.
-        
-        Args:
-            team_a: Home team name
-            team_b: Away team name  
-            draw_factor: Estimated draw probability (default 27% for WC matches)
-        
-        Returns:
-            MatchOdds or None if teams not found
-        """
-        try:
-            probs = self.get_wc_winner_probabilities()
-        except RuntimeError:
-            return None
-        
-        # Find teams (fuzzy match)
-        p_a = self._find_team_prob(team_a, probs)
-        p_b = self._find_team_prob(team_b, probs)
-        
-        if p_a is None or p_b is None:
-            return None
-        
-        # Bradley-Terry model: P(A beats B) ∝ strength_A / (strength_A + strength_B)
-        # Use tournament win probability as a proxy for team strength
-        # Apply sqrt to compress extreme ratios (Brazil 8.3% vs New Zealand 0.05%)
-        import math
-        s_a = math.sqrt(max(p_a, 0.001))
-        s_b = math.sqrt(max(p_b, 0.001))
-        
-        p_a_beats_b = s_a / (s_a + s_b)
-        p_b_beats_a = s_b / (s_a + s_b)
-        
-        # Inject draw probability (compress win probs to make room)
-        p_home = p_a_beats_b * (1.0 - draw_factor)
-        p_away = p_b_beats_a * (1.0 - draw_factor)
-        p_draw = draw_factor
-        
-        return MatchOdds(
-            p_home=round(p_home, 4),
-            p_draw=round(p_draw, 4),
-            p_away=round(p_away, 4),
-            source="polymarket",
-            bookmaker="polymarket_derived",
-        )
-    
-    def find_match_odds(self, team_a: str, team_b: str) -> Optional[MatchOdds]:
-        """
-        Search Polymarket for match-specific odds, falling back to 
-        tournament-derived probabilities if no match market exists.
-        """
-        # First, try direct match market search
-        try:
-            markets = self._request("markets", {
-                "limit": 50,
-                "active": "true",
-                "closed": "false",
-            })
-            
-            for market in markets:
-                question = market.get("question", "").lower()
-                # Check if it's a match market (e.g., "Who will win Germany vs Japan?")
-                if team_a.lower() in question and team_b.lower() in question:
-                    if "win the 2026" not in question:  # Skip tournament winner
-                        prices = market.get("outcomePrices", "[]")
-                        if isinstance(prices, str):
-                            prices = json.loads(prices)
-                        outcomes = market.get("outcomes", "[]")
-                        if isinstance(outcomes, str):
-                            outcomes = json.loads(outcomes)
-                        
-                        if len(prices) >= 2 and len(outcomes) >= 2:
-                            # Map outcomes to teams
-                            odds_dict = {}
-                            for i, outcome in enumerate(outcomes):
-                                odds_dict[outcome.lower()] = float(prices[i])
-                            
-                            p_home = odds_dict.get(team_a.lower(), 0)
-                            p_away = odds_dict.get(team_b.lower(), 0)
-                            p_draw = odds_dict.get("draw", odds_dict.get("tie", 0))
-                            
-                            if p_home > 0 and p_away > 0:
-                                total = p_home + p_draw + p_away
-                                return MatchOdds(
-                                    p_home=p_home / total,
-                                    p_draw=p_draw / total,
-                                    p_away=p_away / total,
-                                    source="polymarket",
-                                    bookmaker="polymarket",
-                                )
-        except RuntimeError:
-            pass
-        
-        # Fallback: derive from tournament winner probabilities
-        return self.derive_match_probabilities(team_a, team_b)
-    
     @staticmethod
-    def _find_team_prob(team_name: str, probs: Dict[str, float]) -> Optional[float]:
-        """Fuzzy match team name against Polymarket team names."""
-        name_lower = team_name.lower().strip()
-        
-        # Direct match
-        for k, v in probs.items():
-            if k.lower() == name_lower:
-                return v
-        
-        # Partial match
-        for k, v in probs.items():
-            if name_lower in k.lower() or k.lower() in name_lower:
-                return v
-        
-        # Common aliases
-        aliases = {
-            "usa": "united states", "us": "united states",
-            "korea": "south korea", "korea republic": "south korea",
-            "türkiye": "turkiye", "turkey": "turkiye",
-            "ivory coast": "côte d'ivoire",
-            "czech republic": "czechia",
-        }
-        mapped = aliases.get(name_lower, name_lower)
-        for k, v in probs.items():
-            if mapped in k.lower() or k.lower() in mapped:
-                return v
-        
+    def _extract_game_1x2(event) -> Optional[tuple]:
+        """
+        Pull a 1X2 line out of ONE Polymarket game event.
+
+        A Polymarket soccer game is an event titled "Team A vs. Team B" holding THREE binary
+        Yes/No markets (negRisk group):
+            groupItemTitle "Team A"                 q "Will Team A win on <date>?"      -> P(home)=YES px
+            groupItemTitle "Draw (Team A vs. ...)"  q "Will A vs. B end in a draw?"     -> P(draw)=YES px
+            groupItemTitle "Team B"                 q "Will Team B win on <date>?"      -> P(away)=YES px
+        The 1X2 probabilities are the YES price of each leg (they sum ~1, near vig-free).
+
+        Returns (home, away, odds_home, odds_draw, odds_away, min_leg_liq, sum_leg_vol, micro) or
+        None if not a 3-leg game (also rejects outrights/props/settled lines, so it doubles as the
+        games filter). `micro` = {"spreads": per-leg bid-ask, "longshot": the lowest-prob leg + its
+        relative spread} — read-only market-quality signals; the blend still uses the YES mid.
+        """
+        title = (event.get("title") or "").strip()
+        low = title.lower()
+        # The primary moneyline event is exactly "A vs. B". Sibling markets (totals, spreads, exact
+        # score, halftime) are "A vs. B - <Suffix>"; player props are "...Goals H2H: X vs. Y". A
+        # " - " or "h2h" in the title marks a non-moneyline event — reject (no national team name
+        # contains " - "). This isolates the 1X2 line robustly, not by accident of name-matching.
+        if " vs" not in low or "h2h" in low or " - " in title:
+            return None
+        for sep in (" vs. ", " vs "):                       # "A vs. B" (period) or "A vs B"
+            if sep in title:
+                home, away = (s.strip() for s in title.split(sep, 1))
+                break
+        else:
+            return None
+
+        legs = {"1": None, "X": None, "2": None}            # (yes_price, liq, vol, spread) per outcome
+        for m in event.get("markets", []):
+            q = (m.get("question") or "").lower()
+            git = (m.get("groupItemTitle") or "").strip()
+            outcomes = m.get("outcomes", "[]")
+            prices = m.get("outcomePrices", "[]")
+            try:
+                if isinstance(outcomes, str): outcomes = json.loads(outcomes)
+                if isinstance(prices, str): prices = json.loads(prices)
+            except json.JSONDecodeError:
+                continue
+            if not outcomes or len(outcomes) != len(prices):
+                continue
+            try:
+                yes_idx = [str(o).lower() for o in outcomes].index("yes")
+                p_yes = float(prices[yes_idx])
+            except (ValueError, TypeError):
+                continue
+            liq = _num(m, "liquidityNum", "liquidity", "liquidityClob")
+            vol = _num(m, "volumeNum", "volume", "volumeClob")
+            bb, ba = m.get("bestBid"), m.get("bestAsk")      # YES-leg bid-ask spread (price softness)
+            try:
+                spread = float(ba) - float(bb) if bb is not None and ba is not None else _num(m, "spread")
+            except (TypeError, ValueError):
+                spread = _num(m, "spread")
+            spread = max(0.0, spread)
+
+            if "end in a draw" in q or git.lower().startswith("draw"):
+                slot = "X"
+            else:                                            # a team leg — assign by groupItemTitle/question
+                who = git
+                if not who and q.startswith("will ") and " win" in q:
+                    who = q[5:q.index(" win")].strip()
+                wl = who.lower()
+                slot = "1" if wl == home.lower() else "2" if wl == away.lower() else None
+            if slot and legs[slot] is None:
+                legs[slot] = (p_yes, liq, vol, spread)
+
+        if any(v is None for v in legs.values()):
+            return None
+        (ph, lh, vh, sh), (px, lx, vx, sx), (pa, la, va, sa) = legs["1"], legs["X"], legs["2"]
+        if not (0.0 < ph < 1.0 and 0.0 < px < 1.0 and 0.0 < pa < 1.0):
+            return None                                      # settled/degenerate (e.g. 1/0/0)
+        if not (0.85 <= ph + px + pa <= 1.30):
+            return None                                      # not a sane 3-way moneyline
+        oh, od, oa = round(1.0 / ph, 3), round(1.0 / px, 3), round(1.0 / pa, 3)
+        spreads = {"1": round(sh, 4), "X": round(sx, 4), "2": round(sa, 4)}
+        # Longshot = lowest-probability leg (highest decimal odds). Its bid-ask spread RELATIVE to
+        # its mid is the cleanest "is this price soft?" signal — longshots widen first when the book
+        # is unsure, and the relative measure normalizes the fixed tick against the small price.
+        mids = {"1": ph, "X": px, "2": pa}
+        ls = min(mids, key=mids.get)
+        longshot = {"side": ls, "odds": {"1": oh, "X": od, "2": oa}[ls],
+                    "rel_spread": round(spreads[ls] / mids[ls], 3) if mids[ls] > 0 else 0.0}
+        return (home, away, oh, od, oa,
+                round(min(lh, lx, la), 2), round(vh + vx + va, 2),
+                {"spreads": spreads, "longshot": longshot})
+
+    @staticmethod
+    def _parse_pair(title):
+        """('A vs. B - <Suffix>') -> ('A','B'); strips any ' - <Suffix>'. None if not a matchup."""
+        base = (title or "").split(" - ", 1)[0].strip()
+        for sep in (" vs. ", " vs "):
+            if sep in base:
+                h, a = (s.strip() for s in base.split(sep, 1))
+                return h, a
         return None
+
+    @classmethod
+    def _extract_extras(cls, event):
+        """
+        Parse the READ-ONLY derivative markets from a game's sibling events — the totals ladder
+        (O/U 0.5..5.5), Asian spreads (Team -1.5/-2.5), Both-Teams-To-Score, and the exact-score
+        grid. Returns (game_key, data) keyed identically to the 1X2 ("Home|Away"), or None.
+
+        NONE of this feeds the sealed engine. It is captured (a) for the read-only goal-total
+        calibration flag in matchday_tips, and (b) to seed the historical O/U dataset a future,
+        *validated* dispersion blend would need. `market_total` = E[goals] implied by the ladder.
+        """
+        pair = cls._parse_pair(event.get("title"))
+        if not pair:
+            return None
+        home, away = pair
+        totals, spreads, exact, btts = [], [], [], None
+        for m in event.get("markets", []):
+            git = (m.get("groupItemTitle") or "").strip()
+            o = m.get("outcomes", "[]"); p = m.get("outcomePrices", "[]")
+            try:
+                if isinstance(o, str): o = json.loads(o)
+                if isinstance(p, str): p = json.loads(p)
+            except json.JSONDecodeError:
+                continue
+            if not o or len(o) != len(p):
+                continue
+            names = [str(x).lower() for x in o]
+            liq = _num(m, "liquidityNum", "liquidity", "liquidityClob")
+            gl = git.lower()
+            if "over" in names and "under" in names:                       # O/U totals ladder
+                try:
+                    line = float(gl.replace("o/u", "").replace("over/under", "").strip())
+                    totals.append({"line": line, "over": round(float(p[names.index("over")]), 4),
+                                   "liq": round(liq, 2)})
+                except (ValueError, IndexError):
+                    pass
+            elif "(" in git and ")" in git:                                # spread / handicap
+                try:
+                    tm = git[:git.index("(")].strip()
+                    line = float(git[git.index("(") + 1:git.index(")")])
+                    ci = names.index(tm.lower()) if tm.lower() in names else 0
+                    spreads.append({"team": tm, "line": line, "cover": round(float(p[ci]), 4),
+                                    "liq": round(liq, 2)})
+                except (ValueError, IndexError):
+                    pass
+            elif "both teams to score" in gl and "yes" in names:           # BTTS
+                btts = {"yes": round(float(p[names.index("yes")]), 4), "liq": round(liq, 2)}
+            elif gl.startswith("exact score") and "yes" in names:          # exact-score grid
+                sc = git.split(":", 1)[1].strip() if ":" in git else git
+                exact.append({"score": sc, "prob": round(float(p[names.index("yes")]), 4),
+                              "liq": round(liq, 2)})
+
+        data = {}
+        if totals:
+            totals.sort(key=lambda d: d["line"])
+            data["totals"] = totals
+            # E[goals]: fit a Poisson to the consecutive over-price ladder from 0.5 and take its mean
+            # (see _fit_poisson_mean). Stable where a bare survival-sum is biased low and a geometric
+            # tail explodes on thin near-flat top rungs.
+            rungs, expect = [], 0.5
+            for t in totals:
+                if abs(t["line"] - expect) < 1e-9:
+                    rungs.append((int(t["line"]), t["over"])); expect += 1.0
+                else:
+                    break
+            mt = _fit_poisson_mean(rungs)
+            if mt is not None:
+                data["market_total"] = round(mt, 3)
+        if spreads:
+            data["spreads"] = spreads
+        if btts:
+            data["btts"] = btts
+        if exact:
+            exact.sort(key=lambda d: -d["prob"])
+            data["exact"] = exact
+        return (f"{home}|{away}", data) if data else None
+
+    def get_match_1x2_probabilities(self, min_liquidity: float = 0.0, events=None) -> dict:
+        """
+        Fetch live World Cup 1X2 match markets from Polymarket as raw decimal odds, each TAGGED with
+        its USD liquidity/volume so thin (noisy) markets are visible and can be overridden by hand.
+
+        The games live under the **fifa-world-cup** tag as per-match EVENTS (NOT the 'world-cup' tag,
+        which carries only outrights/props, and NOT as single 3-outcome markets). Each game event holds
+        three binary Yes/No legs; see _extract_game_1x2. Lines below `min_liquidity` (thinnest leg) are
+        dropped. Schema:
+        { "probabilities": { "Mexico|South Africa": {"1":1.46,"X":4.88,"2":9.52,"liquidity":..,"volume":..} } }
+        (Pass events=[...] to parse a fixture list offline, e.g. for tests.)
+        """
+        if events is None:
+            events, seen = [], set()
+            for off in range(0, 1500, 100):                  # paginate (WC has ~300 game events)
+                page = self._request("events", {
+                    "tag_slug": "fifa-world-cup", "closed": "false",
+                    "limit": 100, "offset": off,
+                })
+                if not page:
+                    break
+                events.extend(e for e in page if e.get("id") not in seen)
+                seen.update(e.get("id") for e in page)
+                if len(page) < 100:                          # last page
+                    break
+
+        matches, extras, dropped = {}, {}, []
+        for e in events:
+            parsed = self._extract_game_1x2(e)               # also rejects outrights/props/settled
+            if parsed:
+                home, away, oh, od, oa, liq, vol, micro = parsed
+                key = f"{home}|{away}"
+                if min_liquidity > 0.0 and liq < min_liquidity:
+                    dropped.append((key, liq)); continue
+                matches[key] = {"1": oh, "X": od, "2": oa, "liquidity": liq, "volume": vol,
+                                "spreads": micro["spreads"], "longshot": micro["longshot"]}
+            else:                                            # read-only derivatives (totals/spreads/exact)
+                ex = self._extract_extras(e)
+                if ex:
+                    extras.setdefault(ex[0], {}).update(ex[1])
+        extras = {k: v for k, v in extras.items() if k in matches}   # drop orphans (props w/o a 1X2 game)
+
+        # operator-facing summary on stderr: which markets are thin enough to override?
+        thin = sorted(((k, v["liquidity"]) for k, v in matches.items() if v["liquidity"] < THIN_LIQUIDITY),
+                      key=lambda kv: kv[1])
+        print(f"[odds] {len(matches)} 1X2 game markets parsed"
+              + (f"; {len(extras)} with O/U+spread+exact extras" if extras else "")
+              + (f"; {len(dropped)} dropped < ${min_liquidity:,.0f}" if min_liquidity > 0 else "")
+              + (f"; {len(thin)} THIN (< ${THIN_LIQUIDITY:,.0f}) -- override these with a sharp book:" if thin else ""),
+              file=sys.stderr)
+        for k, liq in thin:
+            print(f"[odds]   THIN {k}  ${liq:,.0f}", file=sys.stderr)
+
+        # longshot watch: low-prob legs on a WIDE (soft) line -- the mid is least reliable here, and
+        # a soft longshot price can hide a value/upset. Read-only: surfaced, never auto-applied.
+        wide = sorted(((k, v["longshot"]) for k, v in matches.items()
+                       if v.get("longshot", {}).get("rel_spread", 0.0) >= WIDE_LONGSHOT_REL_SPREAD),
+                      key=lambda kv: -kv[1]["rel_spread"])
+        if wide:
+            print(f"[odds] {len(wide)} game(s) with a WIDE longshot leg (rel-spread >= "
+                  f"{WIDE_LONGSHOT_REL_SPREAD:.0%}) -- soft price, possible value/trap:", file=sys.stderr)
+            for k, l in wide:
+                print(f"[odds]   LONGSHOT {k}  side={l['side']} odds={l['odds']} "
+                      f"rel-spread={l['rel_spread']:.0%}", file=sys.stderr)
+
+        return {"source": "polymarket_matches_1x2", "probabilities": matches, "extras": extras}
 
 
 # ==============================================================================
@@ -514,15 +700,8 @@ class OddsClient:
             except Exception as e:
                 print(f"⚠ Odds API error: {e}")
         
-        if preferred_source in ("polymarket", "auto"):
-            try:
-                result = self.polymarket.find_match_odds(team_a, team_b)
-                if result:
-                    self._cache[cache_key] = result
-                    return result
-            except Exception as e:
-                print(f"⚠ Polymarket error: {e}")
-        
+        # per-match Polymarket lookup removed: bulk fetch via get_match_1x2_probabilities().
+
         return None
     
     @staticmethod
@@ -616,3 +795,11 @@ class OddsTracker:
                 if movement:
                     results.append(movement)
         return results
+
+
+if __name__ == "__main__":
+    # Wednesday: python3 odds_client.py [min_liquidity_usd] > data/polymarket_match_odds.json
+    min_liq = float(sys.argv[1]) if len(sys.argv) > 1 else 0.0
+    client = PolymarketClient()
+    res = client.get_match_1x2_probabilities(min_liquidity=min_liq)
+    print(json.dumps(res, indent=2))

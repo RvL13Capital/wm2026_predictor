@@ -1,0 +1,91 @@
+========================================================================
+WORLD CUP 2022 BACKTEST — EV-optimal tip vs ACTUAL  (pre-2022 Elo, no lookahead)
+========================================================================
+
+GROUP A
+  ≈ Qatar        0-1  vs actual 0-2  Ecuador      (2 pts)
+  ≈ Senegal      0-1  vs actual 0-2  Netherlands  (2 pts)
+  ≈ Qatar        0-1  vs actual 1-3  Senegal      (2 pts)
+  ✗ Netherlands  1-0  vs actual 1-1  Ecuador      (0 pts)
+  ✗ Ecuador      1-0  vs actual 1-2  Senegal      (0 pts)
+  ≈ Netherlands  1-0  vs actual 2-0  Qatar        (2 pts)
+
+GROUP B
+  ≈ England      2-0  vs actual 6-2  Iran         (2 pts)
+  ✗ USA          1-0  vs actual 1-1  Wales        (0 pts)
+  ✗ Wales        1-0  vs actual 0-2  Iran         (0 pts)
+  ✗ England      1-0  vs actual 0-0  USA          (0 pts)
+  ≈ Wales        0-1  vs actual 0-3  England      (2 pts)
+  ✓ Iran         0-1  vs actual 0-1  USA          (4 pts)
+
+GROUP C
+  ✗ Argentina    1-0  vs actual 1-2  Saudi Arabia (0 pts)
+  ✗ Mexico       1-0  vs actual 0-0  Poland       (0 pts)
+  ≈ Poland       1-0  vs actual 2-0  Saudi Arabia (2 pts)
+  ≈ Argentina    1-0  vs actual 2-0  Mexico       (2 pts)
+  ≈ Poland       0-1  vs actual 0-2  Argentina    (2 pts)
+  ≈ Saudi Arabia 0-1  vs actual 1-2  Mexico       (3 pts)
+
+GROUP D
+  ✗ Denmark      1-0  vs actual 0-0  Tunisia      (0 pts)
+  ≈ France       2-0  vs actual 4-1  Australia    (2 pts)
+  ✗ Tunisia      1-0  vs actual 0-1  Australia    (0 pts)
+  ≈ France       1-0  vs actual 2-1  Denmark      (3 pts)
+  ✗ Australia    0-1  vs actual 1-0  Denmark      (0 pts)
+  ✗ Tunisia      0-2  vs actual 1-0  France       (0 pts)
+
+GROUP E
+  ✗ Germany      2-0  vs actual 1-2  Japan        (0 pts)
+  ≈ Spain        2-0  vs actual 7-0  Costa Rica   (2 pts)
+  ✗ Japan        1-0  vs actual 0-1  Costa Rica   (0 pts)
+  ✗ Spain        0-1  vs actual 1-1  Germany      (0 pts)
+  ✗ Japan        0-1  vs actual 2-1  Spain        (0 pts)
+  ≈ Costa Rica   0-2  vs actual 2-4  Germany      (3 pts)
+
+GROUP F
+  ✗ Morocco      0-1  vs actual 0-0  Croatia      (0 pts)
+  ≈ Belgium      2-0  vs actual 1-0  Canada       (2 pts)
+  ✗ Belgium      2-0  vs actual 0-2  Morocco      (0 pts)
+  ≈ Croatia      1-0  vs actual 4-1  Canada       (2 pts)
+  ✗ Croatia      0-1  vs actual 0-0  Belgium      (0 pts)
+  ≈ Canada       0-1  vs actual 1-2  Morocco      (3 pts)
+
+GROUP G
+  ✓ Switzerland  1-0  vs actual 1-0  Cameroon     (4 pts)
+  ✓ Brazil       2-0  vs actual 2-0  Serbia       (4 pts)
+  ✗ Cameroon     0-1  vs actual 3-3  Serbia       (0 pts)
+  ≈ Brazil       2-0  vs actual 1-0  Switzerland  (2 pts)
+  ✗ Serbia       1-0  vs actual 2-3  Switzerland  (0 pts)
+  ✗ Cameroon     0-3  vs actual 1-0  Brazil       (0 pts)
+
+GROUP H
+  ✗ Uruguay      1-0  vs actual 0-0  South Korea  (0 pts)
+  ≈ Portugal     1-0  vs actual 3-2  Ghana        (3 pts)
+  ✗ South Korea  1-0  vs actual 2-3  Ghana        (0 pts)
+  ≈ Portugal     1-0  vs actual 2-0  Uruguay      (2 pts)
+  ≈ Ghana        0-1  vs actual 0-2  Uruguay      (2 pts)
+  ✗ South Korea  0-1  vs actual 2-1  Portugal     (0 pts)
+
+KNOCKOUT  (model's tip for the actual fixture)
+  ≈ [R16  ] Netherlands  1-0  vs actual 3-1  USA          (2)
+  ≈ [R16  ] Argentina    1-0  vs actual 2-1  Australia    (3)
+  ≈ [R16  ] France       2-0  vs actual 3-1  Poland       (3)
+  ≈ [R16  ] England      1-0  vs actual 3-0  Senegal      (2)
+  ✗ [R16  ] Japan        0-1  vs actual 1-1  Croatia      (0)
+  ≈ [R16  ] Brazil       2-0  vs actual 4-1  South Korea  (2)
+  ✗ [R16  ] Morocco      0-1  vs actual 0-0  Spain        (0)
+  ≈ [R16  ] Portugal     1-0  vs actual 6-1  Switzerland  (2)
+  ✗ [QF   ] Croatia      0-2  vs actual 1-1  Brazil       (0)
+  ✗ [QF   ] Netherlands  1-0  vs actual 2-2  Argentina    (0)
+  ✗ [QF   ] Morocco      0-1  vs actual 1-0  Portugal     (0)
+  ≈ [QF   ] France       1-0  vs actual 2-1  England      (3)
+  ≈ [SF   ] Argentina    1-0  vs actual 3-0  Croatia      (2)
+  ✓ [SF   ] France       2-0  vs actual 2-0  Morocco      (4)
+  ≈ [THIRD] Croatia      1-0  vs actual 2-1  Morocco      (3)
+  ✗ [FINAL] Argentina    0-1  vs actual 3-3  France       (0)
+
+------------------------------------------------------------------------
+EV-optimal tips   :  85 pts  | exact 4  diff 9  tend 21  miss 30  | direction 53%
+Most-likely score :  65 pts  | exact 7  diff 3  tend 14  miss 40  | direction 38%
+Outcome accuracy  : see the prediction-vs-actual scorecard in report/wm2022_bracket.html
+========================================================================

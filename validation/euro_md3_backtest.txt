@@ -1,0 +1,20 @@
+========================================================================
+EURO 2020+2024 MD3 STAKES BACKTEST — 24-team format (best-4-of-6 thirds advance)
+========================================================================
+(1) FLAT TRIM CHECK — does MD3 suppress goals vs MD1-2?  [the robust line]
+  MD1-2 goals/game : 2.417   (n=48)
+  MD3   goals/game : 2.458   (n=24)
+  implied MD3 trim : 1.017x    (production uses a flat 0.87x)
+
+(2) REGIME BREAKDOWN within MD3 (baseline = MD3 average):
+  regime            N  goals/gm  vs MD3avg   draw%  blowout%
+  ----------------------------------------------------------
+  MUTUAL_COMFORT    8      2.25      0.92x     38%        0%
+  ONE_SAFE          8      2.38      0.97x     50%       12%
+  WIN_OR_BUST       3      2.33      0.95x     33%        0%
+  DEAD_RUBBER       5      3.00      1.22x     20%       40%
+
+CAVEAT: 24 MD3 matches across 4 buckets => single-digit N per regime. Treat the regime
+rows as DIRECTIONAL only; best-4-thirds safety is a points heuristic, not strict
+cross-group math. The FLAT TRIM line (n=48 vs 96) is the load-bearing result.
+========================================================================
