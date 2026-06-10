@@ -34,36 +34,48 @@ Rules of the road:
   odds you type — or don't: the loader auto-detects orientation against the
   results file. German spellings also resolve automatically.
 
-## Where to get it
+## How to fill them — bulk merge (primary), manual entry (fallback)
 
-1. **Oddsportal archive** (free): oddsportal.com → Football → World Cup →
-   season 2014/2018/2022 → Results. Each match page lists average and
-   per-book closing 1X2. ~64 matches per tournament ≈ 1–2 h of manual entry.
-2. **Kaggle**: search "world cup 2018 odds" / "world cup 2022 odds" — several
-   datasets carry bookmaker 1X2; spot-check ~5 matches against Oddsportal
-   before trusting one.
-3. **Betfair historical data** (account needed): exchange closes, fine if
-   labelled `betfair_close`.
-4. *Not* football-data.co.uk — it covers club leagues only, no World Cups.
+**Manual typing of 576 floats is an operational risk** (a fat-fingered
+`1.35`→`13.5` poisons the gate). The primary path is therefore the **bulk
+merger with integrity gates**: download any raw odds CSV in your browser
+(zero typing), then let `scripts/merge_odds.py` do canonicalization,
+orientation flipping, bookmaker-median aggregation — and **quarantine**
+anything that fails validation (odds ≤ 1.01, book sum outside [0.95, 1.30],
+or an Elo-concordance violation: a ≥250-Elo favourite priced as the outsider
+by ≥10pp, which is exactly what a swapped column or wrong-year dataset looks
+like). Quarantined rows are reported, never written.
+
+```bash
+# 1. Download a raw odds CSV (any column naming — auto-detected or --map):
+#    Kaggle: search "world cup 2022 odds" / "world cup 2018 odds"; spot-check
+#            ~5 matches against Oddsportal before trusting a dataset.
+#    Betfair historical (account): exchange closes, label betfair_close.
+#    NOT football-data.co.uk (club leagues only, no World Cups).
+#    NOT soccerdata — verified: it has NO Oddsportal/odds reader
+#    (ClubElo/ESPN/FBref/Football-Data/Sofascore/SoFIFA/Understat/WhoScored only).
+
+# 2. Preview the merge (writes nothing, shows fills + quarantine + unmatched):
+python3 scripts/merge_odds.py --year 2022 --raw data/raw_kaggle_2022.csv --dry-run
+
+# 3. Merge for real (refuses to touch rows you filled by hand):
+python3 scripts/merge_odds.py --year 2022 --raw data/raw_kaggle_2022.csv \
+    --bookmaker-label kaggle_b365 --source-label "<dataset url>"
+#    Odd headers? --map home=HomeTeam away=AwayTeam h=B365H d=B365D a=B365A
+
+# 4. Review data/merge_quarantine_2022.txt by hand; fill survivors/unmatched
+#    manually from Oddsportal (match pages list avg + per-book closing 1X2).
+
+# 5. Sanity-run early and often (partial fills are fine):
+python3 backtest_real_market.py --years 2022
+
+# 6. Finish 2022 + 2018 (ideally 2014), run the gate, commit CSVs + verdict:
+python3 backtest_real_market.py                   # writes validation/backtest_real_market.txt
+```
 
 **Priority order: 2022 → 2018 → 2014.** The verdict's criterion (a) needs the
 model to beat the close on ≥ 2 folds, so 2018 + 2022 is the minimum viable
 gate; 2014 strengthens it.
-
-## Workflow
-
-```bash
-# 1. (already done) templates exist:
-python3 scripts/make_odds_templates.py            # idempotent; never clobbers filled rows
-
-# 2. Fill a few 2022 rows, then sanity-check the parsing early:
-python3 backtest_real_market.py --years 2022      # partial fills are fine
-
-# 3. Finish 2022 + 2018 (and ideally 2014), then run the gate:
-python3 backtest_real_market.py                   # writes validation/backtest_real_market.txt
-
-# 4. Commit the filled CSVs + the verdict output (provenance!).
-```
 
 The pre-registered verdict (do not reinterpret after seeing results): real-money
 use only if model/blend log-loss beats the de-vigged close on **≥ 2 of 3
