@@ -46,14 +46,29 @@ or an Elo-concordance violation: a ≥250-Elo favourite priced as the outsider
 by ≥10pp, which is exactly what a swapped column or wrong-year dataset looks
 like). Quarantined rows are reported, never written.
 
+### Source tiers (verified 2026-06-10)
+
+| Tier | Source | Years | Status |
+|---|---|---|---|
+| **1** | **The Odds API historical snapshots** → `scripts/fill_odds_theoddsapi.py` | **2022 only** (history starts Jun 2020) | Clean, ToS-compliant, ~590 credits (paid plan with historical access). Run on your own machine — this repo's dev container blocks the host. |
+| 2 | Any downloaded raw CSV (Kaggle/GitHub) → `scripts/merge_odds.py` | any | User-verified: hard to find for WC odds; spot-check before trusting |
+| 3 | **Manual entry from Oddsportal match pages** + `merge_odds.py --validate-only` | 2018 / 2014 | ~45 min/tournament; the validate-only gates catch fat-fingers (13.5-for-1.35 → flagged) |
+| ✗ | `soccerdata` "Oddsportal reader" | — | **Does not exist** (verified: ClubElo/ESPN/FBref/Football-Data/Sofascore/SoFIFA/Understat/WhoScored only) |
+| ✗ | Stealth/proxied Oddsportal scrapers, Bright Data etc. | — | Not built here — ToS-circumvention tooling; Oddsportal is also 403-blocked from this container |
+| ✗ | football-data.co.uk | — | Club leagues only, no World Cups |
+
 ```bash
-# 1. Download a raw odds CSV (any column naming — auto-detected or --map):
-#    Kaggle: search "world cup 2022 odds" / "world cup 2018 odds"; spot-check
-#            ~5 matches against Oddsportal before trusting a dataset.
-#    Betfair historical (account): exchange closes, label betfair_close.
-#    NOT football-data.co.uk (club leagues only, no World Cups).
-#    NOT soccerdata — verified: it has NO Oddsportal/odds reader
-#    (ClubElo/ESPN/FBref/Football-Data/Sofascore/SoFIFA/Understat/WhoScored only).
+# Tier 1 — 2022 fully automated (run locally with your key):
+export ODDS_API_KEY=...
+python3 scripts/fill_odds_theoddsapi.py --year 2022 --estimate   # cost preview, no calls
+python3 scripts/fill_odds_theoddsapi.py --year 2022 --yes        # fetch (checkpointed cache) + fill
+#   snapshots cached to data/oddsapi_2022_snapshots.json — re-runs are free,
+#   resume-safe, and the cache is the provenance record.
+
+# Tier 3 — 2018/2014 manual entry, then run the SAME integrity gates:
+python3 scripts/merge_odds.py --year 2018 --validate-only
+
+# Tier 2 — bulk CSV merge (any column naming — auto-detected or --map):
 
 # 2. Preview the merge (writes nothing, shows fills + quarantine + unmatched):
 python3 scripts/merge_odds.py --year 2022 --raw data/raw_kaggle_2022.csv --dry-run

@@ -211,10 +211,35 @@ def merge(template_rows, raw_index, elo_table, bookmaker_label, source_label,
     return template_rows, filled, quarantine, fuzzy_log, unmatched
 
 
+def validate_filled_template(template_path, elo_table):
+    """Run the quarantine gates over the ALREADY-FILLED rows of a template —
+    the safety net for manual data entry (2018/2014). Returns failure list."""
+    failures = []
+    n_filled = 0
+    with open(template_path, newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            if not str(row.get("odds_home", "")).strip():
+                continue
+            n_filled += 1
+            label = f"{row['team_a']} vs {row['team_b']} [{row.get('phase', '?')}]"
+            try:
+                oh, od, oa = (float(row[k]) for k in ("odds_home", "odds_draw", "odds_away"))
+            except (ValueError, KeyError):
+                failures.append((label, "unparseable odds"))
+                continue
+            ta, tb = canon(row["team_a"]), canon(row["team_b"])
+            reason = validate_triple(oh, od, oa,
+                                     elo_table.get(ta, {}).get("elo"),
+                                     elo_table.get(tb, {}).get("elo"))
+            if reason:
+                failures.append((label, reason))
+    return n_filled, failures
+
+
 def main():
     ap = argparse.ArgumentParser(description="Merge a raw odds CSV into a gate-G2 template")
     ap.add_argument("--year", type=int, required=True, choices=[2014, 2018, 2022])
-    ap.add_argument("--raw", type=str, required=True, help="Downloaded raw odds CSV")
+    ap.add_argument("--raw", type=str, default=None, help="Downloaded raw odds CSV")
     ap.add_argument("--map", nargs="+", default=None, metavar="k=COL",
                     help="Explicit columns: home=... away=... h=... d=... a=...")
     ap.add_argument("--bookmaker-label", type=str, default="bulk_merge")
@@ -222,11 +247,30 @@ def main():
     ap.add_argument("--no-elo-check", action="store_true",
                     help="Disable the Elo-concordance gate (NOT recommended)")
     ap.add_argument("--dry-run", action="store_true", help="Report everything, write nothing")
+    ap.add_argument("--validate-only", action="store_true",
+                    help="No merge: run the quarantine gates over the template's "
+                         "already-filled rows (manual-entry fat-finger net)")
     args = ap.parse_args()
 
     template_path = os.path.join(REPO, "data", f"wc{args.year}_odds.csv")
     if not os.path.exists(template_path):
         sys.exit(f"❌ {template_path} missing — run scripts/make_odds_templates.py first")
+
+    if args.validate_only:
+        mod = __import__(f"backtest_wm{args.year}")
+        elo_table = getattr(mod, f"PRE_WM{args.year}_ELO")
+        n_filled, failures = validate_filled_template(template_path, elo_table)
+        if failures:
+            print(f"❌ {len(failures)}/{n_filled} filled row(s) FAIL the integrity gates:")
+            for label, reason in failures:
+                print(f"   {label}: {reason}")
+            sys.exit(1)
+        print(f"✅ all {n_filled} filled row(s) pass the integrity gates "
+              f"(odds sanity, overround window, Elo concordance).")
+        return
+
+    if not args.raw:
+        sys.exit("❌ --raw <csv> required (or use --validate-only)")
 
     with open(args.raw, newline="", encoding="utf-8-sig") as f:
         fieldnames = csv.DictReader(f).fieldnames or []

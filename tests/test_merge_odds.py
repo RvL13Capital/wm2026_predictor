@@ -94,6 +94,24 @@ class TestValidationGates(unittest.TestCase):
         self.assertEqual(quarantine, [])
 
 
+class TestValidateOnly(unittest.TestCase):
+
+    def test_manual_fat_finger_caught_in_filled_template(self):
+        """The 1.35 -> 13.5 manual-entry case must fail --validate-only."""
+        import tempfile
+        with tempfile.TemporaryDirectory() as td:
+            path = os.path.join(td, "wc2099_odds.csv")
+            with open(path, "w", encoding="utf-8") as f:
+                f.write("team_a,team_b,phase,odds_home,odds_draw,odds_away,bookmaker,source_url\n"
+                        "Spain,Qatar,GROUP,13.5,5.50,11.00,manual,\n"     # fat-fingered 1.35
+                        "France,Germany,QF,2.30,3.30,3.10,manual,\n"      # fine
+                        "Portugal,South Korea,GROUP,,,,\n")               # blank -> ignored
+            n_filled, failures = mo.validate_filled_template(path, ELO)
+            self.assertEqual(n_filled, 2)
+            self.assertEqual(len(failures), 1)
+            self.assertIn("Spain vs Qatar", failures[0][0])
+
+
 class TestColumnDetection(unittest.TestCase):
 
     def test_autodetects_b365_and_kaggle_style_headers(self):
