@@ -1,188 +1,230 @@
-Loaded 24 matches from data/matchday1.csv
+Loaded 24 matches dynamically from GROUPS for Matchday 1
+📅 Timestamp: 2026-06-10T09:24:17.868517+00:00
+🌱 Seed: 42
+🔗 Commit: d68ef75a0bb33a67ae0d8abe417b4890246098ff (dirty)
+⚙️  Cmd: matchday_tips.py --md 1 --odds-snapshot data/polymarket_match_odds.json --output data/matchday1_tips.txt
 
 Match 1: Mexico vs South Africa [GROUP]
-  λ_base: 2.231 / 0.817  →  λ_adj: 2.320 / 0.850
-  P(Home)=69.9%  P(Draw)=18.4%  P(Away)=11.7%
-  ★ Optimal tip: 2:1  (EV = 1.721 pts)
-  MC (10,000 sims): μ=1.725  σ=1.274  P(0)=29.8%  P(2)=47.3%  P(3)=13.7%  P(4)=9.2%
+  λ_base: 1.928 / 0.596  →  λ_adj: 2.780 / 0.439
+  P(Home)=85.5%  P(Draw)=11.1%  P(Away)=3.5%
+  ★ Optimal tip: 2:0  (EV = 2.092 pts)
+     runner-up: 3:0 (EV 2.045)  |  margin Δ 0.047
+     [i] low confidence — 2:0 and 3:0 effectively tied (Δ 0.047).
+     [~] GOALS Δ +0.80: model sees MORE goals than the market (model 3.22 vs O/U 2.42) — review tempo/context.
+  MC (1,000 sims): μ=2.131  σ=1.157  P(0)=14.5%  P(2)=61.1%  P(3)=6.7%  P(4)=17.7%
 
 Match 2: South Korea vs Czechia [GROUP]
-  λ_base: 1.362 / 1.338  →  λ_adj: 1.383 / 1.359
-  P(Home)=37.1%  P(Draw)=26.8%  P(Away)=36.1%
-  ★ Optimal tip: 2:1  (EV = 1.024 pts)
-  MC (10,000 sims): μ=1.055  σ=1.435  P(0)=62.0%  P(2)=17.6%  P(3)=11.4%  P(4)=9.0%
+  λ_base: 1.030 / 0.969  →  λ_adj: 1.015 / 1.014
+  P(Home)=34.1%  P(Draw)=31.9%  P(Away)=34.0%
+  ★ Optimal tip: 1:1  (EV = 1.100 pts)
+     runner-up: 0:0 (EV 1.096)  |  margin Δ 0.004
+     [i] low confidence — 1:1 and 0:0 effectively tied (Δ 0.004).
+     [✓] goals aligned with market O/U (model 2.03 ≈ 2.38)
+  MC (1,000 sims): μ=1.087  σ=1.612  P(0)=68.1%  P(2)=0.0%  P(3)=18.9%  P(4)=13.0%
 
 Match 3: Canada vs Bosnia [GROUP]
-  λ_base: 1.837 / 0.992  →  λ_adj: 1.837 / 0.992
-  P(Home)=56.6%  P(Draw)=23.8%  P(Away)=19.6%
-  ★ Optimal tip: 1:0  (EV = 1.473 pts)
-  MC (10,000 sims): μ=1.450  σ=1.424  P(0)=44.5%  P(2)=32.1%  P(3)=12.8%  P(4)=10.5%
+  λ_base: 1.533 / 0.820  →  λ_adj: 1.782 / 0.720
+  P(Home)=62.3%  P(Draw)=23.6%  P(Away)=14.1%
+  ★ Optimal tip: 1:0  (EV = 1.643 pts)
+     runner-up: 2:1 (EV 1.596)  |  margin Δ 0.047
+     [i] low confidence — 1:0 and 2:1 effectively tied (Δ 0.047).
+  MC (1,000 sims): μ=1.672  σ=1.423  P(0)=36.5%  P(2)=36.8%  P(3)=13.2%  P(4)=13.5%
 
 Match 4: Qatar vs Switzerland [GROUP]
-  λ_base: 0.685 / 2.659  →  λ_adj: 0.685 / 2.659
-  P(Home)=6.9%  P(Draw)=14.2%  P(Away)=78.9%
-  ★ Optimal tip: 0:2  (EV = 1.923 pts)
-  MC (10,000 sims): μ=1.917  σ=1.194  P(0)=21.1%  P(2)=57.1%  P(3)=9.5%  P(4)=12.3%
+  λ_base: 0.607 / 2.624  →  λ_adj: 0.458 / 3.476
+  P(Home)=2.1%  P(Draw)=6.9%  P(Away)=91.1%
+  ★ Optimal tip: 0:3  (EV = 2.159 pts)
+     runner-up: 0:2 (EV 2.134)  |  margin Δ 0.025
+     [i] low confidence — 0:3 and 0:2 effectively tied (Δ 0.025).
+     [~] GOALS Δ +1.01: model sees MORE goals than the market (model 3.93 vs O/U 2.92) — review tempo/context.
+  MC (1,000 sims): μ=2.172  σ=1.011  P(0)=9.6%  P(2)=69.2%  P(3)=6.0%  P(4)=15.2%
 
-Match 5: USA vs Paraguay [GROUP]
-  λ_base: 1.171 / 1.557  →  λ_adj: 1.171 / 1.557
-  P(Home)=28.0%  P(Draw)=26.3%  P(Away)=45.6%
-  ★ Optimal tip: 0:1  (EV = 1.230 pts)
-  MC (10,000 sims): μ=1.246  σ=1.446  P(0)=53.7%  P(2)=24.0%  P(3)=12.7%  P(4)=9.6%
+Match 5: Brazil vs Morocco [GROUP]
+  λ_base: 1.582 / 0.803  →  λ_adj: 1.689 / 0.752
+  P(Home)=59.2%  P(Draw)=24.9%  P(Away)=15.8%
+  ★ Optimal tip: 1:0  (EV = 1.583 pts)
+     runner-up: 2:1 (EV 1.535)  |  margin Δ 0.048
+     [i] low confidence — 1:0 and 2:1 effectively tied (Δ 0.048).
+     [✓] goals aligned with market O/U (model 2.44 ≈ 2.56)
+  MC (1,000 sims): μ=1.656  σ=1.441  P(0)=37.5%  P(2)=36.4%  P(3)=11.6%  P(4)=14.5%
 
-Match 6: Australia vs Turkey [GROUP]
-  λ_base: 1.118 / 1.630  →  λ_adj: 1.118 / 1.630
-  P(Home)=25.5%  P(Draw)=25.8%  P(Away)=48.7%
-  ★ Optimal tip: 0:1  (EV = 1.300 pts)
-  MC (10,000 sims): μ=1.291  σ=1.438  P(0)=51.5%  P(2)=26.1%  P(3)=12.8%  P(4)=9.6%
+Match 6: Haiti vs Scotland [GROUP]
+  λ_base: 0.781 / 1.830  →  λ_adj: 0.687 / 2.079
+  P(Home)=10.7%  P(Draw)=19.9%  P(Away)=69.4%
+  ★ Optimal tip: 0:1  (EV = 1.758 pts)
+     runner-up: 0:2 (EV 1.736)  |  margin Δ 0.022
+     [i] low confidence — 0:1 and 0:2 effectively tied (Δ 0.022).
+     [✓] goals aligned with market O/U (model 2.77 ≈ 2.68)
+  MC (1,000 sims): μ=1.740  σ=1.339  P(0)=31.1%  P(2)=45.4%  P(3)=10.8%  P(4)=12.7%
 
-Match 7: Brazil vs Morocco [GROUP]
-  λ_base: 1.707 / 1.068  →  λ_adj: 1.707 / 1.068
-  P(Home)=51.8%  P(Draw)=25.1%  P(Away)=23.1%
-  ★ Optimal tip: 1:0  (EV = 1.368 pts)
-  MC (10,000 sims): μ=1.369  σ=1.427  P(0)=47.9%  P(2)=28.8%  P(3)=13.8%  P(4)=9.5%
+Match 7: USA vs Paraguay [GROUP]
+  λ_base: 1.294 / 0.901  →  λ_adj: 1.578 / 0.753
+  P(Home)=56.5%  P(Draw)=26.3%  P(Away)=17.2%
+  ★ Optimal tip: 1:0  (EV = 1.536 pts)
+     runner-up: 2:1 (EV 1.479)  |  margin Δ 0.056
+     [+] STRONG SIGNAL — engine confident; lock in 1:0.
+     [✓] goals aligned with market O/U (model 2.33 ≈ 2.34)
+  MC (1,000 sims): μ=1.505  σ=1.505  P(0)=45.1%  P(2)=29.1%  P(3)=10.9%  P(4)=14.9%
 
-Match 8: Haiti vs Scotland [GROUP]
-  λ_base: 0.958 / 1.901  →  λ_adj: 0.958 / 1.901
-  P(Home)=18.0%  P(Draw)=23.0%  P(Away)=58.9%
-  ★ Optimal tip: 0:1  (EV = 1.520 pts)
-  MC (10,000 sims): μ=1.512  σ=1.397  P(0)=41.2%  P(2)=35.2%  P(3)=13.4%  P(4)=10.1%
+Match 8: Australia vs Turkey [GROUP]
+  λ_base: 0.758 / 1.589  →  λ_adj: 0.633 / 1.903
+  P(Home)=11.1%  P(Draw)=21.7%  P(Away)=67.2%
+  ★ Optimal tip: 0:1  (EV = 1.747 pts)
+     runner-up: 0:2 (EV 1.698)  |  margin Δ 0.049
+     [i] low confidence — 0:1 and 0:2 effectively tied (Δ 0.049).
+     [✓] goals aligned with market O/U (model 2.54 ≈ 2.56)
+  MC (1,000 sims): μ=1.771  σ=1.368  P(0)=31.1%  P(2)=44.0%  P(3)=10.5%  P(4)=14.4%
 
 Match 9: Germany vs Curaçao [GROUP]
-  λ_base: 2.741 / 0.665  →  λ_adj: 2.741 / 0.665
-  P(Home)=80.4%  P(Draw)=13.4%  P(Away)=6.2%
-  ★ Optimal tip: 2:0  (EV = 1.953 pts)
-  MC (10,000 sims): μ=1.955  σ=1.167  P(0)=19.4%  P(2)=58.4%  P(3)=10.1%  P(4)=12.2%
+  λ_base: 4.566 / 0.798  →  λ_adj: 6.566 / 0.555
+  P(Home)=98.9%  P(Draw)=0.8%  P(Away)=0.2%
+  ★ Optimal tip: 5:0  (EV = 2.212 pts)
+     runner-up: 4:0 (EV 2.170)  |  margin Δ 0.043
+     [i] low confidence — 5:0 and 4:0 effectively tied (Δ 0.043).
+     [~] GOALS Δ +2.70: model sees MORE goals than the market (model 7.12 vs O/U 4.42) — review tempo/context.
+  MC (1,000 sims): μ=2.238  σ=0.652  P(0)=1.1%  P(2)=81.8%  P(3)=8.2%  P(4)=8.9%
 
 Match 10: Ivory Coast vs Ecuador [GROUP]
-  λ_base: 0.930 / 1.960  →  λ_adj: 0.930 / 1.960
-  P(Home)=16.7%  P(Draw)=22.4%  P(Away)=60.9%
-  ★ Optimal tip: 0:1  (EV = 1.560 pts)
-  MC (10,000 sims): μ=1.536  σ=1.378  P(0)=39.6%  P(2)=37.7%  P(3)=12.6%  P(4)=10.1%
+  λ_base: 0.744 / 1.077  →  λ_adj: 0.769 / 1.042
+  P(Home)=25.8%  P(Draw)=33.6%  P(Away)=40.6%
+  ★ Optimal tip: 0:1  (EV = 1.218 pts)
+     runner-up: 0:0 (EV 1.179)  |  margin Δ 0.039
+     [i] low confidence — 0:1 and 0:0 effectively tied (Δ 0.039).
+     [✓] goals aligned with market O/U (model 1.81 ≈ 1.98)
+  MC (1,000 sims): μ=1.188  σ=1.564  P(0)=60.3%  P(2)=15.3%  P(3)=9.4%  P(4)=15.0%
 
 Match 11: Netherlands vs Japan [GROUP]
-  λ_base: 1.426 / 1.278  →  λ_adj: 1.426 / 1.278
-  P(Home)=39.9%  P(Draw)=26.9%  P(Away)=33.1%
-  ★ Optimal tip: 1:0  (EV = 1.095 pts)
-  MC (10,000 sims): μ=1.106  σ=1.446  P(0)=59.9%  P(2)=19.1%  P(3)=11.5%  P(4)=9.5%
+  λ_base: 1.413 / 1.041  →  λ_adj: 1.571 / 0.936
+  P(Home)=51.6%  P(Draw)=26.5%  P(Away)=21.9%
+  ★ Optimal tip: 1:0  (EV = 1.396 pts)
+     runner-up: 2:1 (EV 1.368)  |  margin Δ 0.028
+     [i] low confidence — 1:0 and 2:1 effectively tied (Δ 0.028).
+     [✓] goals aligned with market O/U (model 2.51 ≈ 2.66)
+  MC (1,000 sims): μ=1.369  σ=1.474  P(0)=49.4%  P(2)=26.8%  P(3)=11.9%  P(4)=11.9%
 
 Match 12: Sweden vs Tunisia [GROUP]
-  λ_base: 1.517 / 1.201  →  λ_adj: 1.517 / 1.201
-  P(Home)=43.9%  P(Draw)=26.6%  P(Away)=29.5%
-  ★ Optimal tip: 1:0  (EV = 1.191 pts)
-  MC (10,000 sims): μ=1.186  σ=1.444  P(0)=56.2%  P(2)=22.1%  P(3)=12.3%  P(4)=9.3%
+  λ_base: 1.322 / 0.788  →  λ_adj: 1.558 / 0.669
+  P(Home)=58.2%  P(Draw)=26.4%  P(Away)=15.3%
+  ★ Optimal tip: 1:0  (EV = 1.594 pts)
+     runner-up: 2:1 (EV 1.519)  |  margin Δ 0.075
+     [+] STRONG SIGNAL — engine confident; lock in 1:0.
+     [✓] goals aligned with market O/U (model 2.23 ≈ 2.36)
+  MC (1,000 sims): μ=1.631  σ=1.490  P(0)=39.8%  P(2)=34.4%  P(3)=8.9%  P(4)=16.9%
 
 Match 13: Belgium vs Egypt [GROUP]
-  λ_base: 1.893 / 0.963  →  λ_adj: 1.893 / 0.963
-  P(Home)=58.6%  P(Draw)=23.1%  P(Away)=18.2%
-  ★ Optimal tip: 1:0  (EV = 1.514 pts)
-  MC (10,000 sims): μ=1.496  σ=1.403  P(0)=42.1%  P(2)=34.4%  P(3)=13.3%  P(4)=10.2%
+  λ_base: 1.658 / 0.822  →  λ_adj: 1.877 / 0.727
+  P(Home)=64.2%  P(Draw)=22.5%  P(Away)=13.3%
+  ★ Optimal tip: 1:0  (EV = 1.671 pts)
+     runner-up: 2:1 (EV 1.632)  |  margin Δ 0.039
+     [i] low confidence — 1:0 and 2:1 effectively tied (Δ 0.039).
+     [✓] goals aligned with market O/U (model 2.60 ≈ 2.58)
+  MC (1,000 sims): μ=1.764  σ=1.419  P(0)=33.3%  P(2)=39.1%  P(3)=12.2%  P(4)=15.4%
 
 Match 14: Iran vs New Zealand [GROUP]
-  λ_base: 1.737 / 1.049  →  λ_adj: 1.737 / 1.049
-  P(Home)=52.9%  P(Draw)=24.8%  P(Away)=22.3%
-  ★ Optimal tip: 1:0  (EV = 1.393 pts)
-  MC (10,000 sims): μ=1.382  σ=1.426  P(0)=47.3%  P(2)=29.9%  P(3)=12.9%  P(4)=9.9%
+  λ_base: 1.355 / 0.734  →  λ_adj: 1.333 / 0.746
+  P(Home)=50.1%  P(Draw)=29.6%  P(Away)=20.3%
+  ★ Optimal tip: 1:0  (EV = 1.420 pts)
+     runner-up: 2:1 (EV 1.342)  |  margin Δ 0.077
+     [+] STRONG SIGNAL — engine confident; lock in 1:0.
+     [✓] goals aligned with market O/U (model 2.08 ≈ 2.32)
+  MC (1,000 sims): μ=1.452  σ=1.539  P(0)=48.5%  P(2)=24.7%  P(3)=11.4%  P(4)=15.4%
 
 Match 15: Spain vs Cape Verde [GROUP]
-  λ_base: 3.151 / 0.578  →  λ_adj: 3.151 / 0.578
-  P(Home)=86.6%  P(Draw)=9.7%  P(Away)=3.7%
-  ★ Optimal tip: 2:0  (EV = 2.062 pts)
-  MC (10,000 sims): μ=2.058  σ=1.041  P(0)=13.3%  P(2)=65.8%  P(3)=9.4%  P(4)=11.5%
+  λ_base: 3.905 / 0.756  →  λ_adj: 5.314 / 0.555
+  P(Home)=97.3%  P(Draw)=2.1%  P(Away)=0.6%
+  ★ Optimal tip: 5:0  (EV = 2.207 pts)
+     runner-up: 4:0 (EV 2.206)  |  margin Δ 0.001
+     [i] low confidence — 5:0 and 4:0 effectively tied (Δ 0.001).
+     [~] GOALS Δ +2.25: model sees MORE goals than the market (model 5.87 vs O/U 3.62) — review tempo/context.
+  MC (1,000 sims): μ=2.228  σ=0.703  P(0)=2.0%  P(2)=81.1%  P(3)=7.0%  P(4)=9.9%
 
 Match 16: Saudi Arabia vs Uruguay [GROUP]
-  λ_base: 0.844 / 2.158  →  λ_adj: 0.844 / 2.158
-  P(Home)=13.0%  P(Draw)=20.0%  P(Away)=67.0%
-  ★ Optimal tip: 0:1  (EV = 1.678 pts)
-  MC (10,000 sims): μ=1.679  σ=1.329  P(0)=33.0%  P(2)=43.4%  P(3)=13.1%  P(4)=10.4%
+  λ_base: 0.608 / 1.849  →  λ_adj: 0.475 / 2.365
+  P(Home)=5.4%  P(Draw)=15.2%  P(Away)=79.4%
+  ★ Optimal tip: 0:2  (EV = 1.985 pts)
+     runner-up: 0:1 (EV 1.951)  |  margin Δ 0.034
+     [i] low confidence — 0:2 and 0:1 effectively tied (Δ 0.034).
+     [✓] goals aligned with market O/U (model 2.84 ≈ 2.66)
+  MC (1,000 sims): μ=2.005  σ=1.238  P(0)=20.0%  P(2)=55.9%  P(3)=7.7%  P(4)=16.4%
 
 Match 17: France vs Senegal [GROUP]
-  λ_base: 1.840 / 0.991  →  λ_adj: 1.840 / 0.991
-  P(Home)=56.7%  P(Draw)=23.7%  P(Away)=19.5%
-  ★ Optimal tip: 1:0  (EV = 1.475 pts)
-  MC (10,000 sims): μ=1.462  σ=1.419  P(0)=43.9%  P(2)=32.6%  P(3)=13.1%  P(4)=10.4%
+  λ_base: 1.864 / 0.695  →  λ_adj: 2.096 / 0.618
+  P(Home)=71.5%  P(Draw)=19.3%  P(Away)=9.3%
+  ★ Optimal tip: 1:0  (EV = 1.810 pts)
+     runner-up: 2:0 (EV 1.794)  |  margin Δ 0.016
+     [i] low confidence — 1:0 and 2:0 effectively tied (Δ 0.016).
+     [✓] goals aligned with market O/U (model 2.71 ≈ 2.64)
+  MC (1,000 sims): μ=1.850  σ=1.322  P(0)=27.3%  P(2)=47.2%  P(3)=11.4%  P(4)=14.1%
 
 Match 18: Iraq vs Norway [GROUP]
-  λ_base: 0.865 / 2.106  →  λ_adj: 0.865 / 2.106
-  P(Home)=13.9%  P(Draw)=20.6%  P(Away)=65.5%
-  ★ Optimal tip: 0:1  (EV = 1.650 pts)
-  MC (10,000 sims): μ=1.624  σ=1.339  P(0)=35.3%  P(2)=41.4%  P(3)=13.7%  P(4)=9.7%
+  λ_base: 0.595 / 2.576  →  λ_adj: 0.426 / 3.597
+  P(Home)=1.7%  P(Draw)=6.1%  P(Away)=92.3%
+  ★ Optimal tip: 0:3  (EV = 2.185 pts)
+     runner-up: 0:2 (EV 2.149)  |  margin Δ 0.036
+     [i] low confidence — 0:3 and 0:2 effectively tied (Δ 0.036).
+     [~] GOALS Δ +0.88: model sees MORE goals than the market (model 4.02 vs O/U 3.14) — review tempo/context.
+     [$] WIDE LONGSHOT Iraq (rel-spread 33%): model 2% ~ market 6% — soft mid, no model edge
+  MC (1,000 sims): μ=2.205  σ=0.922  P(0)=6.8%  P(2)=73.1%  P(3)=6.1%  P(4)=14.0%
 
 Match 19: Argentina vs Algeria [GROUP]
-  λ_base: 2.349 / 0.776  →  λ_adj: 2.349 / 0.776
-  P(Home)=72.1%  P(Draw)=17.7%  P(Away)=10.2%
-  ★ Optimal tip: 2:0  (EV = 1.778 pts)
-  MC (10,000 sims): μ=1.775  σ=1.278  P(0)=27.8%  P(2)=50.9%  P(3)=9.2%  P(4)=12.0%
+  λ_base: 1.957 / 0.592  →  λ_adj: 2.192 / 0.529
+  P(Home)=75.4%  P(Draw)=17.5%  P(Away)=7.1%
+  ★ Optimal tip: 2:0  (EV = 1.895 pts)
+     runner-up: 1:0 (EV 1.890)  |  margin Δ 0.005
+     [i] low confidence — 2:0 and 1:0 effectively tied (Δ 0.005).
+     [✓] goals aligned with market O/U (model 2.72 ≈ 2.64)
+  MC (1,000 sims): μ=1.880  σ=1.280  P(0)=24.4%  P(2)=54.3%  P(3)=5.8%  P(4)=15.5%
 
 Match 20: Austria vs Jordan [GROUP]
-  λ_base: 1.663 / 1.096  →  λ_adj: 1.663 / 1.096
-  P(Home)=50.0%  P(Draw)=25.5%  P(Away)=24.5%
-  ★ Optimal tip: 1:0  (EV = 1.330 pts)
-  MC (10,000 sims): μ=1.344  σ=1.435  P(0)=49.1%  P(2)=28.2%  P(3)=12.7%  P(4)=10.0%
+  λ_base: 2.235 / 0.731  →  λ_adj: 2.932 / 0.557
+  P(Home)=84.8%  P(Draw)=11.0%  P(Away)=4.2%
+  ★ Optimal tip: 2:0  (EV = 2.046 pts)
+     runner-up: 3:0 (EV 2.014)  |  margin Δ 0.032
+     [i] low confidence — 2:0 and 3:0 effectively tied (Δ 0.032).
+     [~] GOALS Δ +0.51: model sees MORE goals than the market (model 3.49 vs O/U 2.98) — review tempo/context.
+  MC (1,000 sims): μ=2.088  σ=1.105  P(0)=14.1%  P(2)=63.6%  P(3)=7.6%  P(4)=14.7%
 
 Match 21: Portugal vs DR Congo [GROUP]
-  λ_base: 2.167 / 0.841  →  λ_adj: 2.167 / 0.841
-  P(Home)=67.3%  P(Draw)=19.9%  P(Away)=12.8%
-  ★ Optimal tip: 1:0  (EV = 1.683 pts)
-  MC (10,000 sims): μ=1.697  σ=1.326  P(0)=32.4%  P(2)=43.3%  P(3)=14.0%  P(4)=10.3%
+  λ_base: 2.247 / 0.562  →  λ_adj: 2.734 / 0.462
+  P(Home)=84.5%  P(Draw)=11.7%  P(Away)=3.9%
+  ★ Optimal tip: 2:0  (EV = 2.071 pts)
+     runner-up: 3:0 (EV 2.018)  |  margin Δ 0.053
+     [+] STRONG SIGNAL — engine confident; lock in 2:0.
+     [✓] goals aligned with market O/U (model 3.20 ≈ 2.92)
+     [$] WIDE LONGSHOT DR Congo (rel-spread 13%): model 4% ~ market 8% — soft mid, no model edge
+  MC (1,000 sims): μ=2.069  σ=1.179  P(0)=16.6%  P(2)=59.8%  P(3)=7.1%  P(4)=16.5%
 
 Match 22: Uzbekistan vs Colombia [GROUP]
-  λ_base: 0.933 / 1.954  →  λ_adj: 0.933 / 1.954
-  P(Home)=16.9%  P(Draw)=22.4%  P(Away)=60.7%
-  ★ Optimal tip: 0:1  (EV = 1.556 pts)
-  MC (10,000 sims): μ=1.534  σ=1.386  P(0)=40.0%  P(2)=36.9%  P(3)=12.9%  P(4)=10.2%
+  λ_base: 0.601 / 1.941  →  λ_adj: 0.480 / 2.547
+  P(Home)=4.7%  P(Draw)=13.4%  P(Away)=81.8%
+  ★ Optimal tip: 0:2  (EV = 2.026 pts)
+     runner-up: 0:1 (EV 1.970)  |  margin Δ 0.056
+     [+] STRONG SIGNAL — engine confident; lock in 0:2.
+     [~] GOALS Δ +0.41: model sees MORE goals than the market (model 3.03 vs O/U 2.62) — review tempo/context.
+  MC (1,000 sims): μ=1.963  σ=1.186  P(0)=19.5%  P(2)=58.9%  P(3)=7.9%  P(4)=13.7%
 
 Match 23: England vs Croatia [GROUP]
-  λ_base: 1.586 / 1.149  →  λ_adj: 1.586 / 1.149
-  P(Home)=46.9%  P(Draw)=26.1%  P(Away)=27.0%
-  ★ Optimal tip: 1:0  (EV = 1.259 pts)
-  MC (10,000 sims): μ=1.243  σ=1.444  P(0)=53.7%  P(2)=24.5%  P(3)=12.0%  P(4)=9.8%
+  λ_base: 1.548 / 0.821  →  λ_adj: 1.756 / 0.723
+  P(Home)=61.6%  P(Draw)=24.0%  P(Away)=14.4%
+  ★ Optimal tip: 1:0  (EV = 1.631 pts)
+     runner-up: 2:1 (EV 1.582)  |  margin Δ 0.048
+     [i] low confidence — 1:0 and 2:1 effectively tied (Δ 0.048).
+     [✓] goals aligned with market O/U (model 2.48 ≈ 2.46)
+  MC (1,000 sims): μ=1.637  σ=1.421  P(0)=37.5%  P(2)=37.0%  P(3)=12.3%  P(4)=13.2%
 
 Match 24: Ghana vs Panama [GROUP]
-  λ_base: 0.979 / 1.861  →  λ_adj: 0.979 / 1.861
-  P(Home)=19.0%  P(Draw)=23.5%  P(Away)=57.5%
-  ★ Optimal tip: 0:1  (EV = 1.491 pts)
-  MC (10,000 sims): μ=1.510  σ=1.422  P(0)=42.2%  P(2)=33.5%  P(3)=13.3%  P(4)=11.1%
-
-  #  Match                                 Tip      EV    MC μ    MC σ    P(0)    P(2)    P(3)    P(4)
-------------------------------------------------------------------------------------------------------
-  1  Mexico vs South Africa              2: 1   1.721   1.725   1.274   29.8%   47.3%   13.7%    9.2%
-  2  South Korea vs Czechia              2: 1   1.024   1.055   1.435   62.0%   17.6%   11.4%    9.0%
-  3  Canada vs Bosnia                    1: 0   1.473   1.450   1.424   44.5%   32.1%   12.8%   10.5%
-  4  Qatar vs Switzerland                0: 2   1.923   1.917   1.194   21.1%   57.1%    9.5%   12.3%
-  5  USA vs Paraguay                     0: 1   1.230   1.246   1.446   53.7%   24.0%   12.7%    9.6%
-  6  Australia vs Turkey                 0: 1   1.300   1.291   1.438   51.5%   26.1%   12.8%    9.6%
-  7  Brazil vs Morocco                   1: 0   1.368   1.369   1.427   47.9%   28.8%   13.8%    9.5%
-  8  Haiti vs Scotland                   0: 1   1.520   1.512   1.397   41.2%   35.2%   13.4%   10.1%
-  9  Germany vs Curaçao                  2: 0   1.953   1.955   1.167   19.4%   58.4%   10.1%   12.2%
- 10  Ivory Coast vs Ecuador              0: 1   1.560   1.536   1.378   39.6%   37.7%   12.6%   10.1%
- 11  Netherlands vs Japan                1: 0   1.095   1.106   1.446   59.9%   19.1%   11.5%    9.5%
- 12  Sweden vs Tunisia                   1: 0   1.191   1.186   1.444   56.2%   22.1%   12.3%    9.3%
- 13  Belgium vs Egypt                    1: 0   1.514   1.496   1.403   42.1%   34.4%   13.3%   10.2%
- 14  Iran vs New Zealand                 1: 0   1.393   1.382   1.426   47.3%   29.9%   12.9%    9.9%
- 15  Spain vs Cape Verde                 2: 0   2.062   2.058   1.041   13.3%   65.8%    9.4%   11.5%
- 16  Saudi Arabia vs Uruguay             0: 1   1.678   1.679   1.329   33.0%   43.4%   13.1%   10.4%
- 17  France vs Senegal                   1: 0   1.475   1.462   1.419   43.9%   32.6%   13.1%   10.4%
- 18  Iraq vs Norway                      0: 1   1.650   1.624   1.339   35.3%   41.4%   13.7%    9.7%
- 19  Argentina vs Algeria                2: 0   1.778   1.775   1.278   27.8%   50.9%    9.2%   12.0%
- 20  Austria vs Jordan                   1: 0   1.330   1.344   1.435   49.1%   28.2%   12.7%   10.0%
- 21  Portugal vs DR Congo                1: 0   1.683   1.697   1.326   32.4%   43.3%   14.0%   10.3%
- 22  Uzbekistan vs Colombia              0: 1   1.556   1.534   1.386   40.0%   36.9%   12.9%   10.2%
- 23  England vs Croatia                  1: 0   1.259   1.243   1.444   53.7%   24.5%   12.0%    9.8%
- 24  Ghana vs Panama                     0: 1   1.491   1.510   1.422   42.2%   33.5%   13.3%   11.1%
+  λ_base: 1.298 / 1.041  →  λ_adj: 1.573 / 0.860
+  P(Home)=53.6%  P(Draw)=26.5%  P(Away)=19.9%
+  ★ Optimal tip: 1:0  (EV = 1.452 pts)
+     runner-up: 2:1 (EV 1.414)  |  margin Δ 0.039
+     [i] low confidence — 1:0 and 2:1 effectively tied (Δ 0.039).
+     [✓] goals aligned with market O/U (model 2.43 ≈ 2.36)
+  MC (1,000 sims): μ=1.446  σ=1.482  P(0)=46.8%  P(2)=27.5%  P(3)=13.2%  P(4)=12.5%
 
 ============================================================
 TOURNAMENT SUMMARY
 ============================================================
   Matches:              24
-  Total EV (analytic):  36.228 pts
-  Total MC mean:        36.150 pts
-  Total MC std:         6.722 pts
-
-  Confidence intervals (Monte Carlo):
-     5th percentile:   25 pts
-    25th percentile:   32 pts
-    50th percentile:   36 pts  (median)
-    75th percentile:   41 pts
-    95th percentile:   48 pts
+  Total EV (analytic):  42.437 pts
+  Total MC mean:        42.747 pts
 ============================================================

@@ -103,8 +103,15 @@ def main():
     if not os.path.exists(gs):
         sys.exit(f"need martj42 goalscorers.csv at {gs} — see module docstring")
 
-    print(f"[gs] {sims}-sim tournament MC for team expected goals...", file=sys.stderr)
-    teg = tbf.run_monte_carlo(n_sims=sims, verbose=False)["team_expected_goals"]
+    tips_json_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "bonusfragen_tips.json")
+    if os.path.exists(tips_json_path):
+        print(f"[gs] Loading pre-calculated team expected goals from {tips_json_path}...", file=sys.stderr)
+        with open(tips_json_path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+            teg = data.get("team_expected_goals", data.get("top_scorer_team", {}).get("avg_goals", {}))
+    else:
+        print(f"[gs] {sims}-sim tournament MC for team expected goals...", file=sys.stderr)
+        teg = tbf.run_monte_carlo(n_sims=sims, verbose=False)["team_expected_goals"]
     by, pens = recent_goals(gs, since)
 
     teams2026 = [t for g in tbf.GROUPS.values() for t in g]
