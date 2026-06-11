@@ -69,3 +69,38 @@ reason than the value bias.
   in the stack (Canada's entire +14 is the form term).
 - Scanner interpretation note: treat young-squad outright edges as unexplained
   model-vs-market divergence pending the post-tournament Elo audit, not as value.
+
+## Addendum (same day) — age is a conditioning variable, not (only) a value discount
+
+Pushback accepted on the "Croatia victim" framing: at the Modrić-generation
+extreme, depreciation does track real skill decline. The sharper point is that
+for old squads the binding constraint is **recovery between matches**, which a
+static Elo discount cannot represent — the cost should *compound through the
+tournament* (up to 8 matches, summer heat, ET carry-over).
+
+**What the engine does today (measured, age-blind):**
+
+- Vectorized ET fatigue: penalty `0.10 / min(2.0, bench_value/50)` for ONE
+  following round, binary. Bench ≥ €100M caps the resilience at 2.0, so every
+  realistic KO contender takes the identical minimum 5% — Croatia (oldest core)
+  and Ecuador (youngest) are treated the same. Differentiation only punishes
+  poor-bench minnows. No cumulative load, no rest days, no age input anywhere.
+- Scalar engine: no fatigue at all (momentum-Elo instead; S11 divergence).
+- Net effect: the age penalty lands statically in the GROUP stage (where
+  conditioning barely binds) via `change_pct`, while the KO rounds (where it
+  binds hardest) apply none. Backwards on both ends.
+
+**In-tournament lever (allowed, no engine change):** `ko_tips.py --fatigued`
+is a manual flag. Ops rule for the KO rounds: age-weight the call — an
+old-core team coming off ET (or a 3-day turnaround) gets flagged by default;
+a young squad with full rest is a judgment call. This is operator input to an
+existing validated lever, not a model change.
+
+**S23 design note (post-tournament):** replace binary ET fatigue with a
+cumulative-load state (matches played, ET count, rest days, travel) modulated
+by XI-age — `penalty × age_factor(avg XI age)` — and key resilience to squad
+AGE structure, not bench price (bench value is itself age-inflated, and the
+2.0 cap makes it non-functional among contenders anyway). Data requirement:
+XI-weighted average age per squad. Honest caveat: the historical validation
+subset (KO matches following ET, 2014–22) is ~20 games — the term may have to
+ship as theory-priced with wide uncertainty rather than backtest-validated.
