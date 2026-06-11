@@ -21,6 +21,8 @@ import matchday_tips as M
 import predictor
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+MARKET_BLENDED = False   # set by md1_tips(): True only when a live snapshot was blended
+
 ASSETS = os.path.join(HERE, "assets")
 FLAGDIR = os.path.join(ASSETS, "flags")
 
@@ -81,7 +83,16 @@ def md1_tips():
     """Each row: (home, away, opt_h, opt_a, opt_ev, btts_h, btts_a, btts_ev, mode_h, mode_a, mode_p).
     opt = EV-max tip (safe); btts = EV-max both-teams-score line (differential); mode = the single
     most-likely exact score from the NB grid (the 'snipe' — argmax, not an EV object)."""
-    mp, mx = M.load_market_snapshot(os.path.join(HERE, "data", "polymarket_match_odds.json"))
+    snap_path = os.path.join(HERE, "data", "polymarket_match_odds.json")
+    if os.path.exists(snap_path):
+        mp, mx = M.load_market_snapshot(snap_path)
+    else:
+        # No market snapshot available (e.g. sandboxed container): render the
+        # pure Elo+stack tips — the same fallback every other consumer uses.
+        print("ℹ no data/polymarket_match_odds.json — rendering Elo-only tips", file=sys.stderr)
+        mp, mx = None, None
+    global MARKET_BLENDED
+    MARKET_BLENDED = bool(mp)
     out = []
     for r in M.run_matchday(1, 0, 42, mp, mx):
         a, b, tip, g = r["team_a"], r["team_b"], r["optimal_tip"], r["grid"]
@@ -115,6 +126,7 @@ def build_html(tips, bonus, mode="optimal", goldenboot=None):
     brand = (f'<img class="crest" src="{logo}">' if logo
              else '<div class="crest fallback">vLC</div>')
     stamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    blend_label = "live market-blended" if MARKET_BLENDED else "Elo + full context stack (no market feed)"
 
     opt_total = sum(t[4] for t in tips)
     btts_total = sum(t[7] for t in tips)
@@ -137,7 +149,7 @@ def build_html(tips, bonus, mode="optimal", goldenboot=None):
                  '<th>Modal<small>snipe</small></th><th>Mode<small>%</small></th></tr></thead><tbody>'
                  + "".join(body) + '</tbody></table>')
         title = "Matchday 1 — Master Dashboard"
-        subtitle = f"EV-safe grind vs modal snipe · live market-blended · {stamp}"
+        subtitle = f"EV-safe grind vs modal snipe · {blend_label} · {stamp}"
         summary = (f"<b>EV Tip</b> maximises expected points (the safe grind); <b>Modal</b> is the single "
                    f"most-likely exact score from the NB grid. {ndiff} of {n} differ "
                    f"(<span class='hot'>highlighted</span>), {ndraw} are hidden draws "
@@ -157,14 +169,14 @@ def build_html(tips, bonus, mode="optimal", goldenboot=None):
         table = '<table class="tips">' + "\n".join(rows) + "</table>"
         if diff:
             title = "Matchday 1 — Differential Tips"
-            subtitle = f"both-teams-score scorelines for pool play · live market-blended · {stamp}"
+            subtitle = f"both-teams-score scorelines for pool play · {blend_label} · {stamp}"
             summary = (f"Σ expected ≈ {btts_total:.1f} pts (avg {btts_total/n:.2f}/match) — only "
                        f"{opt_total-btts_total:.1f} pts below the EV-optimal sheet over {n} matches. "
                        f"Each keeps the goal-difference band but adds a realistic both-teams-score line: "
                        f"far more differential variance for chasing a pool, at near-zero EV cost.")
         else:
             title = "Matchday 1 — Optimal Tips"
-            subtitle = f"EV-maximised for 4-3-2 Kicktipp scoring · live market-blended · {stamp}"
+            subtitle = f"EV-maximised for 4-3-2 Kicktipp scoring · {blend_label} · {stamp}"
             summary = (f"Σ expected ≈ {opt_total:.1f} pts over {n} matches (avg {opt_total/n:.2f}/match). "
                        f"Tips are the points-maximising single guess, not the modal scoreline — see the "
                        f"master dashboard for the modal snipe column.")
@@ -284,7 +296,7 @@ h2 {{ font: 700 15px Georgia, serif; margin: 22px 0 10px; padding-bottom: 5px;
 </style></head><body>
 <div class="hdr">{brand}<div class="ht"><span class="name">von Linck Capital</span>
   <span class="sub">Quantitative Football Intelligence</span></div></div>
-<div class="ftr"><span>FIFA World Cup 2026 — Engine v-sealed · model + Polymarket blend</span>
+<div class="ftr"><span>FIFA World Cup 2026 — Engine v-sealed · {blend_label}</span>
   <span class="pg">Page&nbsp;</span></div>
 
 <h1>{title}</h1>
