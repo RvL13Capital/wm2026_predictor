@@ -97,6 +97,10 @@ edited; entries are scored against the engine that generated them.
 
 **If not triggered:** the freeze holds until post-tournament, unchanged.
 
+Companion evidence: `validation/SCORING_ENVIRONMENT_PRIOR.md` (CWC 2025 group
+stage + the 144-match WC 2014-22 group set vs the engine's claims) — registered
+the same day; it quantifies why this tripwire has power.
+
 p_i reproduction caveat: grids are rebuilt at evaluation time via the
 deterministic Elo+stack path (no market blend). The freeze itself guarantees
 the calibration is unchanged since logging; injury-Elo drift between lock
