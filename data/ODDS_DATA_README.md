@@ -51,7 +51,7 @@ like). Quarantined rows are reported, never written.
 | Tier | Source | Years | Status |
 |---|---|---|---|
 | **1** | **The Odds API historical snapshots** → `scripts/fill_odds_theoddsapi.py` | **2022 only** (history starts Jun 2020) | Clean, ToS-compliant, ~590 credits (paid plan with historical access). Run on your own machine — this repo's dev container blocks the host. |
-| 2 | Any downloaded raw CSV (Kaggle/GitHub) → `scripts/merge_odds.py` | any | User-verified: hard to find for WC odds; spot-check before trusting |
+| 2 | Any downloaded raw CSV (Kaggle/GitHub) → `scripts/merge_odds.py` | any | **2014 SOLVED (2026-06-11):** Kaggle `austro/beat-the-bookie-worldwide-football-dataset` `closing_odds.csv` — avg close of up to 27 books, all 64 finals rows, merged + gates green. 2018/2022: exhaustively searched (Kaggle API, GitHub, Wayback/BetExplorer archives, academic repos) — **no free non-manual source exists**; eladsil ends 23-May-2018, BtB ends 2015, betfront ends 2013. |
 | 3 | **Manual entry from Oddsportal match pages** + `merge_odds.py --validate-only` | 2018 / 2014 | ~45 min/tournament; the validate-only gates catch fat-fingers (13.5-for-1.35 → flagged) |
 | ✗ | `soccerdata` "Oddsportal reader" | — | **Does not exist** (verified: ClubElo/ESPN/FBref/Football-Data/Sofascore/SoFIFA/Understat/WhoScored only) |
 | ✗ | Stealth/proxied Oddsportal scrapers, Bright Data etc. | — | Not built here — ToS-circumvention tooling; Oddsportal is also 403-blocked from this container |

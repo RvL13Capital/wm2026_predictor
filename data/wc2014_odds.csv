@@ -1,65 +1,65 @@
 team_a,team_b,phase,odds_home,odds_draw,odds_away,bookmaker,source_url
-Brazil,Croatia,GROUP,,,,,
-Mexico,Cameroon,GROUP,,,,,
-Brazil,Mexico,GROUP,,,,,
-Cameroon,Croatia,GROUP,,,,,
-Cameroon,Brazil,GROUP,,,,,
-Croatia,Mexico,GROUP,,,,,
-Spain,Netherlands,GROUP,,,,,
-Chile,Australia,GROUP,,,,,
-Australia,Netherlands,GROUP,,,,,
-Spain,Chile,GROUP,,,,,
-Australia,Spain,GROUP,,,,,
-Netherlands,Chile,GROUP,,,,,
-Colombia,Greece,GROUP,,,,,
-Ivory Coast,Japan,GROUP,,,,,
-Colombia,Ivory Coast,GROUP,,,,,
-Japan,Greece,GROUP,,,,,
-Japan,Colombia,GROUP,,,,,
-Greece,Ivory Coast,GROUP,,,,,
-Uruguay,Costa Rica,GROUP,,,,,
-England,Italy,GROUP,,,,,
-Uruguay,England,GROUP,,,,,
-Italy,Costa Rica,GROUP,,,,,
-Italy,Uruguay,GROUP,,,,,
-Costa Rica,England,GROUP,,,,,
-Switzerland,Ecuador,GROUP,,,,,
-France,Honduras,GROUP,,,,,
-Switzerland,France,GROUP,,,,,
-Honduras,Ecuador,GROUP,,,,,
-Honduras,Switzerland,GROUP,,,,,
-Ecuador,France,GROUP,,,,,
-Argentina,Bosnia,GROUP,,,,,
-Iran,Nigeria,GROUP,,,,,
-Argentina,Iran,GROUP,,,,,
-Nigeria,Bosnia,GROUP,,,,,
-Nigeria,Argentina,GROUP,,,,,
-Bosnia,Iran,GROUP,,,,,
-Germany,Portugal,GROUP,,,,,
-Ghana,USA,GROUP,,,,,
-Germany,Ghana,GROUP,,,,,
-USA,Portugal,GROUP,,,,,
-USA,Germany,GROUP,,,,,
-Portugal,Ghana,GROUP,,,,,
-Belgium,Algeria,GROUP,,,,,
-Russia,South Korea,GROUP,,,,,
-Belgium,Russia,GROUP,,,,,
-South Korea,Algeria,GROUP,,,,,
-South Korea,Belgium,GROUP,,,,,
-Algeria,Russia,GROUP,,,,,
-Brazil,Chile,R16,,,,,
-Colombia,Uruguay,R16,,,,,
-Netherlands,Mexico,R16,,,,,
-Costa Rica,Greece,R16,,,,,
-France,Nigeria,R16,,,,,
-Germany,Algeria,R16,,,,,
-Argentina,Switzerland,R16,,,,,
-Belgium,USA,R16,,,,,
-Brazil,Colombia,QF,,,,,
-Germany,France,QF,,,,,
-Netherlands,Costa Rica,QF,,,,,
-Argentina,Belgium,QF,,,,,
-Brazil,Germany,SF,,,,,
-Netherlands,Argentina,SF,,,,,
-Netherlands,Brazil,THIRD,,,,,
-Germany,Argentina,FINAL,,,,,
+Brazil,Croatia,GROUP,1.31,5.075,11.733,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Mexico,Cameroon,GROUP,2.18,3.132,3.716,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Brazil,Mexico,GROUP,1.339,5.242,9.063,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Cameroon,Croatia,GROUP,5.46,3.9,1.638,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Cameroon,Brazil,GROUP,21.403,9.257,1.121,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Croatia,Mexico,GROUP,2.679,3.407,2.613,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Spain,Netherlands,GROUP,1.834,3.332,4.974,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Chile,Australia,GROUP,1.417,4.388,8.576,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Australia,Netherlands,GROUP,12.94,6.459,1.225,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Spain,Chile,GROUP,1.567,4.407,5.48,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Australia,Spain,GROUP,7.808,5.182,1.379,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Netherlands,Chile,GROUP,2.666,3.451,2.602,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Colombia,Greece,GROUP,1.855,3.222,5.024,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Ivory Coast,Japan,GROUP,2.696,3.28,2.687,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Colombia,Ivory Coast,GROUP,2.017,3.475,3.756,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Japan,Greece,GROUP,2.367,3.328,3.07,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Japan,Colombia,GROUP,3.395,3.673,2.068,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Greece,Ivory Coast,GROUP,3.924,3.569,1.944,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Uruguay,Costa Rica,GROUP,1.434,4.183,8.887,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+England,Italy,GROUP,2.485,2.986,3.213,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Uruguay,England,GROUP,3.774,3.729,1.941,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Italy,Costa Rica,GROUP,1.558,3.985,6.548,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Italy,Uruguay,GROUP,2.534,3.421,2.752,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Costa Rica,England,GROUP,4.363,3.917,1.774,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Switzerland,Ecuador,GROUP,2.394,3.193,3.14,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+France,Honduras,GROUP,1.256,5.885,12.123,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Switzerland,France,GROUP,4.575,3.475,1.845,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Honduras,Ecuador,GROUP,5.735,4.108,1.591,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Honduras,Switzerland,GROUP,6.957,4.409,1.48,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Ecuador,France,GROUP,5.484,4.076,1.611,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Argentina,Bosnia,GROUP,1.305,5.546,9.991,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Iran,Nigeria,GROUP,4.718,3.437,1.829,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Argentina,Iran,GROUP,1.136,8.389,20.64,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Nigeria,Bosnia,GROUP,4.24,3.583,1.864,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Nigeria,Argentina,GROUP,9.256,4.138,1.429,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Bosnia,Iran,GROUP,2.193,3.497,3.258,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Germany,Portugal,GROUP,2.058,3.49,3.628,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Ghana,USA,GROUP,2.404,3.387,2.984,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Germany,Ghana,GROUP,1.331,5.44,8.916,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+USA,Portugal,GROUP,4.519,4.016,1.732,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+USA,Germany,GROUP,8.119,3.05,1.669,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Portugal,Ghana,GROUP,1.766,4.762,3.691,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Belgium,Algeria,GROUP,1.333,5.15,9.72,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Russia,South Korea,GROUP,1.818,3.563,4.614,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Belgium,Russia,GROUP,2.199,3.29,3.441,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+South Korea,Algeria,GROUP,2.498,3.252,2.921,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+South Korea,Belgium,GROUP,4.542,3.558,1.829,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Algeria,Russia,GROUP,3.582,3.639,2.024,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Brazil,Chile,R16,1.523,4.395,6.189,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Colombia,Uruguay,R16,2.126,3.313,3.613,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Netherlands,Mexico,R16,2.117,3.284,3.665,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Costa Rica,Greece,R16,2.633,3.088,2.898,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+France,Nigeria,R16,1.41,4.595,8.417,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Germany,Algeria,R16,1.308,5.514,9.907,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Argentina,Switzerland,R16,1.558,4.075,6.27,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Belgium,USA,R16,2.0,3.358,3.995,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Brazil,Colombia,QF,1.76,3.728,4.801,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Germany,France,QF,2.74,3.109,2.792,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Netherlands,Costa Rica,QF,1.514,4.085,6.977,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Argentina,Belgium,QF,1.983,3.321,4.138,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Brazil,Germany,SF,2.633,3.139,2.884,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Netherlands,Argentina,SF,3.015,3.197,2.502,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Netherlands,Brazil,THIRD,3.246,3.649,2.158,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
+Germany,Argentina,FINAL,2.331,3.236,3.305,btb_avg_close,kaggle.com/datasets/austro/beat-the-bookie-worldwide-football-dataset
