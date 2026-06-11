@@ -80,9 +80,10 @@ def _ev(grid, tx, ty):
 
 
 def md1_tips():
-    """Each row: (home, away, opt_h, opt_a, opt_ev, btts_h, btts_a, btts_ev, mode_h, mode_a, mode_p).
+    """Each row: (home, away, opt_h, opt_a, opt_ev, btts_h, btts_a, btts_ev, mode_h, mode_a, mode_p, top).
     opt = EV-max tip (safe); btts = EV-max both-teams-score line (differential); mode = the single
-    most-likely exact score from the NB grid (the 'snipe' — argmax, not an EV object)."""
+    most-likely exact score from the NB grid (the 'snipe' — argmax, not an EV object);
+    top = the four most-likely exact scores [(h, a, p), ...] for the small alt-score column."""
     snap_path = os.path.join(HERE, "data", "polymarket_match_odds.json")
     if os.path.exists(snap_path):
         mp, mx = M.load_market_snapshot(snap_path)
@@ -99,7 +100,8 @@ def md1_tips():
         bt = max(((x, y) for x in range(7) for y in range(7) if x >= 1 and y >= 1),
                  key=lambda t: _ev(g, *t))
         mh, ma = max(((x, y) for x in g for y in g[x]), key=lambda t: g[t[0]][t[1]])
-        out.append((a, b, tip[0], tip[1], r["ev"], bt[0], bt[1], _ev(g, *bt), mh, ma, g[mh][ma]))
+        top = sorted(((x, y, g[x][y]) for x in g for y in g[x]), key=lambda t: -t[2])[:4]
+        out.append((a, b, tip[0], tip[1], r["ev"], bt[0], bt[1], _ev(g, *bt), mh, ma, g[mh][ma], top))
     return out
 
 
@@ -134,7 +136,7 @@ def build_html(tips, bonus, mode="optimal", goldenboot=None):
 
     if master:
         body, ndiff, ndraw = [], 0, 0
-        for i, (a, b, oh, oa, oev, bh, ba_, bev, mh, ma, mpr) in enumerate(tips, 1):
+        for i, (a, b, oh, oa, oev, bh, ba_, bev, mh, ma, mpr, *_) in enumerate(tips, 1):
             differ = (mh, ma) != (oh, oa)
             cls = ("snipe draw" if (differ and mh == ma) else "snipe") if differ else ""
             ndiff += differ; ndraw += (differ and mh == ma)
@@ -157,12 +159,16 @@ def build_html(tips, bonus, mode="optimal", goldenboot=None):
                    f"pool; grind the EV column when LEADING. Σ EV ≈ {opt_total:.1f} pts.")
     else:
         rows = []
-        for i, (a, b, oh, oa, oev, bh, ba_, bev, *_) in enumerate(tips, 1):
+        for i, (a, b, oh, oa, oev, bh, ba_, bev, mh, ma, mpr, top) in enumerate(tips, 1):
             ga, gb, ev = (bh, ba_, bev) if diff else (oh, oa, oev)
+            alts = [t for t in top if (t[0], t[1]) != (ga, gb)][:3]
+            alt_html = '<span class="dot"> · </span>'.join(
+                f'<b>{h}:{a2}</b>&hairsp;{p*100:.0f}%' for h, a2, p in alts)
             rows.append(
                 f'<tr><td class="num">{i}</td>'
                 f'<td class="home">{a}{flag(a)}</td>'
                 f'<td class="score">{ga}<span class="colon">:</span>{gb}</td>'
+                f'<td class="alt">{alt_html}</td>'
                 f'<td class="away">{flag(b)}{b}</td>'
                 f'<td class="ev">{ev:.2f}</td></tr>'
             )
@@ -173,13 +179,14 @@ def build_html(tips, bonus, mode="optimal", goldenboot=None):
             summary = (f"Σ expected ≈ {btts_total:.1f} pts (avg {btts_total/n:.2f}/match) — only "
                        f"{opt_total-btts_total:.1f} pts below the EV-optimal sheet over {n} matches. "
                        f"Each keeps the goal-difference band but adds a realistic both-teams-score line: "
-                       f"far more differential variance for chasing a pool, at near-zero EV cost.")
+                       f"far more differential variance for chasing a pool, at near-zero EV cost. "
+                       f"Small scores beside each tip are the next-likeliest exact results from the grid.")
         else:
             title = "Matchday 1 — Optimal Tips"
             subtitle = f"EV-maximised for 4-3-2 Kicktipp scoring · {blend_label} · {stamp}"
             summary = (f"Σ expected ≈ {opt_total:.1f} pts over {n} matches (avg {opt_total/n:.2f}/match). "
-                       f"Tips are the points-maximising single guess, not the modal scoreline — see the "
-                       f"master dashboard for the modal snipe column.")
+                       f"Tips are the points-maximising single guess, not the modal scoreline — the small "
+                       f"scores beside each tip are the next-likeliest exact results from the grid.")
 
     gw = bonus["group_winners"]
     gw_cells = "".join(
@@ -238,7 +245,11 @@ table.tips td {{ padding: 5.5px 6px; border-bottom: 1px solid #eee5cc; vertical-
 table.tips tr:nth-child(even) {{ background: #fcf9f0; }}
 .num {{ color: #b8a978; width: 22px; text-align: right; font-size: 10px; }}
 .home {{ text-align: right; }} .away {{ text-align: left; }}
-.home, .away {{ width: 39%; font-weight: 600; }}
+.home, .away {{ width: 32%; font-weight: 600; }}
+.alt {{ width: 108px; font-size: 8px; color: #8a8470; white-space: nowrap;
+  padding-left: 9px !important; }}
+.alt b {{ font: 600 9px Georgia, serif; color: #5a5648; }}
+.alt .dot {{ color: #d8caa0; }}
 img.flag {{ height: 13px; width: 20px; object-fit: cover; vertical-align: middle;
   box-shadow: 0 0 0 0.5px #ccc; border-radius: 2px; }}
 .home img.flag {{ margin-left: 8px; }} .away img.flag {{ margin-right: 8px; }}
