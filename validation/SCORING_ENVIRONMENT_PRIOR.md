@@ -69,3 +69,36 @@ Urawa — the CWC's raw 3.00 was mismatch-driven; the core rate matches WC norms
   none of this overturns the points validation, it bounds what the grids' cells mean.
 - Engine aggregates reproduced market-blind; lock-night blends shift 1X2 splits but
   barely move the BTTS/exact cell structure that drives the gap.
+
+## Addendum (same day) — λ-family saturation & the two-track decision
+
+Double-checked whether the calibrated λ (bg=1.25 — the log-loss LOTO pick on
+all three held-out folds, `validation/recalibration.txt`) closes the gaps.
+Result over the 72 fixture grids:
+
+| Config            | E[goals] | draw% | BTTS% | 1g-both% |
+|-------------------|---------:|------:|------:|---------:|
+| REALITY (WC 14–22)|     2.62 |    19 |    48 |       54 |
+| production bg=1.0 |     2.09 |    26 |    26 |       26 |
+| bg=1.25 sf=1600   |     2.61 |    21 |  34   |     37   |
+| bg=1.25 sf=1200   |     2.90 |    19 |    32 |       36 |
+| bg=1.25 sf=2000   |     2.47 |    23 |    35 |       37 |
+| bg=1.15 sf=1200   |     2.67 |    20 |    29 |       32 |
+
+bg=1.25 reproduces totals and draw rate almost exactly, but **BTTS saturates
+at ~32–36% across the whole plausible λ family vs 48% real** — independent
+biPoisson + DC-corner has no score-state dependence (trailing teams pushing,
+2-0 becoming 2-1) and no λ can synthesize it. Structural, not a tuning miss.
+
+**Decision (shipped 2026-06-11, pre-KO-freeze):** two-track calibration.
+`edge_scanner.SCANNER_PRICING_CALIBRATION` (bg=1.25/sf=1600) applies ONLY to
+match-market pricing (`model_match_1x2`, via the `_calibrated_pricing` context
+manager); the tips path and the tournament matrix keep frozen production
+constants (points floor re-verified: 299/192). BTTS / exact-score books are
+refused outright (`_STRUCTURALLY_UNPRICEABLE`). Ledger meta now records
+`pricing_calibration` so pre/post regimes stay separable in the paper record.
+
+Consequence for the Jun-27 λ checkpoint: if the tripwire fires, the realistic
+action is scoping down exact-cell claims (and this two-track split), NOT a
+points-λ retune — the measured grid already shows no family member both beats
+the 295 floor and fixes the cells.

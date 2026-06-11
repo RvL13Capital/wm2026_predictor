@@ -32,6 +32,7 @@ import os
 import subprocess
 import sys
 import time
+from contextlib import contextmanager
 from datetime import datetime, timezone
 
 import numpy as np
@@ -46,6 +47,42 @@ from odds_client import PolymarketClient, THIN_LIQUIDITY
 # price is quoted; the NO side is reconstructed at this margin so the book can
 # be de-vigged honestly).
 _REACH_MARGIN = 0.05
+
+# --------------------------------------------------------------------------- #
+#  Two-track calibration (validation/SCORING_ENVIRONMENT_PRIOR.md, 2026-06-11)
+#
+#  Tips optimize POINTS and keep the frozen production λ (bg=1.0 — 299/192,
+#  tests/test_lambda_points_floor.py). The scanner needs CALIBRATION: bg=1.25
+#  was the log-loss LOTO pick on all three held-out folds
+#  (validation/recalibration.txt) and reproduces real group-stage totals
+#  (E[goals] 2.61 vs 2.62) and draw rate (21% vs 19%) where production claims
+#  2.09 / 26%. Match-market pricing (model_match_1x2) runs under these
+#  constants; the tournament matrix / Bonusfragen path is deliberately NOT
+#  touched (it is the canonical pre-registered engine).
+#
+#  NOT a fix for everything: BTTS / exact-score cells saturate at ~34% BTTS
+#  across the whole λ family vs 48% real — a structural biPoisson limitation
+#  (no score-state dependence). Books on those cells are refused outright
+#  (_STRUCTURALLY_UNPRICEABLE) until a state-dependent model exists.
+# --------------------------------------------------------------------------- #
+SCANNER_PRICING_CALIBRATION = {
+    "elo_baseline_goals": 1.25,
+    "elo_scale_factor": 1600.0,
+}
+
+# Manual-book name fragments the scanner refuses to price (see block above).
+_STRUCTURALLY_UNPRICEABLE = ("btts", "both teams", "exact score", "correct score")
+
+
+@contextmanager
+def _calibrated_pricing():
+    """Temporarily run predictor under the scanner's calibrated λ constants."""
+    saved = {k: predictor.CONSTANTS[k] for k in SCANNER_PRICING_CALIBRATION}
+    predictor.CONSTANTS.update(SCANNER_PRICING_CALIBRATION)
+    try:
+        yield
+    finally:
+        predictor.CONSTANTS.update(saved)
 
 _PROJECT_ROOT = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_LEDGER = os.path.join(_PROJECT_ROOT, "scan_ledger", "2026.jsonl")
@@ -229,7 +266,8 @@ class EdgeScanner:
             row["accl_days_a"] = str(accl_a)
             row["accl_days_b"] = str(accl_b)
 
-        res = predictor.predict_single_match(row)
+        with _calibrated_pricing():
+            res = predictor.predict_single_match(row)
         grid_90 = res["grid_90"]
         p_h = p_d = p_a = 0.0
         for ga, inner in grid_90.items():
@@ -293,6 +331,11 @@ class EdgeScanner:
             name = spec.get("name", "?")
             kind = spec.get("kind")
             book = spec.get("book")
+            if any(frag in name.strip().lower() for frag in _STRUCTURALLY_UNPRICEABLE):
+                print(f"⛔ Manual book '{name}': REFUSED — BTTS/exact-score cells are structurally "
+                      f"unpriceable by the biPoisson family (saturate ~34% BTTS vs 48% real; "
+                      f"validation/SCORING_ENVIRONMENT_PRIOR.md). Not an edge source.", file=sys.stderr)
+                continue
             arr = model_probs.get(model_key.get(name.strip().lower(), ""), None)
             if arr is None or book is None:
                 print(f"⚠ Manual book '{name}': no matching model probabilities — skipped.", file=sys.stderr)
@@ -409,6 +452,7 @@ class EdgeScanner:
             "edge_threshold": self.edge_threshold,
             "kelly_fraction": self.kelly_fraction,
             "caps": {"per_market": self.max_market_frac, "total": self.max_total_frac},
+            "pricing_calibration": dict(SCANNER_PRICING_CALIBRATION),
             "sources": {
                 "outright": bool(outright_book),
                 "match_books": len(match_books or {}),

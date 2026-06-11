@@ -175,5 +175,52 @@ class TestModelMatch1x2(unittest.TestCase):
             self.assertGreater(p_d, 0.02)       # 90' grid retains draws
 
 
+class TestTwoTrackCalibration(unittest.TestCase):
+    """Scanner pricing runs under SCANNER_PRICING_CALIBRATION; tips path untouched."""
+
+    def test_calibrated_context_applies_and_restores(self):
+        import predictor
+        from edge_scanner import SCANNER_PRICING_CALIBRATION, _calibrated_pricing
+        before = {k: predictor.CONSTANTS[k] for k in SCANNER_PRICING_CALIBRATION}
+        with _calibrated_pricing():
+            for k, v in SCANNER_PRICING_CALIBRATION.items():
+                self.assertEqual(predictor.CONSTANTS[k], v)
+        self.assertEqual({k: predictor.CONSTANTS[k] for k in before}, before)
+
+    def test_restores_on_exception(self):
+        import predictor
+        from edge_scanner import SCANNER_PRICING_CALIBRATION, _calibrated_pricing
+        before = {k: predictor.CONSTANTS[k] for k in SCANNER_PRICING_CALIBRATION}
+        with self.assertRaises(RuntimeError):
+            with _calibrated_pricing():
+                raise RuntimeError("boom")
+        self.assertEqual({k: predictor.CONSTANTS[k] for k in before}, before)
+
+    def test_match_pricing_uses_calibrated_grid(self):
+        """The scanner's 1X2 prior must differ from the production-constants prior
+        in the direction calibration implies (fewer draws at higher λ)."""
+        import predictor
+        with tempfile.TemporaryDirectory() as td:
+            sc = _scanner(td)
+            _, d_scanner, _ = sc.model_match_1x2("South Korea", "Czechia")
+            row = {"team_a": "South Korea", "team_b": "Czechia", "phase": "GROUP"}
+            res = predictor.predict_single_match(row)
+            d_prod = sum(p for ga, inner in res["grid_90"].items()
+                         for gb, p in inner.items() if ga == gb)
+            self.assertLess(d_scanner, d_prod)
+
+    def test_btts_and_exact_books_refused(self):
+        from edge_scanner import _STRUCTURALLY_UNPRICEABLE
+        self.assertIn("btts", _STRUCTURALLY_UNPRICEABLE)
+        with tempfile.TemporaryDirectory() as td:
+            sc = _scanner(td)
+            books = [{"name": "BTTS Mexico vs South Africa", "kind": "binary",
+                      "book": {"Mexico": 2.2}},
+                     {"name": "Exact Score Spain vs Cape Verde", "kind": "multinomial",
+                      "book": {"Spain": 1.5}}]
+            entries = sc.evaluate_manual_books(books, {})
+            self.assertEqual(entries, [])
+
+
 if __name__ == "__main__":
     unittest.main()
