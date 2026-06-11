@@ -1,65 +1,65 @@
 team_a,team_b,phase,odds_home,odds_draw,odds_away,bookmaker,source_url
-Qatar,Ecuador,GROUP,,,,,
-Senegal,Netherlands,GROUP,,,,,
-Qatar,Senegal,GROUP,,,,,
-Netherlands,Ecuador,GROUP,,,,,
-Ecuador,Senegal,GROUP,,,,,
-Netherlands,Qatar,GROUP,,,,,
-England,Iran,GROUP,,,,,
-USA,Wales,GROUP,,,,,
-Wales,Iran,GROUP,,,,,
-England,USA,GROUP,,,,,
-Wales,England,GROUP,,,,,
-Iran,USA,GROUP,,,,,
-Argentina,Saudi Arabia,GROUP,,,,,
-Mexico,Poland,GROUP,,,,,
-Poland,Saudi Arabia,GROUP,,,,,
-Argentina,Mexico,GROUP,,,,,
-Poland,Argentina,GROUP,,,,,
-Saudi Arabia,Mexico,GROUP,,,,,
-Denmark,Tunisia,GROUP,,,,,
-France,Australia,GROUP,,,,,
-Tunisia,Australia,GROUP,,,,,
-France,Denmark,GROUP,,,,,
-Australia,Denmark,GROUP,,,,,
-Tunisia,France,GROUP,,,,,
-Germany,Japan,GROUP,,,,,
-Spain,Costa Rica,GROUP,,,,,
-Japan,Costa Rica,GROUP,,,,,
-Spain,Germany,GROUP,,,,,
-Japan,Spain,GROUP,,,,,
-Costa Rica,Germany,GROUP,,,,,
-Morocco,Croatia,GROUP,,,,,
-Belgium,Canada,GROUP,,,,,
-Belgium,Morocco,GROUP,,,,,
-Croatia,Canada,GROUP,,,,,
-Croatia,Belgium,GROUP,,,,,
-Canada,Morocco,GROUP,,,,,
-Switzerland,Cameroon,GROUP,,,,,
-Brazil,Serbia,GROUP,,,,,
-Cameroon,Serbia,GROUP,,,,,
-Brazil,Switzerland,GROUP,,,,,
-Serbia,Switzerland,GROUP,,,,,
-Cameroon,Brazil,GROUP,,,,,
-Uruguay,South Korea,GROUP,,,,,
-Portugal,Ghana,GROUP,,,,,
-South Korea,Ghana,GROUP,,,,,
-Portugal,Uruguay,GROUP,,,,,
-Ghana,Uruguay,GROUP,,,,,
-South Korea,Portugal,GROUP,,,,,
-Netherlands,USA,R16,,,,,
-Argentina,Australia,R16,,,,,
-France,Poland,R16,,,,,
-England,Senegal,R16,,,,,
-Japan,Croatia,R16,,,,,
-Brazil,South Korea,R16,,,,,
-Morocco,Spain,R16,,,,,
-Portugal,Switzerland,R16,,,,,
-Croatia,Brazil,QF,,,,,
-Netherlands,Argentina,QF,,,,,
-Morocco,Portugal,QF,,,,,
-France,England,QF,,,,,
-Argentina,Croatia,SF,,,,,
-France,Morocco,SF,,,,,
-Croatia,Morocco,THIRD,,,,,
-Argentina,France,FINAL,,,,,
+Qatar,Ecuador,GROUP,3.59,3.11,2.22,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Senegal,Netherlands,GROUP,5.85,3.63,1.65,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Qatar,Senegal,GROUP,5.44,3.55,1.7,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Netherlands,Ecuador,GROUP,1.83,3.36,4.75,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Ecuador,Senegal,GROUP,2.44,3.01,3.18,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Netherlands,Qatar,GROUP,1.19,6.81,14.61,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+England,Iran,GROUP,1.37,4.56,10.14,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+USA,Wales,GROUP,2.43,3.07,3.17,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Wales,Iran,GROUP,2.11,3.16,3.76,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+England,USA,GROUP,1.46,4.14,7.69,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Wales,England,GROUP,8.45,4.35,1.41,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Iran,USA,GROUP,4.03,3.45,1.93,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Argentina,Saudi Arabia,GROUP,1.11,9.08,25.5,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Mexico,Poland,GROUP,2.47,3.09,3.09,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Poland,Saudi Arabia,GROUP,1.7,3.54,5.45,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Argentina,Mexico,GROUP,1.52,3.89,7.1,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Poland,Argentina,GROUP,8.15,4.44,1.41,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Saudi Arabia,Mexico,GROUP,5.4,4.13,1.6,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Denmark,Tunisia,GROUP,1.57,3.82,6.45,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+France,Australia,GROUP,1.2,6.58,13.69,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Tunisia,Australia,GROUP,2.16,3.27,3.51,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+France,Denmark,GROUP,1.81,3.47,4.67,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Australia,Denmark,GROUP,7.65,4.66,1.4,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Tunisia,France,GROUP,5.84,3.81,1.61,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Germany,Japan,GROUP,1.41,4.85,7.17,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Spain,Costa Rica,GROUP,1.14,8.33,17.4,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Japan,Costa Rica,GROUP,1.47,4.15,7.36,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Spain,Germany,GROUP,2.5,3.38,2.79,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Japan,Spain,GROUP,6.98,4.35,1.46,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Costa Rica,Germany,GROUP,24.4,10.6,1.09,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Morocco,Croatia,GROUP,3.44,3.22,2.21,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Belgium,Canada,GROUP,1.57,4.16,5.74,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Belgium,Morocco,GROUP,1.88,3.35,4.41,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Croatia,Canada,GROUP,2.2,3.23,3.47,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Croatia,Belgium,GROUP,2.97,3.34,2.38,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Canada,Morocco,GROUP,4.71,3.41,1.82,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Switzerland,Cameroon,GROUP,1.8,3.37,4.95,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Brazil,Serbia,GROUP,1.44,4.46,7.08,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Cameroon,Serbia,GROUP,5.17,3.73,1.69,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Brazil,Switzerland,GROUP,1.47,4.19,7.4,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Serbia,Switzerland,GROUP,2.51,3.31,2.81,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Cameroon,Brazil,GROUP,8.95,5.19,1.33,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Uruguay,South Korea,GROUP,1.77,3.46,4.94,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Portugal,Ghana,GROUP,1.29,5.38,10.4,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+South Korea,Ghana,GROUP,2.7,3.07,2.79,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Portugal,Uruguay,GROUP,1.92,3.29,4.34,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Ghana,Uruguay,GROUP,4.53,3.74,1.77,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+South Korea,Portugal,GROUP,4.25,3.73,1.82,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Netherlands,USA,R16,1.9,3.32,4.36,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Argentina,Australia,R16,1.27,5.92,10.23,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+France,Poland,R16,1.38,4.79,8.41,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+England,Senegal,R16,1.59,3.64,6.53,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Japan,Croatia,R16,3.81,3.2,2.08,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Brazil,South Korea,R16,1.21,6.39,14.22,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Morocco,Spain,R16,6.04,3.72,1.61,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Portugal,Switzerland,R16,1.91,3.54,4.04,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Croatia,Brazil,QF,8.53,4.57,1.39,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Netherlands,Argentina,QF,3.57,3.06,2.22,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Morocco,Portugal,QF,6.17,3.79,1.58,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+France,England,QF,2.69,3.05,2.81,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Argentina,Croatia,SF,1.98,3.07,4.45,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+France,Morocco,SF,1.58,3.82,6.25,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Croatia,Morocco,THIRD,2.23,3.49,3.09,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
+Argentina,France,FINAL,2.63,3.12,2.84,footballdata_avg,football-data.co.uk/WorldCup2026.xlsx
