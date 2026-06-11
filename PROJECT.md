@@ -27,9 +27,16 @@ documents. Tournament: Jun 11 – Jul 19, 2026.
 - **Betting layer (paper-only until G2):** `edge_scanner.py` — live Polymarket
   books, Shin de-vig (`utils/math_utils`), **joint** Kelly per mutually
   exclusive book, per-leg/per-scan caps, JSONL scan ledger.
+- **G2 data tooling:** committed blank-odds fixture templates
+  (`scripts/make_odds_templates.py`), bulk merger with integrity gates incl.
+  Elo-concordance quarantine (`scripts/merge_odds.py`, `--validate-only` for
+  manual entry), The Odds API historical filler for 2022
+  (`scripts/fill_odds_theoddsapi.py`) — see `data/ODDS_DATA_README.md`.
 - **Ops:** `resim.sh` (deterministic daily pair), `docs/LIVE_STATE.md` +
-  `scripts/validate_live_state.py`, CI in `.github/workflows/ci.yml`
-  (229 tests).
+  `scripts/validate_live_state.py`, `scripts/log_predictions.py`
+  (pre-registration) + `scripts/score_predictions.py` (realized points vs
+  model EV as results arrive), branded PDF sheets (`make_tips_pdf.py`,
+  honest blend labels), CI in `.github/workflows/ci.yml` (254 tests).
 
 ## Milestones
 
@@ -45,8 +52,9 @@ documents. Tournament: Jun 11 – Jul 19, 2026.
 | 8 | Forensic audits & honest validation (F9, Shin post-mortem, λ recalibration) | DONE 2026-06-06..10 — `FORENSIC_RECHECK_V4_2026-06-06.md`, `validation/F9_OUT_OF_SAMPLE.md`, `validation/SHIN_EVALUATION.md`, `validation/points_recalibration.md` |
 | 9 | External code review → phased plan | DONE 2026-06-10 — `IMPLEMENTATION_PLAN.md`, PR #1 |
 | 10 | **Phase 0** (S1–S9): tournament-critical fixes, CI, deterministic resim, pre-registered MD1 tips | DONE 2026-06-10, before the opener |
-| 11 | **Phase 1** (S10, S12–S14, S19): λ points-floor gate, KO convention + CLI/library unification, matrix cache, KO-λ decontamination, `ko_tips.py` | DONE 2026-06-10 — S15 optional open; S11 awaiting canonical-dynamics decision |
-| 12 | **Phase 2** (S16–S18): G2 real-odds harness, paper scanner with joint Kelly + caps + ledger, live-state validator/runbook | DONE 2026-06-10 — **gate G2 awaiting `data/wc{2014,2018,2022}_odds.csv`** |
+| 11 | **Phase 1** (S10, S12–S14, S19): λ points-floor gate, KO convention + CLI/library unification, matrix cache, KO-λ decontamination, `ko_tips.py` | DONE 2026-06-10 — S15 optional open |
+| 12 | **Phase 2** (S16–S18): G2 real-odds harness + data tooling (templates/merger/Odds-API filler), paper scanner with joint Kelly + caps + ledger, live-state validator/runbook | DONE 2026-06-10/11 — **gate G2 awaiting filled odds CSVs** (tooling ready) |
+| 12b | **S11 consistency + lock night** (Jun 10/11): flat MD3 ×0.87 in both engines, lots tiebreaks (Elo removed), scalar ET on engine constants, champion blend renormalized; dead scripts deleted; MD1 tips AND Bonusfragen pre-registered from clean commits (seed 42); in-tournament scoreboard (`score_predictions.py`) | DONE — only the S11 *dynamics* decision remains (recommendation: vectorized fatigue canonical) |
 | 13 | Phase 3 (S20): KO-stage operations under change freeze (from Jun 28) | PENDING — daily loop per `docs/LIVE_STATE.md` |
 | 14 | Phase 4 (S21–S24): post-tournament evaluation, fitted DC pipeline, per-player data, packaging | PENDING (elective, after Jul 19) |
 
@@ -84,13 +92,19 @@ documents. Tournament: Jun 11 – Jul 19, 2026.
 |---|---|
 | **G1** pool KO scoring rule | ✅ RESOLVED 2026-06-10: `shootout_total` ("inkl. Elfmeterschießen"). Residual: 2-min check of a historical shootout game's entered scoreline (`validation/POOL_RULES.md`) |
 | **G2** real-odds alpha gate | ⏳ AWAITING DATA (`data/wc{2014,2018,2022}_odds.csv`); expected outcome per plan: NOT PASSED → paper-only, recorded as loss prevention |
-| **S11** canonical in-tournament dynamics | ⏳ DECISION NEEDED: scalar dynamic Elo vs vectorized fatigue carry-over (then unify MD3 regime, ET model, tiebreakers + equivalence test) |
+| **S11** canonical in-tournament dynamics | ⏳ DECISION NEEDED: scalar dynamic Elo vs vectorized fatigue carry-over (recommendation on record: fatigue canonical; execute post-tournament). MD3 regime, ET model, tiebreakers and champion blend already unified (commit `c4647bd`); the equivalence test waits on the decision |
 | λ calibration | 🔒 FROZEN at 1.0 until post-tournament (points floor in CI) |
 | S15 third-place match M103 | Optional — absent from both engines (Golden Boot misses its goals) |
 
 ## Operations (tournament window)
 
 After every final whistle: update `data/live_state.json` → `scripts/validate_live_state.py` →
+`scripts/score_predictions.py` (realized points vs model EV — variance made visible) →
 re-sim (`resim.sh` / `vectorized_mc.py --live-state`) → next tips (`matchday_tips.py` /
 `ko_tips.py`) → `scripts/log_predictions.py` **before kickoff** → paper scan
 (`edge_scanner.py`). Change freeze from Jun 28: P0 fixes only, full suite green.
+
+**Pre-registered before the opener** (clean commits, seed 42, `predictions_log/2026.jsonl`):
+all 24 MD1 tips; Bonusfragen — champion Spain (17.8%), SF Spain/France/Argentina/England,
+Golden-Boot team France, group winners A Mexico · B Switzerland · C Brazil · D Turkey ·
+E Germany · F Netherlands · G Belgium · H Spain · I France · J Argentina · K Portugal · L England.

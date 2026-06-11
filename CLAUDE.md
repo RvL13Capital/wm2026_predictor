@@ -36,8 +36,15 @@ python3 edge_scanner.py [--daemon] [--books manual_books.json] [--live-state dat
 
 # Tournament ops (run after every final whistle — docs/LIVE_STATE.md)
 python3 scripts/validate_live_state.py data/live_state.json     # typos are silent no-ops in the sims!
+python3 scripts/score_predictions.py --results data/live_state.json  # realized pts vs model EV ("luck" per matchday)
 python3 scripts/log_predictions.py --kind matchday --file data/matchdayN_tips_vX.txt  # pre-register BEFORE kickoff
 python3 tests/gate_check.py --bonus <bonus.txt> --matchday <tips.txt>
+python3 make_tips_pdf.py /tmp/bonus.json out.pdf   # branded sheet; labels itself Elo-only vs market-blended honestly
+
+# Gate-G2 odds data (templates are committed with blank odds — data/ODDS_DATA_README.md)
+python3 scripts/fill_odds_theoddsapi.py --year 2022 --estimate   # The Odds API historical (2022 only; paid; run where the host is allowlisted)
+python3 scripts/merge_odds.py --year 2022 --raw <downloaded.csv> --dry-run   # bulk merge with quarantine gates
+python3 scripts/merge_odds.py --year 2018 --validate-only        # integrity gates over manually entered rows
 
 # Validation / backtests
 python3 backtest_real_market.py            # gate G2 vs REAL closing odds — exits 2 until data/wcXXXX_odds.csv exist
@@ -49,7 +56,7 @@ python3 backtest_harness.py --tournament 2022   # FEATURE ABLATION vs synthetic 
 ### Tests
 
 ```bash
-python3 -m unittest discover tests          # 229 tests; ~4 min (vectorized matrix precompute dominates)
+python3 -m unittest discover tests          # 254 tests; ~5 min (vectorized matrix precompute dominates)
 python3 -m unittest tests.test_ko_convention -v        # one module (dotted path)
 ```
 
@@ -61,7 +68,7 @@ Everything flows through one engine; **`predictor.predict_single_match(row) -> d
 
 **`predictor.py`** — the engine (sectioned by `# ===` headers): inlined 4/3/2 EV solver (`solve_optimal_tip_from_grid`, `get_points`); `WORLD_CUP_2026_TEAMS` Elo (+ `data/elo_2026_post_friendlies.json` overlay at import) and `TEAM_NAME_MAPPING` (always resolve names through it); Poisson/NB + Dixon-Coles (`generate_joint_grid`, renormalized); context layer (`get_adjusted_lambdas`: altitude, WBGT/PPDA heat, travel, host/fans, squad-value VORP); KO grids — `generate_ko_final_grid` (3-layer, shootout_total), `generate_ko_120_grid` (ties retained), selected by `CONSTANTS["kicktipp_ko_convention"]`; advancement probabilities always use the 3-layer model + `penalty_shootout_distribution`. `load_config` is type-preserving (string constants stay strings).
 
-**Two tournament engines — KNOWN, documented divergence (plan S11, undecided):** `tournament_bonusfragen.py` (scalar; dynamic in-tournament Elo "Cinderella momentum", H2H tiebreakers) vs `vectorized_mc.py` (numpy; static λ with ET-fatigue carry-over states, lexsort tiebreakers without H2H, conditional MD3 dampening). **The vectorized engine is canonical for the scanner.** Do not "fix" one to match the other without the S11 canonical-dynamics decision. `vectorized_mc.build_matrix()` caches the ~4-min precompute to `data/matrix_cache/*.npz`, keyed by a SHA-256 fingerprint over every tensor input — **bump `CACHE_VERSION` whenever grid-generation logic changes upstream.**
+**Two tournament engines — REMAINING, deliberate divergence (plan S11 decision pending):** `tournament_bonusfragen.py` (scalar) evolves **dynamic in-tournament Elo** ("Cinderella momentum") and keeps the **H2H tiebreak step**; `vectorized_mc.py` (numpy) uses static λ with **ET-fatigue carry-over states**. Everything else was unified in the S11 consistency pass (commit `c4647bd`): flat **MD3 ×0.87** in both engines (the only validated MD3 effect), tiebreaks = pts/GD/GF/(H2H scalar-only)/**drawing of lots** (Elo removed — not in FIFA regulations), scalar ET model on the engine constants, champion market blend renormalized (`blend_champion_probs`). **The vectorized engine is canonical for the scanner.** Do not unify the dynamics without the S11 decision (recommendation on record: fatigue canonical, retire momentum-Elo — execute post-tournament). `vectorized_mc.build_matrix()` caches the ~4-min precompute to `data/matrix_cache/*.npz` (currently `CACHE_VERSION = 2`), keyed by a SHA-256 fingerprint over every tensor input — **bump `CACHE_VERSION` whenever grid-generation logic changes upstream.**
 
 **Tip generators:** `matchday_tips.py` (group MDs; flat ×0.87 MD3 trim — the only validated MD3 effect) and `ko_tips.py` (KO rounds; Dead-Legs fatigue via `--fatigued`). Both inject squad+injury Elo through the exception-safe `_elo_overrides` context manager and emit the provenance-headed format `scripts/log_predictions.py` parses.
 
@@ -73,7 +80,8 @@ Everything flows through one engine; **`predictor.predict_single_match(row) -> d
 
 - **F9 (`validation/F9_OUT_OF_SAMPLE.md`):** over 192 real matches, DC+NB+context+phase are points-neutral and calibration-neutral. The simple Elo→Poisson→EV path carries the performance.
 - **λ calibration (`validation/points_recalibration.md`):** production `elo_baseline_goals=1.0` scores **299/192** (best tested; mechanism: low λ → EV-optimal `0:0` tips under the Tordifferenz rule). **λ tuning is frozen until post-tournament**; `tests/test_lambda_points_floor.py` enforces ≥295 — any deliberate calibration change must beat the floor or update it *with a measurement in that doc*. Points and calibration are different objectives (tipping optimizes points; the betting track needs calibration).
-- **Gate G2 (`backtest_real_market.py`):** the scanner stays **paper-only** until the pre-registered real-odds verdict passes (model/blend beats the close on ≥2/3 tournaments AND flat-ROI 95% CI > 0). Never fabricate odds data; the script exits 2 until `data/wc{2014,2018,2022}_odds.csv` are supplied. `backtest_harness.py` is a feature ablation against a self-referential synthetic market — its dollar metrics are not market alpha.
+- **Gate G2 (`backtest_real_market.py`):** the scanner stays **paper-only** until the pre-registered real-odds verdict passes (model/blend beats the close on ≥2/3 tournaments AND flat-ROI 95% CI > 0). Never fabricate odds data; the committed `data/wc{2014,2018,2022}_odds.csv` are blank fixture **templates** (the script exits 2 until rows are filled; partial fills run via `--years`). Data tooling: `make_odds_templates.py`, `merge_odds.py` (canonicalization, orientation flip, bookmaker medians, **Elo-concordance quarantine** that catches column swaps / wrong-year datasets), `fill_odds_theoddsapi.py` (2022 only — API history starts Jun 2020), `merge_odds.py --validate-only` for manual entry. `backtest_harness.py` is a feature ablation against a self-referential synthetic market — its dollar metrics are not market alpha.
+- **Pre-registered 2026 record:** MD1 tips and the full Bonusfragen answer set (champion Spain, SF Spain/France/Argentina/England, Golden-Boot France, 12 group winners) are logged in `predictions_log/2026.jsonl` from clean commits, seed 42, before the Jun 11 opener. `scripts/score_predictions.py` scores the log against `live_state.json` as results arrive (realized points vs Σ-EV — variance made visible per matchday).
 
 ## Conventions & gotchas
 
@@ -82,4 +90,5 @@ Everything flows through one engine; **`predictor.predict_single_match(row) -> d
 - **`.gitignore` policy:** generated tip sheets / bonusfragen outputs / snapshots / `data/matrix_cache/` stay **local**; the JSONL logs (`predictions_log/`, `scan_ledger/`) are **committed**.
 - **Change freeze from Jun 28** (first KO match): only P0 fixes merge, each with the full suite + points-floor + equivalence tests green.
 - **One commit per plan step ID**, message referencing the step (S-number).
-- **Open items:** S11 canonical-dynamics decision; S15 third-place match M103 (absent from both engines — Golden Boot misses its goals); G2 odds data; optional pool-history check of the shootout score representation (`validation/POOL_RULES.md`).
+- **This container's egress allowlist** blocks `gamma-api.polymarket.com` and `api.the-odds-api.com` (verified: "Host not in allowlist"). Fix: add them (plus `api.open-meteo.com`, `flagcdn.com`) to the environment's network allowlist in the Claude Code settings; until then run live fetches on the ops machine and ferry snapshots via `git add -f`.
+- **Open items:** S11 canonical-dynamics decision (recommendation: vectorized fatigue canonical; execute post-tournament); S15 third-place match M103 (absent from both engines — Golden Boot misses its goals); G2 odds data (tooling ready, data not yet supplied); optional pool-history check of the shootout score representation (`validation/POOL_RULES.md`).
