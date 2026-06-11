@@ -56,7 +56,7 @@ python3 backtest_harness.py --tournament 2022   # FEATURE ABLATION vs synthetic 
 ### Tests
 
 ```bash
-python3 -m unittest discover tests          # 254 tests; ~5 min (vectorized matrix precompute dominates)
+python3 -m unittest discover tests          # 264 tests; ~5 min (vectorized matrix precompute dominates)
 python3 -m unittest tests.test_ko_convention -v        # one module (dotted path)
 ```
 
