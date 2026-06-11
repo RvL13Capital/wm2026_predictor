@@ -254,6 +254,22 @@ class OddsAPIClient:
         c = abbreviations.get(candidate, candidate)
         return q in c or c in q
     
+    def get_historical_odds(self, date_iso: str, regions: str = "eu",
+                            markets: str = "h2h",
+                            bookmakers: str = None) -> dict:
+        """Historical snapshot of this sport's odds at a UTC instant (paid endpoint).
+
+        The Odds API keeps snapshots from June 2020 onward — WC2022 is covered,
+        WC2018/2014 are NOT. Returns {"timestamp", "previous_timestamp",
+        "next_timestamp", "data": [events with bookmakers/h2h outcomes]}.
+        Cost: ~10 credits per region-market per call (requires a paid plan).
+        """
+        params = {"regions": regions, "markets": markets,
+                  "oddsFormat": "decimal", "date": date_iso}
+        if bookmakers:
+            params["bookmakers"] = bookmakers
+        return self._request(f"historical/sports/{self.SPORT_KEY}/odds", params)
+
     @property
     def remaining_requests(self) -> Optional[int]:
         return self._remaining_requests

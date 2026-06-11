@@ -33,7 +33,9 @@ def grid_for(diff, bg, sf, rho, alpha):
         mu_a=la, mu_b=lb, alpha_a=alpha, alpha_b=alpha, rho=rho, max_goals=MAXG, max_tip=6)
     return generate_joint_grid(cfg)
 
-BG = [1.15, 1.25, 1.35, 1.45]; SF = [1200, 1600, 2000, 2600]; RHO = [0.0, -0.06, -0.12]; ALPHA = [0.0, 0.06]
+# 1.00 added post-hoc: the production value (commit 13da0cd) was outside the
+# original grid — see validation/points_recalibration.md for its points validation.
+BG = [1.00, 1.15, 1.25, 1.35, 1.45]; SF = [1200, 1600, 2000, 2600]; RHO = [0.0, -0.06, -0.12]; ALPHA = [0.0, 0.06]
 configs = [(bg, sf, r, al) for bg in BG for sf in SF for r in RHO for al in ALPHA]
 DEFAULT = (1.35, 1600, -0.05, 0.05)
 configs.append(DEFAULT)

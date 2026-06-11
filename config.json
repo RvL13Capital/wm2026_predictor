@@ -11,13 +11,13 @@
   "travel_rest_exponent": 1.5,
   "travel_dist_multiplier": 0.05,
   "travel_dist_miles_scale": 0.001,
-  "travel_dist_rest_decay": 0.30,
+  "travel_dist_rest_decay": 0.3,
   "travel_tz_multiplier": 0.02,
   "travel_tz_east_weight": 1.5,
   "travel_tz_west_weight": 1.0,
-  "travel_max_penalty": 0.30,
-  "context_att_travel_penalty": 0.70,
-  "context_def_travel_penalty": 0.30,
+  "travel_max_penalty": 0.3,
+  "context_att_travel_penalty": 0.7,
+  "context_def_travel_penalty": 0.3,
   "context_att_fan_support": 0.05,
   "context_def_fan_support": 0.04,
   "host_att_true_home": 0.08,
@@ -29,5 +29,6 @@
   "ko_rho_multiplier_sf": 2.0,
   "ko_rho_multiplier_final": 2.2,
   "ko_rho_multiplier_third": 1.3,
-  "ko_defensive_lambda_factor": 0.95
+  "ko_defensive_lambda_factor": 0.95,
+  "kicktipp_ko_convention": "shootout_total"
 }

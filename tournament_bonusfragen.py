@@ -629,7 +629,7 @@ def precompute_grids(host_teams: set = None, market_probs: dict = None) -> dict:
             (teams[0], teams[3]), (teams[1], teams[2])  # MD3
         ]
         
-        for team_a, team_b in matchups:
+        for pair_idx, (team_a, team_b) in enumerate(matchups):
             row = {
                 "team_a": team_a,
                 "team_b": team_b,
@@ -716,10 +716,14 @@ def precompute_grids(host_teams: set = None, market_probs: dict = None) -> dict:
                     cum_weights = [w / cumulative for w in cum_weights]
                 return flat, cum_weights
             
+            # MD3 (last two matchups per group): flat x0.87 trim for EVERY
+            # matchday-3 game — the only validated MD3 effect
+            # (validation/md3_regime_backtest.py). Replaces the unvalidated
+            # conditional x0.85 *_DAMPENED variants (S11).
+            if pair_idx >= 4:
+                form_a *= 0.87
+                form_b *= 0.87
             cache[(team_a, team_b, False)] = _compute_grid(form_a, form_b)
-            cache[(team_a, team_b, "A_DAMPENED")] = _compute_grid(form_a * 0.85, form_b)
-            cache[(team_a, team_b, "B_DAMPENED")] = _compute_grid(form_a, form_b * 0.85)
-            cache[(team_a, team_b, "BOTH_DAMPENED")] = _compute_grid(form_a * 0.85, form_b * 0.85)
     
     return cache
 
@@ -832,38 +836,14 @@ def simulate_group(group_name: str, teams: List[str],
     match_results = {}
     
     for md_idx, matchday in enumerate(matchdays):
-        # Before MD3, check if any team is mathematically 1st or eliminated
-        md3_dampened = set()
-        if md_idx == 2:
-            # Sort current standings to see who is 1st and who is 4th
-            current = sorted(standings.values(), key=lambda x: (x["pts"], x["gd"], x["gf"]), reverse=True)
-            # If 1st place is >3 points ahead of 2nd, they are guaranteed 1st.
-            if current[0]["pts"] > current[1]["pts"] + 3:
-                md3_dampened.add(current[0]["team"])
-            # If 4th place is >3 points behind 3rd, they are mathematically eliminated.
-            # (Though in 3rd place advances format, 3rd place matters, so 4th must be >3 pts behind 3rd).
-            if current[2]["pts"] > current[3]["pts"] + 3:
-                md3_dampened.add(current[3]["team"])
-                
+        # MD3: the flat x0.87 trim is baked into the precomputed grids (S11);
+        # the old conditional dead-rubber detection was unvalidated and wrong
+        # in the 48-team format (0 points after two games is NOT elimination).
         for team_a, team_b in matchday:
-            # Determine cache key variant for MD3
-            variant = False
-            if md_idx == 2:
-                if team_a in md3_dampened and team_b in md3_dampened:
-                    variant = "BOTH_DAMPENED"
-                elif team_a in md3_dampened:
-                    variant = "A_DAMPENED"
-                elif team_b in md3_dampened:
-                    variant = "B_DAMPENED"
-                    
-            key = (team_a, team_b, variant)
-            
+            key = (team_a, team_b, False)
+
             if grid_cache and key in grid_cache:
                 flat, cum_weights = grid_cache[key]
-                ga, gb = _sample_from_grid(flat, cum_weights, rng)
-            elif grid_cache and (team_a, team_b, False) in grid_cache:
-                # Fallback to undampened if dampened is missing
-                flat, cum_weights = grid_cache[(team_a, team_b, False)]
                 ga, gb = _sample_from_grid(flat, cum_weights, rng)
             else:
                 ga, gb = 1, 0
@@ -892,6 +872,9 @@ def simulate_group(group_name: str, teams: List[str],
     
     for team in standings:
         standings[team]["gd"] = standings[team]["gf"] - standings[team]["ga"]
+        # Drawing-of-lots value for final tiebreaks (S11: Elo removed — it is
+        # not in any FIFA regulation and biased ties toward favourites).
+        standings[team]["lot"] = rng.random() if rng is not None else 0.0
     
     import functools
     def fifa_cmp(x, y):
@@ -911,10 +894,9 @@ def simulate_group(group_name: str, teams: List[str],
         # 5. H2H GD (same as comparing goals since it's 1 match)
         if gx != gy: return 1 if gx > gy else -1
         
-        # 6. Fallback to Elo
-        elo_x = predictor.WORLD_CUP_2026_TEAMS.get(x["team"], {}).get("elo", 1500)
-        elo_y = predictor.WORLD_CUP_2026_TEAMS.get(y["team"], {}).get("elo", 1500)
-        if elo_x != elo_y: return 1 if elo_x > elo_y else -1
+        # 6. Drawing of lots (S11)
+        lx, ly = x.get("lot", 0.0), y.get("lot", 0.0)
+        if lx != ly: return 1 if lx > ly else -1
         return 0
     
     sorted_standings = sorted(
@@ -951,7 +933,7 @@ def get_best_third_place_teams(all_group_standings: dict) -> List[str]:
             x["pts"],
             x["gd"],
             x["gf"],
-            predictor.WORLD_CUP_2026_TEAMS.get(x["team"], {}).get("elo", 1500)
+            x.get("lot", 0.0)   # drawing of lots (S11: Elo removed)
         ),
         reverse=True
     )
@@ -1023,11 +1005,16 @@ def _simulate_ko_match(team_a: str, team_b: str, phase: str,
         eff_elo_a = elo_a if elo_a is not None else predictor.WORLD_CUP_2026_TEAMS.get(team_a, {}).get("elo", 1500)
         eff_elo_b = elo_b if elo_b is not None else predictor.WORLD_CUP_2026_TEAMS.get(team_b, {}).get("elo", 1500)
         
-        # Estimate ET lambdas from Elo (simplified)
-        base_a = 1.2 + (eff_elo_a - 1700) / 800.0
-        base_b = 1.2 + (eff_elo_b - 1700) / 800.0
-        et_lambda_a = max(0.15, base_a * 0.35 * 0.33)  # 35% intensity × 33% time
-        et_lambda_b = max(0.15, base_b * 0.35 * 0.33)
+        # ET intensity from the ENGINE's model (S11): phase-adjusted λ scaled
+        # by et_time_fraction x et_fatigue_factor — replaces a rogue Elo→goals
+        # mapping (1.2 + (elo-1700)/800, x0.35 x0.33) that ignored the
+        # recalibrated constants and ran ~2x colder than the 3-layer KO grid.
+        la_b, lb_b = predictor.estimate_base_lambdas_from_elo(team_a, team_b, eff_elo_a, eff_elo_b)
+        _rho_p, la_p, lb_p = predictor.apply_phase_adjustments(
+            -0.05, la_b, lb_b, predictor.parse_match_phase(phase))
+        et_scale = predictor.CONSTANTS["et_time_fraction"] * predictor.CONSTANTS["et_fatigue_factor"]
+        et_lambda_a = max(0.05, la_p * et_scale)
+        et_lambda_b = max(0.05, lb_p * et_scale)
         
         # Poisson sample for extra time goals
         def _poisson_sample(lam, r):

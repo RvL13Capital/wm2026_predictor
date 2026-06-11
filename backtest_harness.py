@@ -129,7 +129,10 @@ class BacktestHarness:
         base_pen = predictor.CONSTANTS["pen_conversion_rate"]
         
         print("\n" + "="*115)
-        print(f"🏃 STARTING WALK-FORWARD BACKTEST ON WORLD CUP {self.year} (Synthetic Elo Market vs Apex Model)")
+        print(f"🏃 FEATURE-ABLATION WALK-FORWARD ON WORLD CUP {self.year} (Synthetic Elo Market vs Apex Model)")
+        print("    NOTE: the 'market' here is the engine's own Elo + 5% vig — a SELF-REFERENTIAL baseline.")
+        print("    Brier skill below measures what the context/fatigue features add over the bare engine;")
+        print("    it is NOT market alpha. The real-market test is backtest_real_market.py (gate G2).")
         print("="*115)
         print(f"{'Match':<30} | {'Phase':<6} | {'Market Odds (Vig)':<20} | {'Model Prob':<12} | {'Actioned Bet':<15} | {'Result':<6} | {'P&L ($)':<9} | {'Bankroll ($)':<10}")
         print("-" * 115)
@@ -179,24 +182,18 @@ class BacktestHarness:
             la_adj = res["lambda_a_adj"]
             lb_adj = res["lambda_b_adj"]
             
-            # Apply dynamic depth-fatigue carry-over
+            # Apply dynamic depth-fatigue carry-over.
+            # ERA-CLEAN (S16/C5): SQUAD_VALUES holds JUNE-2026 squad valuations —
+            # using them to scale fatigue in 2014/2018/2022 folds is lookahead.
+            # Historical folds therefore use the NEUTRAL bench depth (flat 10%
+            # fatigue penalty for every team).
             fat_a = self.fatigue_status.get(team_a, False)
             fat_b = self.fatigue_status.get(team_b, False)
-            
-            val_a = SQUAD_VALUES.get(predictor.validate_team_name(team_a), {"xi": 100.0, "bench": 50.0})
-            val_b = SQUAD_VALUES.get(predictor.validate_team_name(team_b), {"xi": 100.0, "bench": 50.0})
-            bench_a = val_a.get("bench", 50.0)
-            bench_b = val_b.get("bench", 50.0)
-            
+
             base_fat = 0.10
-            avg_bench = 50.0
-            
-            res_a = min(2.0, bench_a / avg_bench)
-            penalty_a = base_fat / max(1.0, res_a)
+            penalty_a = base_fat
             att_a, def_a = 1.0 - penalty_a, 1.0 + penalty_a
-            
-            res_b = min(2.0, bench_b / avg_bench)
-            penalty_b = base_fat / max(1.0, res_b)
+            penalty_b = base_fat
             att_b, def_b = 1.0 - penalty_b, 1.0 + penalty_b
             
             if fat_a:
@@ -213,8 +210,11 @@ class BacktestHarness:
                 max_goals=14, phase=phase
             )
             
-            pen_a = base_pen * predictor.PENALTY_STRENGTH.get(predictor.validate_team_name(team_a), 1.0)
-            pen_b = base_pen * predictor.PENALTY_STRENGTH.get(predictor.validate_team_name(team_b), 1.0)
+            # ERA-CLEAN (S16/C5): PENALTY_STRENGTH encodes 2018/2022 shootout
+            # outcomes — using it in 2014/2018 folds is lookahead. Historical
+            # folds use the flat base conversion rate for both sides.
+            pen_a = base_pen
+            pen_b = base_pen
             
             if is_ko:
                 grid_opt = predictor.generate_ko_final_grid(config_opt, max_final_goals=14, pen_conv_a=pen_a, pen_conv_b=pen_b)
@@ -382,8 +382,13 @@ class BacktestHarness:
         
         print("="*115)
         print("\n" + "="*50)
-        print(f"📊 INSTITUTIONAL BACKTEST REPORT CARD (WC {self.year})")
+        print(f"📊 FEATURE ABLATION REPORT (WC {self.year})")
         print("="*50)
+        print("⚠ Dollar figures below are SYNTHETIC-BOOK DIAGNOSTICS against the")
+        print("  engine's own de-featured twin + 5% vig — NOT market alpha")
+        print("  (validation/SHIN_EVALUATION.md Finding 3). The real-market")
+        print("  test is backtest_real_market.py (gate G2).")
+        print("-" * 50)
         print(f"Initial Bankroll      : ${initial_bankroll:,.2f}")
         print(f"Final Bankroll        : ${bankroll:,.2f}")
         print(f"Cumulative Yield (ROI): {final_roi:+.2f}%")

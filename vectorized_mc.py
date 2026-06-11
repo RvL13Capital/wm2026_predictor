@@ -80,34 +80,35 @@ def solve_third_assignment(qualified_groups):
 class MatrixPrecomputer:
     """Precomputes all exact Dixon-Coles grids and routing maps for O(1) L3 Cache lookups."""
     def __init__(self, host_teams=None, market_probs=None):
+        self._init_team_index()
+
+        self.base_elos = np.zeros(self.N_TEAMS, dtype=DTYPE_FLOAT)
+        self.lam_a = np.zeros((self.N_TEAMS, self.N_TEAMS), dtype=DTYPE_FLOAT)
+        self.lam_b = np.zeros((self.N_TEAMS, self.N_TEAMS), dtype=DTYPE_FLOAT)
+
+        self._build_baseline_tensors(host_teams, market_probs)
+
+        self.ko_cdfs = np.zeros((6, 4, self.N_TEAMS, self.N_TEAMS, 225), dtype=DTYPE_FLOAT)
+        self.ko_et_probs = np.zeros((6, 4, self.N_TEAMS, self.N_TEAMS, 225), dtype=DTYPE_FLOAT)
+        self._build_knockout_matrix(host_teams)
+
+        self.routing_table = np.zeros((4096, 8), dtype=DTYPE_INT)
+        self._build_3rd_place_routing_table()
+
+    def _init_team_index(self):
+        """Deterministic team/fixture indexing derived purely from tb.GROUPS —
+        shared by the constructor and the cache loader (S13)."""
         self.group_names = sorted(list(tb.GROUPS.keys()))
         self.teams = []
         for g in self.group_names:
             for t in tb.GROUPS[g]:
                 self.teams.append(t)
-                
+
         self.N_TEAMS = len(self.teams)
         self.team_to_id = {t: i for i, t in enumerate(self.teams)}
         self.id_to_team = {i: t for i, t in enumerate(self.teams)}
-        
-        self.base_elos = np.zeros(self.N_TEAMS, dtype=DTYPE_FLOAT)
-        self.lam_a = np.zeros((self.N_TEAMS, self.N_TEAMS), dtype=DTYPE_FLOAT)
-        self.lam_b = np.zeros((self.N_TEAMS, self.N_TEAMS), dtype=DTYPE_FLOAT)
-        
-        self._build_baseline_tensors(host_teams, market_probs)
-        
-        self.ko_cdfs = np.zeros((6, 4, self.N_TEAMS, self.N_TEAMS, 225), dtype=DTYPE_FLOAT)
-        self.ko_et_probs = np.zeros((6, 4, self.N_TEAMS, self.N_TEAMS, 225), dtype=DTYPE_FLOAT)
-        self._build_knockout_matrix(host_teams)
-        
-        self.routing_table = np.zeros((4096, 8), dtype=DTYPE_INT)
         self.slot_keys = ["M75", "M77", "M79", "M80", "M81", "M82", "M85", "M88"]
-        self._build_3rd_place_routing_table()
-        
-    def _build_baseline_tensors(self, host_teams, market_probs):
-        self.group_cdfs = np.zeros((72, 4, 225), dtype=DTYPE_FLOAT)
-        
-        # Determine exact group match scheduling
+
         self.GROUP_MATCHES = []
         for g_idx, g_name in enumerate(self.group_names):
             t0, t1, t2, t3 = [self.team_to_id[t] for t in tb.GROUPS[g_name]]
@@ -116,7 +117,10 @@ class MatrixPrecomputer:
                 (t0, t2, g_idx, 2), (t3, t1, g_idx, 2), # MD2
                 (t3, t0, g_idx, 3), (t1, t2, g_idx, 3)  # MD3
             ])
-            
+
+    def _build_baseline_tensors(self, host_teams, market_probs):
+        self.group_cdfs = np.zeros((72, 4, 225), dtype=DTYPE_FLOAT)
+
         import schedule_context
         group_contexts, _ = schedule_context.get_group_match_contexts()
             
@@ -223,16 +227,20 @@ class MatrixPrecomputer:
             res = predictor.predict_single_match(row)
             la_adj = res["lambda_a_adj"]
             lb_adj = res["lambda_b_adj"]
-            
-            self.lam_a[t_a, t_b] = la_adj
-            self.lam_b[t_a, t_b] = lb_adj
-            
+
+            # NOTE (S14): the group-fixture λs are used ONLY for the group CDFs
+            # below. They must NOT be written into self.lam_a/lam_b — those
+            # tensors feed _build_knockout_matrix, and writing here leaked
+            # matchday-specific rest/travel/form/market context into the KO
+            # grids of same-group rematch pairings (4 of 6 fixtures per group).
+
+            # MD3: flat x0.87 trim for EVERY matchday-3 game — the only validated
+            # MD3 effect (validation/md3_regime_backtest.py); replaces the old
+            # unvalidated conditional x0.85 'dead rubber' states. All four state
+            # slots are kept shape-compatible but identical for MD3 (S11).
             for state in range(4):
-                a_damp = (state // 2) > 0
-                b_damp = (state % 2) > 0
-                
-                la_f = la_adj * 0.85 if (md == 3 and a_damp) else la_adj
-                lb_f = lb_adj * 0.85 if (md == 3 and b_damp) else lb_adj
+                la_f = la_adj * 0.87 if md == 3 else la_adj
+                lb_f = lb_adj * 0.87 if md == 3 else lb_adj
                 
                 cfg = MatchModelConfig(
                     dist_type=ModelDistribution.POISSON,
@@ -348,6 +356,99 @@ class MatrixPrecomputer:
                 for j, sk in enumerate(self.slot_keys):
                     self.routing_table[i, j] = group_letters.index(assignment[sk])
 
+# ==============================================================================
+# MATRIX CACHE (S13) — persist the ~4-minute precompute, key by input fingerprint
+# ==============================================================================
+CACHE_VERSION = 2   # bump whenever grid-generation logic changes upstream (v2: flat MD3 x0.87)
+
+_MATRIX_ARRAYS = ("base_elos", "lam_a", "lam_b", "group_cdfs",
+                  "ko_cdfs", "ko_et_probs", "routing_table")
+
+
+def _matrix_fingerprint(host_teams, market_probs) -> str:
+    """SHA-256 over every input the tensors depend on. A stale-cache bug is
+    worse than no cache, so this is deliberately broad: Elo table (incl. any
+    injury/squad adjustments already applied), CONSTANTS, groups, hosts,
+    market blend, xG form, squad values (KO fatigue states), penalty
+    strengths, altitude tables, stadium data, the schedule file bytes, and
+    CACHE_VERSION for code changes."""
+    import hashlib
+    try:
+        from squad_data import SQUAD_VALUES as _squad
+    except ImportError:
+        _squad = {}
+    sched_path = os.path.join(project_root, "data", "fifa_2026_schedule.json")
+    try:
+        with open(sched_path, "rb") as f:
+            sched_hash = hashlib.sha256(f.read()).hexdigest()
+    except OSError:
+        sched_hash = "missing"
+    payload = {
+        "version": CACHE_VERSION,
+        "elos": {t: predictor.WORLD_CUP_2026_TEAMS[t].get("elo")
+                 for t in sorted(predictor.WORLD_CUP_2026_TEAMS)},
+        "constants": {k: predictor.CONSTANTS[k] for k in sorted(predictor.CONSTANTS)},
+        "groups": {g: list(ts) for g, ts in sorted(tb.GROUPS.items())},
+        "host_teams": sorted(host_teams) if host_teams else None,
+        "market_probs": market_probs,
+        "xg_strength": getattr(tb, "XG_STRENGTH", None),
+        "squad_values": _squad,
+        "penalty_strength": predictor.PENALTY_STRENGTH,
+        "altitude_accl": getattr(tb, "ALTITUDE_ACCLIMATIZATION", None),
+        "high_altitude_matches": {f"{a}|{b}": c for (a, b), c
+                                  in getattr(tb, "HIGH_ALTITUDE_MATCHES", {}).items()},
+        "stadium_data": predictor.STADIUM_DATA,
+        "third_place_pools": getattr(tb, "THIRD_PLACE_POOLS", None),
+        "schedule_sha256": sched_hash,
+    }
+    blob = json.dumps(payload, sort_keys=True, default=str).encode("utf-8")
+    return hashlib.sha256(blob).hexdigest()
+
+
+def save_matrix(matrix: "MatrixPrecomputer", path: str):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    np.savez_compressed(path, **{name: getattr(matrix, name) for name in _MATRIX_ARRAYS})
+
+
+def load_matrix(path: str) -> "MatrixPrecomputer":
+    m = MatrixPrecomputer.__new__(MatrixPrecomputer)
+    m._init_team_index()
+    with np.load(path) as data:
+        for name in _MATRIX_ARRAYS:
+            setattr(m, name, data[name])
+    return m
+
+
+def build_matrix(host_teams=None, market_probs=None, use_cache: bool = True,
+                 cache_dir: str = None, verbose: bool = False) -> "MatrixPrecomputer":
+    """MatrixPrecomputer factory with on-disk caching (warm start in seconds
+    vs ~4 min cold). Set WM2026_NO_MATRIX_CACHE=1 to force a rebuild."""
+    if os.environ.get("WM2026_NO_MATRIX_CACHE") == "1":
+        use_cache = False
+    if not use_cache:
+        return MatrixPrecomputer(host_teams=host_teams, market_probs=market_probs)
+    if cache_dir is None:
+        cache_dir = os.path.join(project_root, "data", "matrix_cache")
+    fp = _matrix_fingerprint(host_teams, market_probs)
+    path = os.path.join(cache_dir, f"matrix_{fp[:24]}.npz")
+    if os.path.exists(path):
+        try:
+            m = load_matrix(path)
+            if verbose:
+                print(f"  ⚡ Matrix cache hit: {path}", file=sys.stderr)
+            return m
+        except Exception as e:
+            print(f"  ⚠ Matrix cache load failed ({e}) — rebuilding.", file=sys.stderr)
+    m = MatrixPrecomputer(host_teams=host_teams, market_probs=market_probs)
+    try:
+        save_matrix(m, path)
+        if verbose:
+            print(f"  💾 Matrix cached: {path}", file=sys.stderr)
+    except Exception as e:
+        print(f"  ⚠ Matrix cache save failed ({e}) — continuing uncached.", file=sys.stderr)
+    return m
+
+
 class VectorizedSimulator:
     def __init__(self, matrix: MatrixPrecomputer, n_sims: int = 100000):
         self.mx = matrix
@@ -396,7 +497,14 @@ class VectorizedSimulator:
     def _sample_match_cdf(self, tA: np.ndarray, tB: np.ndarray, phase_idx: int,
                           fatigue_status: np.ndarray, m_id: str = None,
                           live_state: dict = None) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """O(1) Inverse Transform Boolean Sampling (L3 Cache Compatible)."""
+        """O(1) Inverse Transform Boolean Sampling (L3 Cache Compatible).
+
+        Live-state override semantics: a key equal to the match id (e.g. "M73")
+        forces that [goals_a, goals_b] score in BRACKET orientation (tA, tB as
+        passed) for every pairing occupying the slot; "TeamA vs TeamB" keys
+        match a specific pairing and are auto-swapped if listed the other way
+        round. The m_id key takes precedence over name keys.
+        """
         U = np.random.rand(self.N, 1).astype(DTYPE_FLOAT)
         indices = np.zeros(self.N, dtype=np.int16)
         went_to_et = np.zeros(self.N, dtype=bool)
@@ -419,9 +527,12 @@ class VectorizedSimulator:
                 tb_name = self.mx.id_to_team[b]
                 
                 score = None
+                val_a = val_b = None   # bound per setup; never reuse a previous iteration's values
                 if live_state:
                     if m_id and m_id in live_state:
                         score = live_state[m_id]
+                        if score is not None:
+                            val_a, val_b = score[0], score[1]
                     else:
                         score = live_state.get(f"{ta_name} vs {tb_name}")
                         if score is not None:
@@ -430,8 +541,8 @@ class VectorizedSimulator:
                             score = live_state.get(f"{tb_name} vs {ta_name}")
                             if score is not None:
                                 val_a, val_b = score[1], score[0]
-                                
-                if score is not None:
+
+                if score is not None and val_a is not None:
                     indices[mask] = np.clip(int(val_a) * 15 + int(val_b), 0, 224)
                     probs = self.mx.ko_et_probs[phase_idx, s, a, b, indices[mask]]
                     U_et = np.random.rand(np.sum(mask))
@@ -490,8 +601,7 @@ class VectorizedSimulator:
             PTS[:, ta] += np.where(g_a > g_b, 3, np.where(g_a == g_b, 1, 0)).astype(DTYPE_INT)
             PTS[:, tb] += np.where(g_b > g_a, 3, np.where(g_a == g_b, 1, 0)).astype(DTYPE_INT)
 
-        # 2. Group Stage MD3 (with Vectorized Dampening)
-        damp_mask = (PTS >= 6) | (PTS == 0)
+        # 2. Group Stage MD3 (flat x0.87 trim baked into the grids — S11)
         for m_idx in range(48, 72):
             ta, tb, _, _ = self.mx.GROUP_MATCHES[m_idx]
             ta_name = self.mx.id_to_team[ta]
@@ -510,10 +620,9 @@ class VectorizedSimulator:
                         g_b = np.full(self.N, score[0], dtype=DTYPE_INT)
                         
             if score is None:
-                state = damp_mask[:, ta].astype(DTYPE_INT) * 2 + damp_mask[:, tb].astype(DTYPE_INT)
-                cdfs = self.mx.group_cdfs[m_idx, state]
                 U = np.random.rand(self.N, 1).astype(DTYPE_FLOAT)
-                flat_scores = np.minimum((cdfs < U).sum(axis=-1), 224)
+                cdf = self.mx.group_cdfs[m_idx, 0]
+                flat_scores = np.minimum((cdf < U).sum(axis=-1), 224)
                 g_a = (flat_scores // 15).astype(DTYPE_INT)
                 g_b = (flat_scores % 15).astype(DTYPE_INT)
                 
@@ -528,8 +637,10 @@ class VectorizedSimulator:
             PTS[:, tb] += np.where(g_b > g_a, 3, np.where(g_a == g_b, 1, 0)).astype(DTYPE_INT)
 
         # 3. Vectorized Tiebreakers (`np.lexsort`)
+        # Tiebreak order: pts, gd, gf, drawing of lots (S11: Elo removed — it is
+        # not in any FIFA regulation and biased coin-flip qualifications toward
+        # favourites; H2H remains a documented scalar-engine-only refinement).
         lots = np.random.rand(self.N, self.mx.N_TEAMS).astype(DTYPE_FLOAT)
-        Elo_tensor = np.tile(self.mx.base_elos, (self.N, 1))
         
         g_winners = np.zeros((self.N, 12), dtype=DTYPE_INT)
         g_runners = np.zeros((self.N, 12), dtype=DTYPE_INT)
@@ -539,9 +650,9 @@ class VectorizedSimulator:
             g_teams = np.array([self.mx.GROUP_MATCHES[g_idx*6][0], self.mx.GROUP_MATCHES[g_idx*6][1], 
                                 self.mx.GROUP_MATCHES[g_idx*6+1][0], self.mx.GROUP_MATCHES[g_idx*6+1][1]], dtype=DTYPE_INT)
             
-            pts_g, gd_g, gf_g, elo_g, lots_g = PTS[:, g_teams], GD[:, g_teams], GF[:, g_teams], Elo_tensor[:, g_teams], lots[:, g_teams]
-            
-            order = np.lexsort((lots_g, elo_g, gf_g, gd_g, pts_g), axis=-1)
+            pts_g, gd_g, gf_g, lots_g = PTS[:, g_teams], GD[:, g_teams], GF[:, g_teams], lots[:, g_teams]
+
+            order = np.lexsort((lots_g, gf_g, gd_g, pts_g), axis=-1)
             
             g_winners[:, g_idx] = g_teams[order[:, 3]]
             g_runners[:, g_idx] = g_teams[order[:, 2]]
@@ -549,9 +660,9 @@ class VectorizedSimulator:
 
         # 4. Third Place Routing
         t_pts, t_gd, t_gf = np.take_along_axis(PTS, g_thirds, axis=1), np.take_along_axis(GD, g_thirds, axis=1), np.take_along_axis(GF, g_thirds, axis=1)
-        t_elo, t_lots = np.take_along_axis(Elo_tensor, g_thirds, axis=1), np.take_along_axis(lots, g_thirds, axis=1)
-        
-        t_order = np.lexsort((t_lots, t_elo, t_gf, t_gd, t_pts), axis=-1)
+        t_lots = np.take_along_axis(lots, g_thirds, axis=1)
+
+        t_order = np.lexsort((t_lots, t_gf, t_gd, t_pts), axis=-1)
         adv_idx = t_order[:, 4:12]
         
         mask = np.zeros(self.N, dtype=np.int32)
@@ -600,6 +711,21 @@ class VectorizedSimulator:
 
         return g_winners, stage_reach, golden_boot_winners, state["M104"], team_goals
 
+def blend_champion_probs(champ_counts, market_probs, teams, n_sims):
+    """50/50 model-market champion blend, RENORMALIZED to sum to 1 (S11 — the
+    raw average of a normalized MC distribution and a possibly differently
+    normalized market book need not sum to 1)."""
+    blended = {}
+    for team in teams:
+        mc_prob = champ_counts.get(team, 0) / n_sims
+        mkt_prob = market_probs.get(team, mc_prob)
+        blended[team] = (mc_prob + mkt_prob) / 2.0
+    total = sum(blended.values())
+    if total > 0:
+        blended = {t: p / total for t, p in blended.items()}
+    return blended
+
+
 def run_monte_carlo(n_sims: int = 100000, market_probs: dict = None,
                     seed: int = None, verbose: bool = True,
                     apply_injuries: bool = True,
@@ -645,7 +771,7 @@ def run_monte_carlo(n_sims: int = 100000, market_probs: dict = None,
             print("  📊 Precomputing static matrices...", file=sys.stderr)
         t_cache = time.time()
         
-        matrix = MatrixPrecomputer(host_teams=tb.HOST_TEAMS, market_probs=market_probs)
+        matrix = build_matrix(host_teams=tb.HOST_TEAMS, market_probs=market_probs, verbose=verbose)
         
         if verbose:
             print(f"  ✅ Matrices cached in {time.time() - t_cache:.1f}s", file=sys.stderr)
@@ -692,11 +818,7 @@ def run_monte_carlo(n_sims: int = 100000, market_probs: dict = None,
         # Champion (blended with market odds if present)
         champ_counts = Counter(matrix.id_to_team[idx] for idx in champs)
         if market_probs:
-            blended_champ = {}
-            for t_idx, team in enumerate(matrix.teams):
-                mc_prob = champ_counts.get(team, 0) / n_sims
-                mkt_prob = market_probs.get(team, mc_prob)
-                blended_champ[team] = (mc_prob + mkt_prob) / 2.0
+            blended_champ = blend_champion_probs(champ_counts, market_probs, matrix.teams, n_sims)
             champ_sorted = sorted(blended_champ.items(), key=lambda x: x[1], reverse=True)
             results["champion"] = {
                 "tip": champ_sorted[0][0],
