@@ -29,11 +29,11 @@ class TestScoreEntry(unittest.TestCase):
         results = sp.build_results_index({
             "Mexico vs South Africa": [2, 0],          # exact -> 4
             "Tschechien vs Südkorea": [1, 1],          # swapped + German + non-exact draw -> 3 (Tordifferenz)
-            "Qatar vs Switzerland": [1, 3],            # tendency only -> 2
+            "Qatar vs Switzerland": [1, 4],            # tendency only -> 2
         })
         s = sp.score_entry(ENTRY, results)
         pts = [p for (_m, res, p) in s["rows"] if res is not None]
-        self.assertEqual(pts, [4, 3, 2])
+        self.assertEqual(pts, [4, 3, 2])   # 0:2 vs 1:4: sign right, diff wrong -> 2
         self.assertEqual(s["points"], 9)
         self.assertEqual(s["n_scored"], 3)
         self.assertEqual(s["pending"], 1)               # Canada vs Bosnia unplayed
