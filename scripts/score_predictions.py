@@ -23,6 +23,7 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, REPO)
 
 import predictor  # noqa: E402
+from utils import notify  # noqa: E402
 
 DEFAULT_LOG = os.path.join(REPO, "predictions_log", "2026.jsonl")
 
@@ -71,6 +72,9 @@ def main():
     ap.add_argument("--log", default=DEFAULT_LOG)
     ap.add_argument("--all-matches", action="store_true",
                     help="Print every match line (default: only scored ones)")
+    ap.add_argument("--notify", action="store_true",
+                    help="WhatsApp-push the TOTAL line via CallMeBot "
+                         "(needs CALLMEBOT_PHONE/CALLMEBOT_APIKEY, utils/notify.py)")
     args = ap.parse_args()
 
     if not os.path.exists(args.results):
@@ -109,8 +113,13 @@ def main():
             print(f"   no results yet ({s['pending']} pending)")
 
     if grand_n:
-        print(f"\n{'=' * 64}\nTOTAL: {grand_pts} pts over {grand_n} matches · "
-              f"expected {grand_ev:.2f} · luck {grand_pts - grand_ev:+.2f}\n{'=' * 64}")
+        total_line = (f"TOTAL: {grand_pts} pts over {grand_n} matches · "
+                      f"expected {grand_ev:.2f} · luck {grand_pts - grand_ev:+.2f}")
+        print(f"\n{'=' * 64}\n{total_line}\n{'=' * 64}")
+        if args.notify:
+            sent = notify.send_whatsapp(f"WM2026 Kicktipp — {total_line}")
+            print("📨 WhatsApp notification sent" if sent
+                  else "⚠ WhatsApp notification NOT sent (unconfigured or failed — see utils/notify.py)")
 
 
 if __name__ == "__main__":
