@@ -54,7 +54,11 @@ _TIMEOUT_S = 15
 
 SCHEDULE_PATH = os.path.join(ROOT, "data", "match_schedule_2026.json")
 STATE_PATH = os.path.join(ROOT, "data", "prematch_state.json")
-SNAPSHOT_PATH = os.path.join(ROOT, "data", "polymarket_match_odds.json")
+# Live snapshot is a SEPARATE, gitignored file: the ferried
+# data/polymarket_match_odds.json is git-tracked, and overwriting it would
+# dirty the worktree -> "(dirty)" provenance flags on every later sheet run.
+SNAPSHOT_PATH = os.path.join(ROOT, "data", "polymarket_match_odds_live.json")
+FERRIED_SNAPSHOT_PATH = os.path.join(ROOT, "data", "polymarket_match_odds.json")
 
 DEFAULT_LEAD_MIN = 35     # alert when 0 < kickoff - now <= lead
 TIP_SIMULATIONS = 1000    # same MC depth as the published sheets
@@ -191,7 +195,10 @@ def refresh_snapshot() -> str:
         log("snapshot fetch returned no markets; keeping existing file")
     except Exception as e:   # noqa: BLE001
         log(f"snapshot refresh failed ({e}); keeping existing file")
-    return SNAPSHOT_PATH if os.path.exists(SNAPSHOT_PATH) else None
+    for p in (SNAPSHOT_PATH, FERRIED_SNAPSHOT_PATH):
+        if os.path.exists(p):
+            return p
+    return None
 
 
 def find_group_md(team_a: str, team_b: str):
@@ -259,10 +266,13 @@ def _grid_probs(grid: dict):
     return p_h * 100, p_d * 100, p_a * 100
 
 
-def build_message(match, eng_home, eng_away, tip_row, lineups, snapshot_path) -> str:
+def build_message(match, team_a, team_b, tip_row, lineups_by_team, snapshot_path) -> str:
+    """Compose the alert. team_a/team_b define the orientation of EVERY
+    number in the message (tip, P(model), market 1X2) — the caller passes the
+    tip_row orientation so a FIFA home/away flip can never mislabel the tip."""
     ko_utc = (match.get("utc") or "")[11:16]
     label = match.get("group") or match.get("stage") or ""
-    lines = [f"⚽ T-30 {eng_home} vs {eng_away} ({label}, {ko_utc}Z)"]
+    lines = [f"⚽ T-30 {team_a} vs {team_b} ({label}, {ko_utc}Z)"]
 
     if tip_row:
         ta, tb = tip_row["optimal_tip"]
@@ -281,31 +291,34 @@ def build_message(match, eng_home, eng_away, tip_row, lineups, snapshot_path) ->
     else:
         lines.append("⚠ no tip computed — run the sheet manually!")
 
-    # market line (raw decimals, straight from the snapshot we blended)
+    # market line (raw decimals, straight from the snapshot we blended),
+    # flipped to the message orientation when the market lists teams reversed
     if snapshot_path and os.path.exists(snapshot_path):
         try:
             probs, _ = matchday_tips.load_market_snapshot(snapshot_path)
-            odds = (probs.get(f"{eng_home}|{eng_away}")
-                    or probs.get(f"{eng_away}|{eng_home}"))
+            odds = probs.get(f"{team_a}|{team_b}")
+            rev = probs.get(f"{team_b}|{team_a}")
+            if not odds and rev:
+                odds = dict(rev, **{"1": rev["2"], "2": rev["1"]})
             if odds:
                 lines.append(f"Mkt 1X2 {odds['1']:.2f}/{odds['X']:.2f}/{odds['2']:.2f}"
                              f" (liq ${odds.get('liquidity', 0)/1e6:.1f}M)")
         except Exception:   # noqa: BLE001 — message must still go out
             pass
 
-    if lineups:
-        h, a = lineups["home"], lineups["away"]
-        lines.append(f"XI {eng_home} ({h['formation']}): "
-                     + ", ".join(_surname(p) for p in h["xi"]))
-        lines.append(f"XI {eng_away} ({a['formation']}): "
-                     + ", ".join(_surname(p) for p in a["xi"]))
+    if lineups_by_team:
+        for t in (team_a, team_b):
+            d = lineups_by_team.get(t)
+            if d:
+                lines.append(f"XI {t} ({d['formation']}): "
+                             + ", ".join(_surname(p) for p in d["xi"]))
     else:
         lines.append("⚠ official XIs not published yet")
 
-    inj_h = tbf.INJURY_ELO_ADJUSTMENTS.get(eng_home)
-    inj_a = tbf.INJURY_ELO_ADJUSTMENTS.get(eng_away)
-    lines.append(f"InjElo {eng_home} {inj_h:+.0f}" if inj_h else f"InjElo {eng_home} —")
-    lines[-1] += f" | {eng_away} {inj_a:+.0f}" if inj_a else f" | {eng_away} —"
+    inj_a_ = tbf.INJURY_ELO_ADJUSTMENTS.get(team_a)
+    inj_b_ = tbf.INJURY_ELO_ADJUSTMENTS.get(team_b)
+    lines.append(f"InjElo {team_a} {inj_a_:+.0f}" if inj_a_ else f"InjElo {team_a} —")
+    lines[-1] += f" | {team_b} {inj_b_:+.0f}" if inj_b_ else f" | {team_b} —"
     return "\n".join(lines)
 
 
@@ -345,9 +358,15 @@ def process_match(match, dry_run: bool = False, refresh_odds: bool = True) -> bo
     lineups = fetch_lineups(match["stage_id"], match["id"])
     if lineups is None:
         log("official XIs not available (yet)")
+    lineups_by_team = None
+    if lineups:
+        lineups_by_team = {eng_home: lineups["home"], eng_away: lineups["away"]}
 
-    snapshot_path = refresh_snapshot() if refresh_odds else (
-        SNAPSHOT_PATH if os.path.exists(SNAPSHOT_PATH) else None)
+    if refresh_odds:
+        snapshot_path = refresh_snapshot()
+    else:
+        snapshot_path = next((p for p in (SNAPSHOT_PATH, FERRIED_SNAPSHOT_PATH)
+                              if os.path.exists(p)), None)
 
     tip_row = None
     grp = find_group_md(eng_home, eng_away)
@@ -374,7 +393,13 @@ def process_match(match, dry_run: bool = False, refresh_odds: bool = True) -> bo
     except Exception as e:   # noqa: BLE001 — always still send something
         log(f"tip computation failed: {e}")
 
-    msg = build_message(match, eng_home, eng_away, tip_row, lineups, snapshot_path)
+    # message orientation ALWAYS follows the tip computation, never FIFA's
+    # home/away — a flipped fixture must not mislabel tip/probabilities
+    if tip_row:
+        team_a, team_b = tip_row["team_a"], tip_row["team_b"]
+    else:
+        team_a, team_b = eng_home, eng_away
+    msg = build_message(match, team_a, team_b, tip_row, lineups_by_team, snapshot_path)
     print(msg)
     if dry_run:
         log("dry-run: not sending")

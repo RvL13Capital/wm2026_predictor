@@ -137,17 +137,38 @@ class TestKoPhaseAndFormatting(unittest.TestCase):
                    "top_tips": [{"tip": "1:0", "ev": 1.664}, {"tip": "2:1", "ev": 1.601}],
                    "mc": {"mean": 1.66, "std": 1.4, "p0": 0.37, "p2": 0.37,
                           "p3": 0.12, "p4": 0.14}}
-        lineups = {"home": {"xi": [f"First LASTNAME{i}" for i in range(11)],
-                            "bench": [], "formation": "4-4-2"},
-                   "away": {"xi": [f"First VERYLONGSURNAME{i}" for i in range(11)],
-                            "bench": [], "formation": "4-3-3"}}
+        lineups_by_team = {
+            "Canada": {"xi": [f"First LASTNAME{i}" for i in range(11)],
+                       "bench": [], "formation": "4-4-2"},
+            "Bosnia": {"xi": [f"First VERYLONGSURNAME{i}" for i in range(11)],
+                       "bench": [], "formation": "4-3-3"}}
         match = {"utc": "2026-06-12T19:00:00Z", "group": "Group B", "stage": "First stage"}
-        msg = pa.build_message(match, "Canada", "Bosnia", tip_row, lineups,
+        msg = pa.build_message(match, "Canada", "Bosnia", tip_row, lineups_by_team,
                                snapshot_path=None)
         self.assertIn("TIP 1:0", msg)
         self.assertIn("STRONG", msg)
         self.assertIn("XI Canada", msg)
         self.assertLess(len(msg), 1400)
+
+    def test_build_message_orientation_follows_caller_not_fifa(self):
+        # the tip orientation (team_a/team_b) drives header + XI labelling;
+        # XI blocks are matched BY NAME so a FIFA home/away flip cannot
+        # attribute a lineup to the wrong team
+        grid = {0: {1: 0.7}, 1: {1: 0.3}}
+        tip_row = {"team_a": "Bosnia", "team_b": "Canada", "grid": grid,
+                   "optimal_tip": (0, 1), "ev": 1.5, "top_tips": [], "mc": None}
+        lineups_by_team = {
+            "Canada": {"xi": ["A CANGUY"] * 11, "bench": [], "formation": "4-4-2"},
+            "Bosnia": {"xi": ["A BIHGUY"] * 11, "bench": [], "formation": "3-5-2"}}
+        match = {"utc": "2026-06-12T19:00:00Z", "group": "Group B"}
+        msg = pa.build_message(match, "Bosnia", "Canada", tip_row, lineups_by_team,
+                               snapshot_path=None)
+        self.assertIn("Bosnia vs Canada", msg.splitlines()[0])
+        xi_lines = [l for l in msg.splitlines() if l.startswith("XI ")]
+        self.assertIn("Bihguy", xi_lines[0])      # first XI line = team_a = Bosnia
+        self.assertIn("XI Bosnia (3-5-2)", xi_lines[0])
+        self.assertIn("Canguy", xi_lines[1])
+        self.assertIn("XI Canada (4-4-2)", xi_lines[1])
 
     def test_build_message_without_tip_or_lineups_still_warns(self):
         match = {"utc": "2026-06-12T19:00:00Z", "group": "Group B"}
