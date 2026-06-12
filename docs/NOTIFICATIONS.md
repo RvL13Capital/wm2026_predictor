@@ -19,8 +19,20 @@ export CALLMEBOT_PHONE='+4917xxxxxxxx'   # your number, with country code
 export CALLMEBOT_APIKEY='123456'
 ```
 
-**Never commit the apikey.** It is env-only by design; anyone with it can
-message your WhatsApp.
+**Multiple recipients:** every additional phone runs the same activation
+(from ITS WhatsApp), then list all pairs in one var — each alert goes to
+everyone (delivered = at least one send succeeded; per-recipient failures
+are logged to stderr):
+
+```bash
+export CALLMEBOT_RECIPIENTS='4917xxxxxxxx:123456,4915yyyyyyyy:654321'
+```
+
+(`CALLMEBOT_RECIPIENTS` alone is enough; if `CALLMEBOT_PHONE`/`APIKEY` are
+also set they are merged in and deduplicated.)
+
+**Never commit an apikey.** They are env-only by design; anyone with one can
+message that phone's WhatsApp.
 
 ## Hooks
 

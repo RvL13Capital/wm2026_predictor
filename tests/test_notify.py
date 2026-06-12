@@ -38,6 +38,7 @@ class TestSendWhatsapp(unittest.TestCase):
         self._env.start()
         os.environ.pop(notify.PHONE_ENV, None)
         os.environ.pop(notify.APIKEY_ENV, None)
+        os.environ.pop(notify.RECIPIENTS_ENV, None)
 
     def tearDown(self):
         self._env.stop()
@@ -72,6 +73,55 @@ class TestSendWhatsapp(unittest.TestCase):
         with mock.patch("urllib.request.urlopen", side_effect=OSError("boom")):
             # must not raise — ops-loop contract
             self.assertFalse(notify.send_whatsapp("x", phone="+1", apikey="k"))
+
+    def test_multiple_recipients_all_receive(self):
+        os.environ[notify.RECIPIENTS_ENV] = "491626410039:5656521,4915122392324:1580516"
+        self.assertTrue(notify.is_configured())
+        sent_urls = []
+
+        def grab(req, timeout=None):
+            sent_urls.append(req.full_url)
+            return _Resp()
+
+        with mock.patch("urllib.request.urlopen", side_effect=grab):
+            self.assertTrue(notify.send_whatsapp("hallo"))
+        self.assertEqual(len(sent_urls), 2)
+        qs = [urllib.parse.parse_qs(urllib.parse.urlparse(u).query) for u in sent_urls]
+        self.assertEqual({q["phone"][0] for q in qs}, {"491626410039", "4915122392324"})
+        self.assertEqual({q["apikey"][0] for q in qs}, {"5656521", "1580516"})
+
+    def test_phone_env_plus_recipients_deduplicated(self):
+        os.environ[notify.PHONE_ENV] = "491626410039"
+        os.environ[notify.APIKEY_ENV] = "5656521"
+        os.environ[notify.RECIPIENTS_ENV] = "491626410039:5656521,4915122392324:1580516"
+        with mock.patch("urllib.request.urlopen", return_value=_Resp()) as m:
+            self.assertTrue(notify.send_whatsapp("hallo"))
+        self.assertEqual(m.call_count, 2)        # not 3 — duplicate pair collapsed
+
+    def test_partial_failure_still_counts_as_delivered(self):
+        os.environ[notify.RECIPIENTS_ENV] = "1:a,2:b"
+        calls = iter([OSError("boom"), _Resp()])
+
+        def flaky(req, timeout=None):
+            r = next(calls)
+            if isinstance(r, Exception):
+                raise r
+            return r
+
+        with mock.patch("urllib.request.urlopen", side_effect=flaky):
+            self.assertTrue(notify.send_whatsapp("x"))   # one of two landed
+
+    def test_all_recipients_failing_returns_false(self):
+        os.environ[notify.RECIPIENTS_ENV] = "1:a,2:b"
+        with mock.patch("urllib.request.urlopen", side_effect=OSError("boom")):
+            self.assertFalse(notify.send_whatsapp("x"))
+
+    def test_explicit_args_send_to_single_recipient_only(self):
+        os.environ[notify.RECIPIENTS_ENV] = "1:a,2:b"
+        with mock.patch("urllib.request.urlopen", return_value=_Resp()) as m:
+            self.assertTrue(notify.send_whatsapp("x", phone="+9", apikey="k"))
+        self.assertEqual(m.call_count, 1)
+        self.assertIn("phone=%2B9", m.call_args[0][0].full_url)
 
     def test_long_text_truncated(self):
         captured = {}
