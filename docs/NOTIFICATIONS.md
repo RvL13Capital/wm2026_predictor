@@ -81,3 +81,36 @@ where runs recur.
   environment's network allowlist.
 - Failure mode: `send_whatsapp()` returns False and writes one stderr line;
   it never raises (`tests/test_notify.py` pins this contract).
+
+## T-30 pre-match alerts (`scripts/prematch_alert.py`)
+
+Automated per-match push ~30 min before kickoff, to every CallMeBot
+recipient: optimal tip + EV margin/signal, model vs market 1X2, MC stats,
+the **official starting XIs** (FIFA live API, published ~T-75) and the
+current `INJURY_ELO_ADJUSTMENTS` entries for both teams.
+
+```bash
+python3 scripts/prematch_alert.py --auto                 # cron tick: alert every due match once
+python3 scripts/prematch_alert.py --force-match "Canada vs Bosnia" --dry-run
+```
+
+Design: the tip is always recomputed through the canonical
+`matchday_tips.run_matchday` path (sims 1000, seed 42 — identical to the
+published sheets) with a **freshly fetched Polymarket snapshot**, so lineup
+news reaches the tip through the market blend. Lineups in the message are
+advisory; the script never edits engine inputs beyond refreshing
+`data/polymarket_match_odds.json`. KO fixtures use the same
+`predict_single_match` pipeline with the phase set (ko_tips fatigue flags
+NOT applied — the sheet remains authoritative).
+
+State: `data/prematch_state.json` (gitignored) dedups sends;
+`data/match_schedule_2026.json` (committed) is the offline calendar
+fallback — the live FIFA calendar refresh keeps KO pairings current.
+Scheduling on the ops Mac (every 10 min during the kickoff window):
+
+```cron
+3-59/10 0-6,17-23 * * * /bin/zsh -c 'source ~/.zshrc; cd ~/Desktop/wm2026_predictor && python3 scripts/prematch_alert.py --auto >> data/logs/prematch_alert.log 2>&1'
+```
+
+(macOS: grant `cron` Full Disk Access in System Settings → Privacy if the
+repo under `~/Desktop` is unreadable from cron jobs.)

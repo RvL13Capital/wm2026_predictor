@@ -1,0 +1,1042 @@
+[
+ {
+  "id": "400021443",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group A",
+  "utc": "2026-06-11T19:00:00Z",
+  "home": "Mexico",
+  "away": "South Africa",
+  "status": 0
+ },
+ {
+  "id": "400021441",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group A",
+  "utc": "2026-06-12T02:00:00Z",
+  "home": "Korea Republic",
+  "away": "Czechia",
+  "status": 0
+ },
+ {
+  "id": "400021449",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group B",
+  "utc": "2026-06-12T19:00:00Z",
+  "home": "Canada",
+  "away": "Bosnia and Herzegovina",
+  "status": 1
+ },
+ {
+  "id": "400021458",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group D",
+  "utc": "2026-06-13T01:00:00Z",
+  "home": "USA",
+  "away": "Paraguay",
+  "status": 1
+ },
+ {
+  "id": "400021447",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group B",
+  "utc": "2026-06-13T19:00:00Z",
+  "home": "Qatar",
+  "away": "Switzerland",
+  "status": 1
+ },
+ {
+  "id": "400021456",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group C",
+  "utc": "2026-06-13T22:00:00Z",
+  "home": "Brazil",
+  "away": "Morocco",
+  "status": 1
+ },
+ {
+  "id": "400021453",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group C",
+  "utc": "2026-06-14T01:00:00Z",
+  "home": "Haiti",
+  "away": "Scotland",
+  "status": 1
+ },
+ {
+  "id": "400021463",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group D",
+  "utc": "2026-06-14T04:00:00Z",
+  "home": "Australia",
+  "away": "Türkiye",
+  "status": 1
+ },
+ {
+  "id": "400021464",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group E",
+  "utc": "2026-06-14T17:00:00Z",
+  "home": "Germany",
+  "away": "Curaçao",
+  "status": 1
+ },
+ {
+  "id": "400021470",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group F",
+  "utc": "2026-06-14T20:00:00Z",
+  "home": "Netherlands",
+  "away": "Japan",
+  "status": 1
+ },
+ {
+  "id": "400021467",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group E",
+  "utc": "2026-06-14T23:00:00Z",
+  "home": "Côte d'Ivoire",
+  "away": "Ecuador",
+  "status": 1
+ },
+ {
+  "id": "400021474",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group F",
+  "utc": "2026-06-15T02:00:00Z",
+  "home": "Sweden",
+  "away": "Tunisia",
+  "status": 1
+ },
+ {
+  "id": "400021482",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group H",
+  "utc": "2026-06-15T16:00:00Z",
+  "home": "Spain",
+  "away": "Cabo Verde",
+  "status": 1
+ },
+ {
+  "id": "400021478",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group G",
+  "utc": "2026-06-15T19:00:00Z",
+  "home": "Belgium",
+  "away": "Egypt",
+  "status": 1
+ },
+ {
+  "id": "400021486",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group H",
+  "utc": "2026-06-15T22:00:00Z",
+  "home": "Saudi Arabia",
+  "away": "Uruguay",
+  "status": 1
+ },
+ {
+  "id": "400021476",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group G",
+  "utc": "2026-06-16T01:00:00Z",
+  "home": "IR Iran",
+  "away": "New Zealand",
+  "status": 1
+ },
+ {
+  "id": "400021490",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group I",
+  "utc": "2026-06-16T19:00:00Z",
+  "home": "France",
+  "away": "Senegal",
+  "status": 1
+ },
+ {
+  "id": "400021488",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group I",
+  "utc": "2026-06-16T22:00:00Z",
+  "home": "Iraq",
+  "away": "Norway",
+  "status": 1
+ },
+ {
+  "id": "400021496",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group J",
+  "utc": "2026-06-17T01:00:00Z",
+  "home": "Argentina",
+  "away": "Algeria",
+  "status": 1
+ },
+ {
+  "id": "400021498",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group J",
+  "utc": "2026-06-17T04:00:00Z",
+  "home": "Austria",
+  "away": "Jordan",
+  "status": 1
+ },
+ {
+  "id": "400021502",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group K",
+  "utc": "2026-06-17T17:00:00Z",
+  "home": "Portugal",
+  "away": "Congo DR",
+  "status": 1
+ },
+ {
+  "id": "400021507",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group L",
+  "utc": "2026-06-17T20:00:00Z",
+  "home": "England",
+  "away": "Croatia",
+  "status": 1
+ },
+ {
+  "id": "400021510",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group L",
+  "utc": "2026-06-17T23:00:00Z",
+  "home": "Ghana",
+  "away": "Panama",
+  "status": 1
+ },
+ {
+  "id": "400021504",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group K",
+  "utc": "2026-06-18T02:00:00Z",
+  "home": "Uzbekistan",
+  "away": "Colombia",
+  "status": 1
+ },
+ {
+  "id": "400021440",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group A",
+  "utc": "2026-06-18T16:00:00Z",
+  "home": "Czechia",
+  "away": "South Africa",
+  "status": 1
+ },
+ {
+  "id": "400021446",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group B",
+  "utc": "2026-06-18T19:00:00Z",
+  "home": "Switzerland",
+  "away": "Bosnia and Herzegovina",
+  "status": 1
+ },
+ {
+  "id": "400021450",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group B",
+  "utc": "2026-06-18T22:00:00Z",
+  "home": "Canada",
+  "away": "Qatar",
+  "status": 1
+ },
+ {
+  "id": "400021442",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group A",
+  "utc": "2026-06-19T01:00:00Z",
+  "home": "Mexico",
+  "away": "Korea Republic",
+  "status": 1
+ },
+ {
+  "id": "400021462",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group D",
+  "utc": "2026-06-19T19:00:00Z",
+  "home": "USA",
+  "away": "Australia",
+  "status": 1
+ },
+ {
+  "id": "400021454",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group C",
+  "utc": "2026-06-19T22:00:00Z",
+  "home": "Scotland",
+  "away": "Morocco",
+  "status": 1
+ },
+ {
+  "id": "400021457",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group C",
+  "utc": "2026-06-20T00:30:00Z",
+  "home": "Brazil",
+  "away": "Haiti",
+  "status": 1
+ },
+ {
+  "id": "400021460",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group D",
+  "utc": "2026-06-20T03:00:00Z",
+  "home": "Türkiye",
+  "away": "Paraguay",
+  "status": 1
+ },
+ {
+  "id": "400021472",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group F",
+  "utc": "2026-06-20T17:00:00Z",
+  "home": "Netherlands",
+  "away": "Sweden",
+  "status": 1
+ },
+ {
+  "id": "400021469",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group E",
+  "utc": "2026-06-20T20:00:00Z",
+  "home": "Germany",
+  "away": "Côte d'Ivoire",
+  "status": 1
+ },
+ {
+  "id": "400021465",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group E",
+  "utc": "2026-06-21T00:00:00Z",
+  "home": "Ecuador",
+  "away": "Curaçao",
+  "status": 1
+ },
+ {
+  "id": "400021475",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group F",
+  "utc": "2026-06-21T04:00:00Z",
+  "home": "Tunisia",
+  "away": "Japan",
+  "status": 1
+ },
+ {
+  "id": "400021483",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group H",
+  "utc": "2026-06-21T16:00:00Z",
+  "home": "Spain",
+  "away": "Saudi Arabia",
+  "status": 1
+ },
+ {
+  "id": "400021477",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group G",
+  "utc": "2026-06-21T19:00:00Z",
+  "home": "Belgium",
+  "away": "IR Iran",
+  "status": 1
+ },
+ {
+  "id": "400021487",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group H",
+  "utc": "2026-06-21T22:00:00Z",
+  "home": "Uruguay",
+  "away": "Cabo Verde",
+  "status": 1
+ },
+ {
+  "id": "400021480",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group G",
+  "utc": "2026-06-22T01:00:00Z",
+  "home": "New Zealand",
+  "away": "Egypt",
+  "status": 1
+ },
+ {
+  "id": "400021494",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group J",
+  "utc": "2026-06-22T17:00:00Z",
+  "home": "Argentina",
+  "away": "Austria",
+  "status": 1
+ },
+ {
+  "id": "400021492",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group I",
+  "utc": "2026-06-22T21:00:00Z",
+  "home": "France",
+  "away": "Iraq",
+  "status": 1
+ },
+ {
+  "id": "400021491",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group I",
+  "utc": "2026-06-23T00:00:00Z",
+  "home": "Norway",
+  "away": "Senegal",
+  "status": 1
+ },
+ {
+  "id": "400021499",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group J",
+  "utc": "2026-06-23T03:00:00Z",
+  "home": "Jordan",
+  "away": "Algeria",
+  "status": 1
+ },
+ {
+  "id": "400021503",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group K",
+  "utc": "2026-06-23T17:00:00Z",
+  "home": "Portugal",
+  "away": "Uzbekistan",
+  "status": 1
+ },
+ {
+  "id": "400021506",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group L",
+  "utc": "2026-06-23T20:00:00Z",
+  "home": "England",
+  "away": "Ghana",
+  "status": 1
+ },
+ {
+  "id": "400021511",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group L",
+  "utc": "2026-06-23T23:00:00Z",
+  "home": "Panama",
+  "away": "Croatia",
+  "status": 1
+ },
+ {
+  "id": "400021501",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group K",
+  "utc": "2026-06-24T02:00:00Z",
+  "home": "Colombia",
+  "away": "Congo DR",
+  "status": 1
+ },
+ {
+  "id": "400021448",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group B",
+  "utc": "2026-06-24T19:00:00Z",
+  "home": "Bosnia and Herzegovina",
+  "away": "Qatar",
+  "status": 1
+ },
+ {
+  "id": "400021451",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group B",
+  "utc": "2026-06-24T19:00:00Z",
+  "home": "Switzerland",
+  "away": "Canada",
+  "status": 1
+ },
+ {
+  "id": "400021452",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group C",
+  "utc": "2026-06-24T22:00:00Z",
+  "home": "Morocco",
+  "away": "Haiti",
+  "status": 1
+ },
+ {
+  "id": "400021455",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group C",
+  "utc": "2026-06-24T22:00:00Z",
+  "home": "Scotland",
+  "away": "Brazil",
+  "status": 1
+ },
+ {
+  "id": "400021445",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group A",
+  "utc": "2026-06-25T01:00:00Z",
+  "home": "South Africa",
+  "away": "Korea Republic",
+  "status": 1
+ },
+ {
+  "id": "400021444",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group A",
+  "utc": "2026-06-25T01:00:00Z",
+  "home": "Czechia",
+  "away": "Mexico",
+  "status": 1
+ },
+ {
+  "id": "400021468",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group E",
+  "utc": "2026-06-25T20:00:00Z",
+  "home": "Curaçao",
+  "away": "Côte d'Ivoire",
+  "status": 1
+ },
+ {
+  "id": "400021466",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group E",
+  "utc": "2026-06-25T20:00:00Z",
+  "home": "Ecuador",
+  "away": "Germany",
+  "status": 1
+ },
+ {
+  "id": "400021473",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group F",
+  "utc": "2026-06-25T23:00:00Z",
+  "home": "Tunisia",
+  "away": "Netherlands",
+  "status": 1
+ },
+ {
+  "id": "400021471",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group F",
+  "utc": "2026-06-25T23:00:00Z",
+  "home": "Japan",
+  "away": "Sweden",
+  "status": 1
+ },
+ {
+  "id": "400021461",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group D",
+  "utc": "2026-06-26T02:00:00Z",
+  "home": "Paraguay",
+  "away": "Australia",
+  "status": 1
+ },
+ {
+  "id": "400021459",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group D",
+  "utc": "2026-06-26T02:00:00Z",
+  "home": "Türkiye",
+  "away": "USA",
+  "status": 1
+ },
+ {
+  "id": "400021493",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group I",
+  "utc": "2026-06-26T19:00:00Z",
+  "home": "Senegal",
+  "away": "Iraq",
+  "status": 1
+ },
+ {
+  "id": "400021489",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group I",
+  "utc": "2026-06-26T19:00:00Z",
+  "home": "Norway",
+  "away": "France",
+  "status": 1
+ },
+ {
+  "id": "400021484",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group H",
+  "utc": "2026-06-27T00:00:00Z",
+  "home": "Uruguay",
+  "away": "Spain",
+  "status": 1
+ },
+ {
+  "id": "400021485",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group H",
+  "utc": "2026-06-27T00:00:00Z",
+  "home": "Cabo Verde",
+  "away": "Saudi Arabia",
+  "status": 1
+ },
+ {
+  "id": "400021481",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group G",
+  "utc": "2026-06-27T03:00:00Z",
+  "home": "New Zealand",
+  "away": "Belgium",
+  "status": 1
+ },
+ {
+  "id": "400021479",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group G",
+  "utc": "2026-06-27T03:00:00Z",
+  "home": "Egypt",
+  "away": "IR Iran",
+  "status": 1
+ },
+ {
+  "id": "400021508",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group L",
+  "utc": "2026-06-27T21:00:00Z",
+  "home": "Panama",
+  "away": "England",
+  "status": 1
+ },
+ {
+  "id": "400021509",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group L",
+  "utc": "2026-06-27T21:00:00Z",
+  "home": "Croatia",
+  "away": "Ghana",
+  "status": 1
+ },
+ {
+  "id": "400021500",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group K",
+  "utc": "2026-06-27T23:30:00Z",
+  "home": "Congo DR",
+  "away": "Uzbekistan",
+  "status": 1
+ },
+ {
+  "id": "400021505",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group K",
+  "utc": "2026-06-27T23:30:00Z",
+  "home": "Colombia",
+  "away": "Portugal",
+  "status": 1
+ },
+ {
+  "id": "400021497",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group J",
+  "utc": "2026-06-28T02:00:00Z",
+  "home": "Algeria",
+  "away": "Austria",
+  "status": 1
+ },
+ {
+  "id": "400021495",
+  "stage_id": "289273",
+  "stage": "First Stage",
+  "group": "Group J",
+  "utc": "2026-06-28T02:00:00Z",
+  "home": "Jordan",
+  "away": "Argentina",
+  "status": 1
+ },
+ {
+  "id": "400021518",
+  "stage_id": "289287",
+  "stage": "Round of 32",
+  "group": "",
+  "utc": "2026-06-28T19:00:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ },
+ {
+  "id": "400021516",
+  "stage_id": "289287",
+  "stage": "Round of 32",
+  "group": "",
+  "utc": "2026-06-29T17:00:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ },
+ {
+  "id": "400021513",
+  "stage_id": "289287",
+  "stage": "Round of 32",
+  "group": "",
+  "utc": "2026-06-29T20:30:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ },
+ {
+  "id": "400021522",
+  "stage_id": "289287",
+  "stage": "Round of 32",
+  "group": "",
+  "utc": "2026-06-30T01:00:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ },
+ {
+  "id": "400021514",
+  "stage_id": "289287",
+  "stage": "Round of 32",
+  "group": "",
+  "utc": "2026-06-30T17:00:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ },
+ {
+  "id": "400021523",
+  "stage_id": "289287",
+  "stage": "Round of 32",
+  "group": "",
+  "utc": "2026-06-30T21:00:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ },
+ {
+  "id": "400021520",
+  "stage_id": "289287",
+  "stage": "Round of 32",
+  "group": "",
+  "utc": "2026-07-01T01:00:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ },
+ {
+  "id": "400021512",
+  "stage_id": "289287",
+  "stage": "Round of 32",
+  "group": "",
+  "utc": "2026-07-01T16:00:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ },
+ {
+  "id": "400021525",
+  "stage_id": "289287",
+  "stage": "Round of 32",
+  "group": "",
+  "utc": "2026-07-01T20:00:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ },
+ {
+  "id": "400021524",
+  "stage_id": "289287",
+  "stage": "Round of 32",
+  "group": "",
+  "utc": "2026-07-02T00:00:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ },
+ {
+  "id": "400021519",
+  "stage_id": "289287",
+  "stage": "Round of 32",
+  "group": "",
+  "utc": "2026-07-02T19:00:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ },
+ {
+  "id": "400021526",
+  "stage_id": "289287",
+  "stage": "Round of 32",
+  "group": "",
+  "utc": "2026-07-02T23:00:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ },
+ {
+  "id": "400021527",
+  "stage_id": "289287",
+  "stage": "Round of 32",
+  "group": "",
+  "utc": "2026-07-03T03:00:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ },
+ {
+  "id": "400021515",
+  "stage_id": "289287",
+  "stage": "Round of 32",
+  "group": "",
+  "utc": "2026-07-03T18:00:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ },
+ {
+  "id": "400021521",
+  "stage_id": "289287",
+  "stage": "Round of 32",
+  "group": "",
+  "utc": "2026-07-03T22:00:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ },
+ {
+  "id": "400021517",
+  "stage_id": "289287",
+  "stage": "Round of 32",
+  "group": "",
+  "utc": "2026-07-04T01:30:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ },
+ {
+  "id": "400021530",
+  "stage_id": "289288",
+  "stage": "Round of 16",
+  "group": "",
+  "utc": "2026-07-04T17:00:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ },
+ {
+  "id": "400021533",
+  "stage_id": "289288",
+  "stage": "Round of 16",
+  "group": "",
+  "utc": "2026-07-04T21:00:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ },
+ {
+  "id": "400021532",
+  "stage_id": "289288",
+  "stage": "Round of 16",
+  "group": "",
+  "utc": "2026-07-05T20:00:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ },
+ {
+  "id": "400021531",
+  "stage_id": "289288",
+  "stage": "Round of 16",
+  "group": "",
+  "utc": "2026-07-06T00:00:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ },
+ {
+  "id": "400021529",
+  "stage_id": "289288",
+  "stage": "Round of 16",
+  "group": "",
+  "utc": "2026-07-06T19:00:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ },
+ {
+  "id": "400021534",
+  "stage_id": "289288",
+  "stage": "Round of 16",
+  "group": "",
+  "utc": "2026-07-07T00:00:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ },
+ {
+  "id": "400021528",
+  "stage_id": "289288",
+  "stage": "Round of 16",
+  "group": "",
+  "utc": "2026-07-07T16:00:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ },
+ {
+  "id": "400021535",
+  "stage_id": "289288",
+  "stage": "Round of 16",
+  "group": "",
+  "utc": "2026-07-07T20:00:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ },
+ {
+  "id": "400021536",
+  "stage_id": "289289",
+  "stage": "Quarter-final",
+  "group": "",
+  "utc": "2026-07-09T20:00:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ },
+ {
+  "id": "400021538",
+  "stage_id": "289289",
+  "stage": "Quarter-final",
+  "group": "",
+  "utc": "2026-07-10T19:00:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ },
+ {
+  "id": "400021539",
+  "stage_id": "289289",
+  "stage": "Quarter-final",
+  "group": "",
+  "utc": "2026-07-11T21:00:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ },
+ {
+  "id": "400021537",
+  "stage_id": "289289",
+  "stage": "Quarter-final",
+  "group": "",
+  "utc": "2026-07-12T01:00:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ },
+ {
+  "id": "400021541",
+  "stage_id": "289290",
+  "stage": "Semi-final",
+  "group": "",
+  "utc": "2026-07-14T19:00:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ },
+ {
+  "id": "400021540",
+  "stage_id": "289290",
+  "stage": "Semi-final",
+  "group": "",
+  "utc": "2026-07-15T19:00:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ },
+ {
+  "id": "400021542",
+  "stage_id": "289291",
+  "stage": "Play-off for third place",
+  "group": "",
+  "utc": "2026-07-18T21:00:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ },
+ {
+  "id": "400021543",
+  "stage_id": "289292",
+  "stage": "Final",
+  "group": "",
+  "utc": "2026-07-19T19:00:00Z",
+  "home": null,
+  "away": null,
+  "status": 1
+ }
+]
