@@ -50,3 +50,4 @@ data/matrix_cache/
 data/oddsapi_*_snapshots.json
 data/prematch_state.json
 data/logs/
+data/match_schedule_live.json

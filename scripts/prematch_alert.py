@@ -53,6 +53,10 @@ LIVE_URL_TMPL = ("https://api.fifa.com/api/v3/live/football/"
 _TIMEOUT_S = 15
 
 SCHEDULE_PATH = os.path.join(ROOT, "data", "match_schedule_2026.json")
+# Live calendar refreshes land in a SEPARATE gitignored file: match statuses
+# flip as games finish, and rewriting the committed file would dirty the
+# worktree on every tick (same provenance hazard as the odds snapshot).
+SCHEDULE_LIVE_PATH = os.path.join(ROOT, "data", "match_schedule_live.json")
 STATE_PATH = os.path.join(ROOT, "data", "prematch_state.json")
 # Live snapshot is a SEPARATE, gitignored file: the ferried
 # data/polymarket_match_odds.json is git-tracked, and overwriting it would
@@ -151,12 +155,15 @@ def load_schedule(refresh: bool = True) -> list:
         try:
             slim = _slim_calendar(_http_json(CALENDAR_URL))
             if slim:
-                _atomic_write(SCHEDULE_PATH, json.dumps(slim, indent=1, ensure_ascii=False))
+                _atomic_write(SCHEDULE_LIVE_PATH, json.dumps(slim, indent=1, ensure_ascii=False))
                 return slim
         except Exception as e:   # noqa: BLE001 — cron loop must not die
-            log(f"calendar fetch failed ({e}); using {SCHEDULE_PATH}")
-    with open(SCHEDULE_PATH) as f:
-        return json.load(f)
+            log(f"calendar fetch failed ({e}); using local fallback")
+    for path in (SCHEDULE_LIVE_PATH, SCHEDULE_PATH):
+        if os.path.exists(path):
+            with open(path) as f:
+                return json.load(f)
+    raise FileNotFoundError(SCHEDULE_PATH)
 
 
 def fetch_lineups(stage_id: str, match_id: str):
