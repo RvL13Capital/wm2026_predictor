@@ -145,6 +145,7 @@ INJURY_ELO_ADJUSTMENTS = {
     "England":     -12,   # White (knee) OUT, Branthwaite (thigh) OUT, Grealish (foot) OUT, Saka managing Achilles workload.
     "Canada":      -15,   # Davies (hamstring) BENCH-only for the opener — official XI has Oluwaseyi/De Fougerolles in; Marsch targets MD2/MD3 return. Bombito (tibia) bench-only, Flores (ACL) OUT, Shaffelburg recovering. [REVERT to ~-5 once Davies starts]
     "Uruguay":     -10,   # de Arrascaeta (calf tear) group doubt, Ronald Araújo (calf) injured in training, Cáceres (concussion).
+    "Paraguay":    -10,   # Enciso (thigh, in the Nicaragua friendly) OUT of the MD1 opener vs USA — their main attacker; Diego Gomez takes the creative load. [REVERT to 0 once Enciso returns]
     "Belgium":     -10,   # De Bruyne recovering, Debast (hamstring) out for first 2 matches, Lukaku injury-hit season.
     "Spain":        -8,   # WAS -17: Yamal, Nico Williams, Victor Muñoz all on track for the Jun 15 opener (minutes-restricted). Fermin Lopez, Barrenetxea still OUT.
     "South Africa": -8,   # [SUSPENSION MD2] Sithole + Zwane red cards in opener — both miss MD2 vs Czechia.
