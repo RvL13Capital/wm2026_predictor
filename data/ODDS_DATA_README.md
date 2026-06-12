@@ -1,5 +1,10 @@
 # Supplying the Gate-G2 Odds Data (`wc{2014,2018,2022}_odds.csv`)
 
+> **STATUS (2026-06-11): COMPLETE.** All 192 fixtures are filled with real closing-average odds and the
+> pre-registered G2 verdict is rendered: **NOT PASSED** (`validation/backtest_real_market.txt`). This
+> document is retained for provenance and reproducibility of the fill.
+
+
 Gate G2 (`backtest_real_market.py`) decides whether the edge scanner may ever
 leave paper mode. It needs **real historical closing 1X2 odds** for the three
 World Cups. The CSVs in this directory are **fixture-prefilled templates**
