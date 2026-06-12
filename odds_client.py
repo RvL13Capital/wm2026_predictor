@@ -285,6 +285,19 @@ THIN_LIQUIDITY = 5000.0   # USD; below this a Polymarket match line is thin -> w
 # -- 12% isolates the genuinely-widened lines (e.g. 2-tick on a longshot) from the structural floor.
 WIDE_LONGSHOT_REL_SPREAD = 0.12
 
+# In-play/settled 1X2 books: Polymarket's `closed` flag lags the final whistle, so a finished game
+# can briefly list e.g. 1.001 / 2000 / 2000 (observed: Korea Republic|Czechia at FT on opening day —
+# it reached the matchday blend and flipped a tip to 4:0 before being caught). No legitimate
+# PRE-MATCH book gets near these bounds (2026 opener-day extremes: min leg 1.07, max leg 28.2).
+DEGENERATE_MIN_ODDS = 1.02
+DEGENERATE_MAX_ODDS = 200.0
+
+
+def is_degenerate_1x2(odds_home: float, odds_draw: float, odds_away: float) -> bool:
+    """True for in-play/settled books that must never reach tips blending or the scanner."""
+    legs = (odds_home, odds_draw, odds_away)
+    return min(legs) <= DEGENERATE_MIN_ODDS or max(legs) >= DEGENERATE_MAX_ODDS
+
 
 def _num(m, *keys):
     """First parseable float among m[keys], else 0.0 (Polymarket sends some numbers as strings)."""
@@ -623,12 +636,14 @@ class PolymarketClient:
                 if len(page) < 100:                          # last page
                     break
 
-        matches, extras, dropped = {}, {}, []
+        matches, extras, dropped, inplay = {}, {}, [], []
         for e in events:
             parsed = self._extract_game_1x2(e)               # also rejects outrights/props/settled
             if parsed:
                 home, away, oh, od, oa, liq, vol, micro = parsed
                 key = f"{home}|{away}"
+                if is_degenerate_1x2(oh, od, oa):
+                    inplay.append((key, oh, od, oa)); continue
                 if min_liquidity > 0.0 and liq < min_liquidity:
                     dropped.append((key, liq)); continue
                 matches[key] = {"1": oh, "X": od, "2": oa, "liquidity": liq, "volume": vol,
@@ -644,11 +659,15 @@ class PolymarketClient:
                       key=lambda kv: kv[1])
         print(f"[odds] {len(matches)} 1X2 game markets parsed"
               + (f"; {len(extras)} with O/U+spread+exact extras" if extras else "")
+              + (f"; {len(inplay)} in-play/settled book(s) EXCLUDED" if inplay else "")
               + (f"; {len(dropped)} dropped < ${min_liquidity:,.0f}" if min_liquidity > 0 else "")
               + (f"; {len(thin)} THIN (< ${THIN_LIQUIDITY:,.0f}) -- override these with a sharp book:" if thin else ""),
               file=sys.stderr)
         for k, liq in thin:
             print(f"[odds]   THIN {k}  ${liq:,.0f}", file=sys.stderr)
+        for k, oh, od, oa in inplay:
+            print(f"[odds]   IN-PLAY/SETTLED {k}  {oh}/{od}/{oa} -- excluded from blend & scanner",
+                  file=sys.stderr)
 
         # longshot watch: low-prob legs on a WIDE (soft) line -- the mid is least reliable here, and
         # a soft longshot price can hide a value/upset. Read-only: surfaced, never auto-applied.
