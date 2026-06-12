@@ -37,6 +37,27 @@ python3 scripts/notify_whatsapp.py "MD1 sheet v6 regenerated — 10 tips moved"
 python3 scripts/score_predictions.py | tail -3 | python3 scripts/notify_whatsapp.py
 ```
 
+## Recommendation-change alerts (always on)
+
+The four recommendation-producing CLIs diff every run against the last
+published recommendations (`utils/recommendations_state.py`, state in the
+gitignored `data/recommendation_state.json`, override via `WM2026_REC_STATE`)
+and alert — stderr always, WhatsApp when configured — listing exactly what
+flipped, e.g. `Brazil vs Morocco: 0:0 → 1:0`:
+
+| CLI | Scope | Alerts on |
+|---|---|---|
+| `matchday_tips.py` | `MD<n>` | any match's optimal tip |
+| `ko_tips.py` | `KO-<round>` | any match's optimal tip |
+| `tournament_bonusfragen.py` | `bonusfragen:scalar` | champion / SF set / Golden-Boot team / any group winner |
+| `vectorized_mc.py` | `bonusfragen:vectorized` | same (separate scope — S11 engine divergence must not ping-pong) |
+
+Semantics: the first run of a scope records a baseline silently; new keys
+(a new matchday) are silent; only value changes on existing keys alert.
+Scopes merge-update, so a partial KO re-run keeps untouched baselines.
+State files are per-machine — the alerts that matter fire on the ops machine
+where runs recur.
+
 ## Constraints
 
 - The free API is for **personal use**, rate-limited server-side; the scanner

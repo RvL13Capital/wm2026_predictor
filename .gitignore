@@ -23,6 +23,7 @@ data/*_tips*.txt
 data/bonusfragen*.txt
 data/bonusfragen*.json
 data/polymarket*.json
+data/recommendation_state.json
 data/context_calibration_log.jsonl
 
 # Agent scratch / temp files (never commit)
