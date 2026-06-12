@@ -1,5 +1,10 @@
 # Supplying the Gate-G2 Odds Data (`wc{2014,2018,2022}_odds.csv`)
 
+> **STATUS (2026-06-11): COMPLETE.** All 192 fixtures are filled with real closing-average odds and the
+> pre-registered G2 verdict is rendered: **NOT PASSED** (`validation/backtest_real_market.txt`). This
+> document is retained for provenance and reproducibility of the fill.
+
+
 Gate G2 (`backtest_real_market.py`) decides whether the edge scanner may ever
 leave paper mode. It needs **real historical closing 1X2 odds** for the three
 World Cups. The CSVs in this directory are **fixture-prefilled templates**
@@ -51,11 +56,11 @@ like). Quarantined rows are reported, never written.
 | Tier | Source | Years | Status |
 |---|---|---|---|
 | **1** | **The Odds API historical snapshots** → `scripts/fill_odds_theoddsapi.py` | **2022 only** (history starts Jun 2020) | Clean, ToS-compliant, ~590 credits (paid plan with historical access). Run on your own machine — this repo's dev container blocks the host. |
-| 2 | Any downloaded raw CSV (Kaggle/GitHub) → `scripts/merge_odds.py` | any | User-verified: hard to find for WC odds; spot-check before trusting |
+| 2 | Any downloaded raw CSV (Kaggle/GitHub) → `scripts/merge_odds.py` | any | **2014 SOLVED (2026-06-11):** Kaggle `austro/beat-the-bookie-worldwide-football-dataset` `closing_odds.csv` — avg close of up to 27 books, all 64 finals rows, merged + gates green. 2018/2022 **SOLVED (2026-06-11):** football-data.co.uk `WorldCup2026.xlsx` carries WorldCup2014/2018/2022 sheets with H/D/A-Avg + Pinnacle/bet365 — the old 'club leagues only' verification missed the tournament one-off files. All 192 fixtures filled, gates green, verdict rendered. |
 | 3 | **Manual entry from Oddsportal match pages** + `merge_odds.py --validate-only` | 2018 / 2014 | ~45 min/tournament; the validate-only gates catch fat-fingers (13.5-for-1.35 → flagged) |
 | ✗ | `soccerdata` "Oddsportal reader" | — | **Does not exist** (verified: ClubElo/ESPN/FBref/Football-Data/Sofascore/SoFIFA/Understat/WhoScored only) |
 | ✗ | Stealth/proxied Oddsportal scrapers, Bright Data etc. | — | Not built here — ToS-circumvention tooling; Oddsportal is also 403-blocked from this container |
-| ✗ | football-data.co.uk | — | Club leagues only, no World Cups |
+| **1b** | **football-data.co.uk `WorldCup2026.xlsx`** | 2014/2018/2022 | One workbook, all three WCs, avg+Pinnacle/bet365 odds — the 2026-cycle tournament file (earlier 'club only' check predated it) |
 
 ```bash
 # Tier 1 — 2022 fully automated (run locally with your key):

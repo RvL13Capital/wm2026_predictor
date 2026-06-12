@@ -1,0 +1,33 @@
+============================================================================
+GATE G2 — MODEL vs REAL CLOSING ODDS (pre-registered verdict, plan S16)
+============================================================================
+
+WC2014 (64 matches, 103 flat bets):
+            log-loss    Brier      RPS
+  market      0.9922   0.5976   0.1995
+  model       0.9475   0.5657   0.1864
+  blend       0.9602   0.5743   0.1899
+  flat ROI +0.1717/bet · ¼-Kelly bankroll 100 → 183.6
+
+WC2018 (64 matches, 101 flat bets):
+            log-loss    Brier      RPS
+  market      0.9418   0.5570   0.1937
+  model       0.9866   0.5878   0.2053
+  blend       0.9544   0.5657   0.1967
+  flat ROI -0.0172/bet · ¼-Kelly bankroll 100 → 92.9
+
+WC2022 (64 matches, 86 flat bets):
+            log-loss    Brier      RPS
+  market      1.0050   0.5849   0.2083
+  model       1.0390   0.6086   0.2169
+  blend       1.0062   0.5907   0.2100
+  flat ROI +0.2163/bet · ¼-Kelly bankroll 100 → 107.3
+
+----------------------------------------------------------------------------
+AGGREGATE: 290 flat bets, ROI +0.1191/bet, 95% CI [-0.1553, +0.4297]
+  (a) model/blend log-loss beats market close on 1/3 folds (need >= 2): NOT MET
+  (b) flat-stake ROI 95% CI [-0.1553, +0.4297] excludes 0: NOT MET
+
+G2 VERDICT: ❌ NOT PASSED — the edge scanner stays PAPER-ONLY.
+(A NOT-PASSED verdict is a successful outcome: loss prevention.)
+============================================================================

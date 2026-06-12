@@ -56,8 +56,52 @@ optimizes points, the betting track (plan S16/S17) needs calibration.
   review's core critique of npxG-targeting stands, even though 1.00 survived.
 - **Further λ tuning is frozen until after the tournament** (the residual
   differences in the 1.0–1.35 band are inside the bootstrap noise; expected
-  gain from more tuning ≈ 0 with high variance).
+  gain from more tuning ≈ 0 with high variance) — **with the single
+  pre-registered exception below (amendment of 2026-06-11)**.
 - `tests/test_lambda_points_floor.py` enforces a **≥ 295 floor** on the frozen
   192-match set so no future config edit can silently regress the points
   objective. If you change the calibration deliberately, you must beat the
   floor or update the test *with a measurement in this file*.
+
+## Freeze amendment — pre-registered group-stage checkpoint (2026-06-11)
+
+Registered on opener day, before any 2026 result existed. Motivation: 70 of
+the 72 group-stage EV tips are clean sheets (one team at 0). That shape is a
+*provable* consequence of the Tordifferenz band math — 1:0 and 2:1 share a
+band, so the choice between them is purely which exact score the grid rates
+higher, and the low-λ grid always says the underdog scores 0 (P(1)/P(0) =
+λ < 1). It is points-validated on 192 matches, but it concentrates all tips
+on one stylized claim about underdog scoring. The blanket post-tournament
+freeze gave that claim no in-tournament falsification path; this amendment
+adds exactly one, with mechanical criteria fixed in advance.
+
+**Checkpoint:** after the final group match (Jun 27) and before the first KO
+kickoff (Jun 28 change freeze), run
+
+    python3 scripts/lambda_checkpoint.py --results data/live_state.json
+
+**Primary tripwire (the only trigger):** band-conditional exact-hit deficit.
+Over all logged group tips whose result landed in the tip's ≥3-pt band, the
+grid claims the 4-pt exact hit with p_i = P(exact | band). With X realized
+exact hits, E = Σp_i, V = Σp_i(1−p_i): **trigger iff z = (X−E)/√V ≤ −1.645**
+(one-sided 5%) **and n_banded ≥ 20**. Conditioning on the band removes
+tendency luck — this isolates precisely the 1:0-vs-2:1 question.
+
+**Secondary (context only, never a trigger):** realized points vs Σ-EV.
+
+**If triggered:** λ recalibration is *permitted* (not required) before the
+first KO kickoff, under the standing rules — LOTO grid + 192-fold harness
+re-run, beat the 295 floor or update it with a measurement here, full suite
+green, merged before the KO change freeze. The pre-registered log is never
+edited; entries are scored against the engine that generated them.
+
+**If not triggered:** the freeze holds until post-tournament, unchanged.
+
+Companion evidence: `validation/SCORING_ENVIRONMENT_PRIOR.md` (CWC 2025 group
+stage + the 144-match WC 2014-22 group set vs the engine's claims) — registered
+the same day; it quantifies why this tripwire has power.
+
+p_i reproduction caveat: grids are rebuilt at evaluation time via the
+deterministic Elo+stack path (no market blend). The freeze itself guarantees
+the calibration is unchanged since logging; injury-Elo drift between lock
+night and evaluation moves the conditional p_i only in second order.

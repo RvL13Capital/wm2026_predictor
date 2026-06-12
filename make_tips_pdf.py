@@ -8,6 +8,7 @@ The Wappen logo is read from assets/wappen.png (drop yours there); falls back to
     python3 make_tips_pdf.py [bonus.json] [out.pdf]                # EV-optimal sheet
     python3 make_tips_pdf.py [bonus.json] [out.pdf] --differential # both-teams-score / pool-play sheet
     python3 make_tips_pdf.py [bonus.json] [out.pdf] --master       # EV tip + modal-snipe dashboard
+    python3 make_tips_pdf.py [bonus.json] [out.pdf] --full         # all 72 group fixtures + Bonusfragen
 """
 import base64
 import json
@@ -79,10 +80,11 @@ def _ev(grid, tx, ty):
                for a in grid for b in grid[a])
 
 
-def md1_tips():
-    """Each row: (home, away, opt_h, opt_a, opt_ev, btts_h, btts_a, btts_ev, mode_h, mode_a, mode_p).
+def md_tips(md=1):
+    """Each row: (home, away, opt_h, opt_a, opt_ev, btts_h, btts_a, btts_ev, mode_h, mode_a, mode_p, top).
     opt = EV-max tip (safe); btts = EV-max both-teams-score line (differential); mode = the single
-    most-likely exact score from the NB grid (the 'snipe' — argmax, not an EV object)."""
+    most-likely exact score from the NB grid (the 'snipe' — argmax, not an EV object);
+    top = the four most-likely exact scores [(h, a, p), ...] for the small alt-score column."""
     snap_path = os.path.join(HERE, "data", "polymarket_match_odds.json")
     if os.path.exists(snap_path):
         mp, mx = M.load_market_snapshot(snap_path)
@@ -94,12 +96,13 @@ def md1_tips():
     global MARKET_BLENDED
     MARKET_BLENDED = bool(mp)
     out = []
-    for r in M.run_matchday(1, 0, 42, mp, mx):
+    for r in M.run_matchday(md, 0, 42, mp, mx):
         a, b, tip, g = r["team_a"], r["team_b"], r["optimal_tip"], r["grid"]
         bt = max(((x, y) for x in range(7) for y in range(7) if x >= 1 and y >= 1),
                  key=lambda t: _ev(g, *t))
         mh, ma = max(((x, y) for x in g for y in g[x]), key=lambda t: g[t[0]][t[1]])
-        out.append((a, b, tip[0], tip[1], r["ev"], bt[0], bt[1], _ev(g, *bt), mh, ma, g[mh][ma]))
+        top = sorted(((x, y, g[x][y]) for x in g for y in g[x]), key=lambda t: -t[2])[:4]
+        out.append((a, b, tip[0], tip[1], r["ev"], bt[0], bt[1], _ev(g, *bt), mh, ma, g[mh][ma], top))
     return out
 
 
@@ -122,19 +125,58 @@ def load_goldenboot():
 def build_html(tips, bonus, mode="optimal", goldenboot=None):
     diff = (mode == "differential")
     master = (mode == "master")
+    full = (mode == "full")
     logo = logo_uri()
     brand = (f'<img class="crest" src="{logo}">' if logo
              else '<div class="crest fallback">vLC</div>')
     stamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
     blend_label = "live market-blended" if MARKET_BLENDED else "Elo + full context stack (no market feed)"
 
-    opt_total = sum(t[4] for t in tips)
-    btts_total = sum(t[7] for t in tips)
-    n = len(tips)
+    if not full:
+        opt_total = sum(t[4] for t in tips)
+        btts_total = sum(t[7] for t in tips)
+        n = len(tips)
 
-    if master:
+    def tip_rows(tlist):
+        rows = []
+        for i, (a, b, oh, oa, oev, bh, ba_, bev, mh, ma, mpr, top) in enumerate(tlist, 1):
+            ga, gb, ev = (bh, ba_, bev) if diff else (oh, oa, oev)
+            alts = [t for t in top if (t[0], t[1]) != (ga, gb)][:3]
+            alt_html = '<span class="dot"> · </span>'.join(
+                f'<b>{h}:{a2}</b>&hairsp;{p*100:.0f}%' for h, a2, p in alts)
+            rows.append(
+                f'<tr><td class="num">{i}</td>'
+                f'<td class="home">{a}{flag(a)}</td>'
+                f'<td class="score">{ga}<span class="colon">:</span>{gb}</td>'
+                f'<td class="alt">{alt_html}</td>'
+                f'<td class="away">{flag(b)}{b}</td>'
+                f'<td class="ev">{ev:.2f}</td></tr>'
+            )
+        return rows
+
+    if full:
+        sections, grand, total_n = [], 0.0, 0
+        for md in sorted(tips):
+            tl = tips[md]
+            tot = sum(t[4] for t in tl)
+            grand += tot
+            total_n += len(tl)
+            pb = ' pb' if sections else ''
+            sections.append(
+                f'<h2 class="mdh{pb}">Matchday {md}'
+                f'<span class="mdev">Σ EV ≈ {tot:.1f} pts</span></h2>'
+                '<table class="tips">' + "\n".join(tip_rows(tl)) + '</table>')
+        table = "".join(sections)
+        title = "Group Stage — Complete Tip Book"
+        subtitle = (f"all {total_n} group fixtures · EV-maximised for 4-3-2 Kicktipp scoring · "
+                    f"{blend_label} · {stamp}")
+        summary = (f"Σ expected ≈ {grand:.1f} pts across {total_n} matches. Small scores beside each tip "
+                   f"are the next-likeliest exact results from the grid. Matchday 3 carries the flat "
+                   f"×0.87 dead-rubber trim — the only validated MD3 effect. Knockout rounds are tipped "
+                   f"per round once the pairings exist.")
+    elif master:
         body, ndiff, ndraw = [], 0, 0
-        for i, (a, b, oh, oa, oev, bh, ba_, bev, mh, ma, mpr) in enumerate(tips, 1):
+        for i, (a, b, oh, oa, oev, bh, ba_, bev, mh, ma, mpr, *_) in enumerate(tips, 1):
             differ = (mh, ma) != (oh, oa)
             cls = ("snipe draw" if (differ and mh == ma) else "snipe") if differ else ""
             ndiff += differ; ndraw += (differ and mh == ma)
@@ -156,30 +198,21 @@ def build_html(tips, bonus, mode="optimal", goldenboot=None):
                    f"(<span class='hot'><b>bold</b></span>) — snipe those for 4-pt exacts when CHASING a "
                    f"pool; grind the EV column when LEADING. Σ EV ≈ {opt_total:.1f} pts.")
     else:
-        rows = []
-        for i, (a, b, oh, oa, oev, bh, ba_, bev, *_) in enumerate(tips, 1):
-            ga, gb, ev = (bh, ba_, bev) if diff else (oh, oa, oev)
-            rows.append(
-                f'<tr><td class="num">{i}</td>'
-                f'<td class="home">{a}{flag(a)}</td>'
-                f'<td class="score">{ga}<span class="colon">:</span>{gb}</td>'
-                f'<td class="away">{flag(b)}{b}</td>'
-                f'<td class="ev">{ev:.2f}</td></tr>'
-            )
-        table = '<table class="tips">' + "\n".join(rows) + "</table>"
+        table = '<table class="tips">' + "\n".join(tip_rows(tips)) + "</table>"
         if diff:
             title = "Matchday 1 — Differential Tips"
             subtitle = f"both-teams-score scorelines for pool play · {blend_label} · {stamp}"
             summary = (f"Σ expected ≈ {btts_total:.1f} pts (avg {btts_total/n:.2f}/match) — only "
                        f"{opt_total-btts_total:.1f} pts below the EV-optimal sheet over {n} matches. "
                        f"Each keeps the goal-difference band but adds a realistic both-teams-score line: "
-                       f"far more differential variance for chasing a pool, at near-zero EV cost.")
+                       f"far more differential variance for chasing a pool, at near-zero EV cost. "
+                       f"Small scores beside each tip are the next-likeliest exact results from the grid.")
         else:
             title = "Matchday 1 — Optimal Tips"
             subtitle = f"EV-maximised for 4-3-2 Kicktipp scoring · {blend_label} · {stamp}"
             summary = (f"Σ expected ≈ {opt_total:.1f} pts over {n} matches (avg {opt_total/n:.2f}/match). "
-                       f"Tips are the points-maximising single guess, not the modal scoreline — see the "
-                       f"master dashboard for the modal snipe column.")
+                       f"Tips are the points-maximising single guess, not the modal scoreline — the small "
+                       f"scores beside each tip are the next-likeliest exact results from the grid.")
 
     gw = bonus["group_winners"]
     gw_cells = "".join(
@@ -238,7 +271,11 @@ table.tips td {{ padding: 5.5px 6px; border-bottom: 1px solid #eee5cc; vertical-
 table.tips tr:nth-child(even) {{ background: #fcf9f0; }}
 .num {{ color: #b8a978; width: 22px; text-align: right; font-size: 10px; }}
 .home {{ text-align: right; }} .away {{ text-align: left; }}
-.home, .away {{ width: 39%; font-weight: 600; }}
+.home, .away {{ width: 32%; font-weight: 600; }}
+.alt {{ width: 108px; font-size: 8px; color: #8a8470; white-space: nowrap;
+  padding-left: 9px !important; }}
+.alt b {{ font: 600 9px Georgia, serif; color: #5a5648; }}
+.alt .dot {{ color: #d8caa0; }}
 img.flag {{ height: 13px; width: 20px; object-fit: cover; vertical-align: middle;
   box-shadow: 0 0 0 0.5px #ccc; border-radius: 2px; }}
 .home img.flag {{ margin-left: 8px; }} .away img.flag {{ margin-right: 8px; }}
@@ -267,6 +304,10 @@ table.master td.modal.snipe.draw {{ background: #fdecea; border-radius: 4px; }}
 table.master td.modp {{ color: #8a8470; font-size: 10px; }}
 h2 {{ font: 700 15px Georgia, serif; margin: 22px 0 10px; padding-bottom: 5px;
   border-bottom: 2px solid #b89630; letter-spacing: 1px; }}
+.pb {{ page-break-before: always; }}
+h2.mdh {{ margin-top: 4px; }}
+h2.mdh .mdev {{ float: right; font: 400 10px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  color: #b8a978; letter-spacing: 1px; text-transform: uppercase; }}
 .headline {{ display: flex; gap: 14px; margin-bottom: 16px; }}
 .hl {{ flex: 1; border: 1px solid #e3d6a8; border-radius: 8px; padding: 12px 14px;
   background: linear-gradient(180deg,#fdfbf3,#f7efd8); }}
@@ -304,7 +345,7 @@ h2 {{ font: 700 15px Georgia, serif; margin: 22px 0 10px; padding-bottom: 5px;
 {table}
 <div class="summary">{summary}</div>
 
-<h2>BONUSFRAGEN · Tournament Outright Projections</h2>
+<h2 class="{'pb' if full else ''}">BONUSFRAGEN · Tournament Outright Projections</h2>
 <div class="headline">
   <div class="hl"><div class="lbl">Weltmeister · Champion</div>
     <div class="team">{flag(champ['tip'])}{champ['tip']}</div>
@@ -324,14 +365,16 @@ h2 {{ font: 700 15px Georgia, serif; margin: 22px 0 10px; padding-bottom: 5px;
 
 def main():
     mode = ("master" if "--master" in sys.argv else
-            "differential" if "--differential" in sys.argv else "optimal")
+            "differential" if "--differential" in sys.argv else
+            "full" if "--full" in sys.argv else "optimal")
     pos = [a for a in sys.argv[1:] if not a.startswith("--")]
     bonus_path = pos[0] if len(pos) > 0 else "/tmp/bonus.json"
     default_name = {"master": "von_linck_capital_wm2026_md1_master.pdf",
                     "differential": "von_linck_capital_wm2026_md1_differential.pdf",
+                    "full": "von_linck_capital_wm2026_groupstage.pdf",
                     "optimal": "von_linck_capital_wm2026_md1.pdf"}[mode]
     out = pos[1] if len(pos) > 1 else os.path.join(HERE, default_name)
-    tips = md1_tips()
+    tips = {md: md_tips(md) for md in (1, 2, 3)} if mode == "full" else md_tips()
     bonus = load_bonus(bonus_path)
     html = build_html(tips, bonus, mode, load_goldenboot())
     from weasyprint import HTML

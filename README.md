@@ -3,13 +3,15 @@
 A sports quantitative forecasting engine and exchange-trading research system. Designed to predict exact scorelines, simulate the 48-team tournament bracket, and scan derivative pricing for divergence between model and market.
 
 > **Status & evidence:** see [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md) for the current work program and [`validation/`](validation/) for the honest out-of-sample record (notably [`validation/F9_OUT_OF_SAMPLE.md`](validation/F9_OUT_OF_SAMPLE.md) and [`validation/SHIN_EVALUATION.md`](validation/SHIN_EVALUATION.md)).
+>
+> **Gate G2 verdict (2026-06-11, pre-registered):** the model does **not** beat real closing markets (1/3 tournaments, ROI CI ⊇ 0) — the edge scanner is **paper-only as a measured conclusion** (`validation/backtest_real_market.txt`).
 
 ---
 
 ## ⚡ Key Architecture & Core Capabilities
 
 1. **Vectorized Tournament Simulation (`vectorized_mc.py`)**
-   - Simulates 100,000 full tournament realities (regulation, extra time, and penalty shootouts) in seconds — ~4 s on fast desktop hardware, **14.6 s measured on the CI reference container** — after a **one-off matrix precompute of roughly 4 minutes** (pure-Python grid generation; caching planned, see plan step S13).
+   - Simulates 100,000 full tournament realities (regulation, extra time, and penalty shootouts) in seconds — ~4 s on fast desktop hardware, **14.6 s measured on the CI reference container** — after a **one-off matrix precompute of roughly 4 minutes** (pure-Python grid generation; cached to `data/matrix_cache/*.npz` — warm restarts in seconds).
    - Compresses the per-simulation working state by 87.5% using compact `np.int8`/`np.int16` types (~29 MB at N=100k). The precomputed float32 CDF lookup tensors are ~100 MB and stream from RAM.
    - Maps qualifying third-place teams using a precomputed 12-bit group bitmask routing table (all 495 valid 8-of-12 combinations), removing loop bottlenecks in the hot path.
 
@@ -30,7 +32,7 @@ A sports quantitative forecasting engine and exchange-trading research system. D
 
 5. **Derivative Edge Scanner (`edge_scanner.py`) — PAPER MODE**
    - Live sources: the Polymarket tournament-winner book and per-match 1X2 books (liquidity-guarded); other derivative books (Reach X / Win Group) via a `--books` JSON of real lines. De-vigs every book with **Shin's Method** (iterative Newton–Raphson + bisection — no closed form for 3+ outcomes), flags on the **de-vigged** edge, and sizes legs of each mutually exclusive book **jointly** (`utils.math_utils.kelly_mutually_exclusive`, brute-force-verified) at 0.25× Kelly on raw payout odds, under per-leg and per-scan bankroll caps.
-   - Every scan appends to `scan_ledger/2026.jsonl`. **There is deliberately no order-execution path**: Kelly's guarantees hold only if the model probabilities are correct — an unproven premise (`validation/SHIN_EVALUATION.md`) — so real-money use is gated on the real-odds backtest `backtest_real_market.py` (gate G2, currently *awaiting odds data*; until it passes, the scanner stays paper-only).
+   - Every scan appends to `scan_ledger/2026.jsonl`. **There is deliberately no order-execution path**: Kelly's guarantees hold only if the model probabilities are correct — an unproven premise (`validation/SHIN_EVALUATION.md`) — so real-money use was gated on the real-odds backtest `backtest_real_market.py` (gate G2) — **verdict rendered 2026-06-11: NOT PASSED; the scanner stays paper-only.** Match-market pricing runs under a separate calibrated track (bg=1.25; tips keep the frozen points-optimal config), BTTS/exact-score books are refused as structurally unpriceable, and in-play/settled books are excluded at the fetch boundary.
 
 6. **Point-in-Time Backtesting (`backtest_harness.py`)**
    - Steps chronologically through past tournaments (2014, 2018, 2022) with pre-tournament Elo snapshots.
@@ -42,14 +44,14 @@ A sports quantitative forecasting engine and exchange-trading research system. D
 
 * [`predictor.py`](predictor.py): Core probability modeling, de-vigging, Dixon-Coles adjustment, and physiological factors.
 * [`vectorized_mc.py`](vectorized_mc.py): Vectorized bracket simulator, in-play overrides, and 4D fatigue carry-over tensors.
-* [`edge_scanner.py`](edge_scanner.py): Derivative odds scanner and Kelly allocator (static demo books pending a live feed).
+* [`edge_scanner.py`](edge_scanner.py): Derivative odds scanner and Kelly allocator (live Polymarket outright + 1X2 books; manual `--books` JSON for other derivatives).
 * [`backtest_harness.py`](backtest_harness.py): Chronological point-in-time backtesting harness.
 * [`matchday_tips.py`](matchday_tips.py): Expected-value maximizing Kicktipp tip generator for group matchdays.
 * [`tournament_bonusfragen.py`](tournament_bonusfragen.py): Kicktipp outright/prop questions solver (group winners, semifinalists, champion, top-scorer team).
 * [`squad_data.py`](squad_data.py): Starting XI and Bench Transfermarkt valuations database.
 * [`stadium_data.py`](stadium_data.py): Retractable roof flags, elevations, coordinates, and timezone profiles.
 * [`data/`](data/): Tournament schedule, historical results, and generated prediction outputs (versioned, with provenance headers).
-* [`tests/`](tests/): 180+-test unit and end-to-end verification suite (`python3 -m unittest discover tests`).
+* [`tests/`](tests/): 270-test unit and end-to-end verification suite (`python3 -m unittest discover tests`).
 
 ## 📦 Dependencies
 
@@ -80,7 +82,7 @@ python3 matchday_tips.py --md 1 --simulations 1000 --seed 42 --output data/match
 python3 tournament_bonusfragen.py --sims 10000 --seed 42
 ```
 
-### 4. Run the Edge Scanner (demo books)
+### 4. Run the Edge Scanner (paper mode, live books)
 ```bash
 python3 edge_scanner.py --daemon
 ```
