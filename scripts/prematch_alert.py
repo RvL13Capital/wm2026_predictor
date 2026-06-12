@@ -235,10 +235,15 @@ def compute_group_tip(md: int, pair, snapshot_path):
     return None
 
 
-def compute_ko_tip(team_home: str, team_away: str, phase: str, snapshot_path):
-    """Canonical single-match path for KO fixtures (no MD context machinery).
-    NOTE: ko_tips.py fatigue flags are NOT applied here — quick alert only."""
+def build_ko_row(team_home: str, team_away: str, phase: str, snapshot_path) -> dict:
+    """Mirror ko_tips.run_ko_round's row construction: phase + xG form
+    multipliers + 0.80 market blend. Dead-legs fatigue is the ONE deliberate
+    omission (it needs the operator's --fatigued judgment call, which a T-30
+    cron tick does not have) — the alert message discloses it."""
     row = {"team_a": team_home, "team_b": team_away, "phase": phase}
+    form_a, form_b = tbf.compute_xg_form_multipliers(team_home, team_away)
+    row["form_a"] = str(form_a)
+    row["form_b"] = str(form_b)
     if snapshot_path:
         probs, _ = matchday_tips.load_market_snapshot(snapshot_path)
         odds = probs.get(f"{team_home}|{team_away}")
@@ -249,6 +254,11 @@ def compute_ko_tip(team_home: str, team_away: str, phase: str, snapshot_path):
         elif rev and float(rev.get("liquidity", float("inf"))) >= matchday_tips.MIN_MARKET_LIQUIDITY:
             row.update(odds_home=str(rev["2"]), odds_draw=str(rev["X"]),
                        odds_away=str(rev["1"]), market_weight="0.80")
+    return row
+
+
+def compute_ko_tip(team_home: str, team_away: str, phase: str, snapshot_path):
+    row = build_ko_row(team_home, team_away, phase, snapshot_path)
     squad_adj = tbf.compute_squad_elo_adjustments() if tbf.SQUAD_MARKET_VALUES else {}
     with matchday_tips._elo_overrides(team_home, team_away, squad_adj):
         return predictor.predict_single_match(row)
@@ -288,6 +298,8 @@ def build_message(match, team_a, team_b, tip_row, lineups_by_team, snapshot_path
         mc = tip_row.get("mc")
         if mc:
             lines.append(f"MC μ{mc['mean']:.2f} | P(0pts) {mc['p0']*100:.0f}%")
+        if tip_row.get("note"):
+            lines.append(f"[i] {tip_row['note']}")
     else:
         lines.append("⚠ no tip computed — run the sheet manually!")
 
@@ -387,7 +399,8 @@ def process_match(match, dry_run: bool = False, refresh_odds: bool = True) -> bo
                 tip = tuple(int(x) for x in res["optimal_tip"].split(":"))
                 tip_row = {"team_a": eng_home, "team_b": eng_away, "grid": grid,
                            "optimal_tip": tip, "ev": res["ev"],
-                           "top_tips": res.get("top_tips", []), "mc": None}
+                           "top_tips": res.get("top_tips", []), "mc": None,
+                           "note": "KO quick path: no fatigue flags — ko_tips sheet authoritative"}
             else:
                 log(f"cannot classify stage '{match.get('stage')}' — no tip path")
     except Exception as e:   # noqa: BLE001 — always still send something

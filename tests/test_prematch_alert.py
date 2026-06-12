@@ -116,6 +116,27 @@ class TestWindowAndState(unittest.TestCase):
                 pa.STATE_PATH = orig
 
 
+class TestKoRowParity(unittest.TestCase):
+    def test_ko_row_applies_xg_form_multipliers_like_ko_tips(self):
+        # the quick path must mirror ko_tips.run_ko_round's row: phase +
+        # compute_xg_form_multipliers (dead-legs is the one documented omission)
+        row = pa.build_ko_row("Spain", "Croatia", "QF", snapshot_path=None)
+        form_a, form_b = tbf.compute_xg_form_multipliers("Spain", "Croatia")
+        self.assertEqual(row["phase"], "QF")
+        self.assertEqual(row["form_a"], str(form_a))
+        self.assertEqual(row["form_b"], str(form_b))
+        self.assertNotIn("odds_home", row)   # no snapshot -> Elo-only
+
+    def test_ko_message_discloses_quick_path(self):
+        grid = {1: {0: 1.0}}
+        tip_row = {"team_a": "Spain", "team_b": "Croatia", "grid": grid,
+                   "optimal_tip": (2, 1), "ev": 1.2, "top_tips": [], "mc": None,
+                   "note": "KO quick path: no fatigue flags — ko_tips sheet authoritative"}
+        match = {"utc": "2026-07-04T19:00:00Z", "stage": "Quarter-finals", "group": ""}
+        msg = pa.build_message(match, "Spain", "Croatia", tip_row, None, None)
+        self.assertIn("KO quick path", msg)
+
+
 class TestKoPhaseAndFormatting(unittest.TestCase):
     def test_ko_phase_mapping(self):
         self.assertEqual(pa.ko_phase("Round of 32"), "R32")
