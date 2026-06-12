@@ -313,8 +313,10 @@ def build_message(match, team_a, team_b, tip_row, lineups_by_team, snapshot_path
             if not odds and rev:
                 odds = dict(rev, **{"1": rev["2"], "2": rev["1"]})
             if odds:
+                # no "$" in the text — CallMeBot/WhatsApp swallows "$1" as a
+                # placeholder (observed live: "liq $1.4M" arrived as "liq .4M")
                 lines.append(f"Mkt 1X2 {odds['1']:.2f}/{odds['X']:.2f}/{odds['2']:.2f}"
-                             f" (liq ${odds.get('liquidity', 0)/1e6:.1f}M)")
+                             f" (liq {odds.get('liquidity', 0)/1e6:.1f}M USD)")
         except Exception:   # noqa: BLE001 — message must still go out
             pass
 
