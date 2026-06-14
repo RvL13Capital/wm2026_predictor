@@ -61,7 +61,7 @@ class TestSendWhatsapp(unittest.TestCase):
             m.assert_not_called()
 
     def test_configured_via_env_sends_urlencoded(self):
-        os.environ[notify.PHONE_ENV] = "+491701234567"
+        os.environ[notify.PHONE_ENV] = "+49 170 1234567"   # '+' and spaces normalized away
         os.environ[notify.APIKEY_ENV] = "secret123"
         self.assertTrue(notify.is_configured())
         with mock.patch("urllib.request.urlopen", return_value=_Resp()) as m:
@@ -70,9 +70,15 @@ class TestSendWhatsapp(unittest.TestCase):
         url = req.full_url
         self.assertTrue(url.startswith(notify.CALLMEBOT_URL + "?"))
         q = urllib.parse.parse_qs(urllib.parse.urlparse(url).query)
-        self.assertEqual(q["phone"], ["+491701234567"])
+        self.assertEqual(q["phone"], ["491701234567"])   # bare digits — the format CallMeBot accepts
         self.assertEqual(q["apikey"], ["secret123"])
         self.assertEqual(q["text"], ["MD1: 4 pts & Glück +0.63"])  # round-trips the urlencoding
+
+    def test_norm_phone_variants(self):
+        self.assertEqual(notify._norm_phone("491626410039"), "491626410039")
+        self.assertEqual(notify._norm_phone("+491626410039"), "491626410039")
+        self.assertEqual(notify._norm_phone("0049 162 6410039"), "491626410039")  # 00 trunk dropped
+        self.assertEqual(notify._norm_phone("+49 162-6410039\n"), "491626410039")
 
     def test_args_override_env_and_http_error_returns_false(self):
         with mock.patch("urllib.request.urlopen", side_effect=OSError("boom")):
@@ -126,7 +132,7 @@ class TestSendWhatsapp(unittest.TestCase):
         with mock.patch("urllib.request.urlopen", return_value=_Resp()) as m:
             self.assertTrue(notify.send_whatsapp("x", phone="+9", apikey="k"))
         self.assertEqual(m.call_count, 1)
-        self.assertIn("phone=%2B9", m.call_args[0][0].full_url)
+        self.assertIn("phone=9", m.call_args[0][0].full_url)   # '+' normalized away
 
     def test_http200_with_error_body_is_failure(self):
         # CallMeBot returns 200 even when it rejects — the body carries the truth.

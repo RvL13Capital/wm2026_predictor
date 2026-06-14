@@ -31,22 +31,34 @@ APIKEY_ENV = "CALLMEBOT_APIKEY"
 RECIPIENTS_ENV = "CALLMEBOT_RECIPIENTS"   # "phone:apikey[,phone:apikey…]" — additional recipients
 
 
+def _norm_phone(p: str) -> str:
+    """Normalize a phone to the bare international format CallMeBot accepts
+    (digits only, no '+', no '00' trunk, no spaces/dashes). The bare form
+    e.g. '491626410039' is the proven-good format; '+49…', '0049…', and
+    spaced/dashed variants are all rejected as "format is incorrect"."""
+    digits = re.sub(r"\D", "", (p or ""))
+    if digits.startswith("00"):
+        digits = digits[2:]
+    return digits
+
+
 def _recipients(phone: str = None, apikey: str = None) -> list:
     """Resolve the recipient list. Explicit phone+apikey args win (single
     recipient); otherwise CALLMEBOT_PHONE/APIKEY (one) plus every
     phone:apikey pair in CALLMEBOT_RECIPIENTS, deduplicated."""
     if phone and apikey:
-        return [(phone.strip(), apikey.strip())]
+        return [(_norm_phone(phone), apikey.strip())]
     out = []
-    # .strip() everywhere: a trailing newline/space in a GitHub Actions secret
-    # is invisible but makes CallMeBot reject the phone ("format is incorrect").
-    p, k = (os.environ.get(PHONE_ENV) or "").strip(), (os.environ.get(APIKEY_ENV) or "").strip()
+    # Normalize phones + strip keys: an invisible trailing newline, a stray '+'
+    # or '00' trunk in a GitHub Actions secret all make CallMeBot reject the
+    # phone ("format is incorrect") even though the bare number works.
+    p, k = _norm_phone(os.environ.get(PHONE_ENV, "")), (os.environ.get(APIKEY_ENV) or "").strip()
     if p and k:
         out.append((p, k))
-    for pair in re.split(r"[,;\s]+", os.environ.get(RECIPIENTS_ENV, "").strip()):
+    for pair in re.split(r"[,;]+", os.environ.get(RECIPIENTS_ENV, "").strip()):
         if ":" in pair:
             ph, key = pair.split(":", 1)
-            ph, key = ph.strip(), key.strip()
+            ph, key = _norm_phone(ph), key.strip()
             if ph and key and (ph, key) not in out:
                 out.append((ph, key))
     return out
