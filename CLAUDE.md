@@ -12,7 +12,7 @@ A FIFA World Cup 2026 prediction engine for a **Kicktipp** pool (4/3/2 scoring),
 
 - Python 3.10+ via system `python3`. **Core prediction path is stdlib-only; the quant layer (`vectorized_mc.py`, `edge_scanner.py`, `backtest_harness.py`) requires numpy**: `pip install -r requirements.txt`. On the ops Mac the system `python3` has no numpy — use `venv/bin/python3` for the quant layer (it has numpy + weasyprint; its `pip` is broken because the venv was moved — install new packages elsewhere).
 - Polymarket/the-odds-api fetches need outbound network; sandboxed containers may 403 — all fetch paths degrade gracefully to Elo-only/skip.
-- Env vars: `WM2026_BENCH=1` asserts the 100k-sim wall-clock budget (off by default — hardware-dependent); `WM2026_NO_MATRIX_CACHE=1` forces a cold matrix rebuild; `WM2026_NO_FRIENDLY_ELO=1` disables the post-friendlies Elo overlay.
+- Env vars: `WM2026_BENCH=1` asserts the 100k-sim wall-clock budget (off by default — hardware-dependent); `WM2026_NO_MATRIX_CACHE=1` forces a cold matrix rebuild; `WM2026_NO_FRIENDLY_ELO=1` disables the post-friendlies Elo overlay; `CALLMEBOT_PHONE`/`CALLMEBOT_APIKEY` (+ `CALLMEBOT_RECIPIENTS` = `phone:apikey,…` for multiple targets) enable WhatsApp ops pushes (`utils/notify.py`, `docs/NOTIFICATIONS.md` — opt-in via `--notify` on `edge_scanner.py` / `scripts/score_predictions.py`, ad-hoc via `scripts/notify_whatsapp.py`; unconfigured = silent no-op); `WM2026_REC_STATE` overrides the recommendation-change baseline file (`utils/recommendations_state.py` — the four tip/Bonusfragen CLIs always diff against the last run and alert on any flipped recommendation).
 
 ## Commands
 
@@ -56,7 +56,7 @@ python3 backtest_harness.py --tournament 2022   # FEATURE ABLATION vs synthetic 
 ### Tests
 
 ```bash
-python3 -m unittest discover tests          # 270 tests; ~5 min (vectorized matrix precompute dominates)
+python3 -m unittest discover tests          # 281 tests; ~5 min (vectorized matrix precompute dominates)
 python3 -m unittest tests.test_ko_convention -v        # one module (dotted path)
 ```
 
@@ -90,5 +90,5 @@ Everything flows through one engine; **`predictor.predict_single_match(row) -> d
 - **`.gitignore` policy:** generated tip sheets / bonusfragen outputs / snapshots / `data/matrix_cache/` stay **local**; the JSONL logs (`predictions_log/`, `scan_ledger/`) are **committed**.
 - **Change freeze from Jun 28** (first KO match): only P0 fixes merge, each with the full suite + points-floor + equivalence tests green.
 - **One commit per plan step ID**, message referencing the step (S-number).
-- **Sandboxed container sessions** have an egress allowlist that blocks `gamma-api.polymarket.com` and `api.the-odds-api.com` (verified: "Host not in allowlist"). Fix: add them (plus `api.open-meteo.com`, `flagcdn.com`) to the environment's network allowlist in the Claude Code settings; until then run live fetches on the ops machine (full egress) and ferry snapshots via `git add -f data/polymarket_match_odds.json` committed onto the container session's PR branch.
+- **Sandboxed container sessions** have an egress allowlist that blocks `gamma-api.polymarket.com` and `api.the-odds-api.com` (verified: "Host not in allowlist"). Fix: add them (plus `api.open-meteo.com`, `flagcdn.com`, `api.callmebot.com` for WhatsApp pushes) to the environment's network allowlist in the Claude Code settings; until then run live fetches on the ops machine (full egress) and ferry snapshots via `git add -f data/polymarket_match_odds.json` committed onto the container session's PR branch.
 - **Open items:** S11 canonical-dynamics decision (recommendation: vectorized fatigue canonical; execute post-tournament); S15 third-place match M103 (absent from both engines — Golden Boot misses its goals); ~~G2 odds data~~ (supplied + verdict rendered NOT PASSED 2026-06-11); optional pool-history check of the shootout score representation (`validation/POOL_RULES.md`).

@@ -275,3 +275,9 @@ if __name__ == "__main__":
         print(f"Results written to {args.output}")
     else:
         print(output)
+
+    # Alert (stderr + WhatsApp if configured) when any tip changed vs the last run.
+    from utils import recommendations_state as rec_state
+    rec_state.alert_on_changes(
+        f"KO-{args.round}",
+        {f"{r['team_a']} vs {r['team_b']}": f"{r['optimal_tip'][0]}:{r['optimal_tip'][1]}" for r in results})

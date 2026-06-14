@@ -41,6 +41,7 @@ import predictor
 import tournament_bonusfragen as tb
 from vectorized_mc import VectorizedSimulator, build_matrix
 from utils.math_utils import devig_book, kelly_mutually_exclusive
+from utils import notify as wa_notify
 from odds_client import PolymarketClient, THIN_LIQUIDITY
 
 # Assumed two-way margin for manual binary "reach stage" lines (only the YES
@@ -104,7 +105,7 @@ class EdgeScanner:
                  n_sims: int = 100000, max_market_frac: float = 0.05,
                  max_total_frac: float = 0.20, ledger_path: str = DEFAULT_LEDGER,
                  books_path: str = None, min_liquidity: float = THIN_LIQUIDITY,
-                 matrix=None, apply_adjustments: bool = True):
+                 matrix=None, apply_adjustments: bool = True, notify: bool = False):
         """
         edge_threshold:  minimum de-vigged probability divergence to flag a leg.
         kelly_fraction:  fractional Kelly multiplier (0.25 = quarter Kelly).
@@ -113,6 +114,9 @@ class EdgeScanner:
                          in one scan (stakes scaled down proportionally).
         matrix:          inject a prebuilt MatrixPrecomputer (tests); built
                          via the S13 cache otherwise.
+        notify:          push a WhatsApp summary (utils/notify.py, CallMeBot)
+                         when the actionable leg set CHANGES between scans —
+                         dedup keeps the daemon from re-pinging every interval.
         """
         self.edge_threshold = edge_threshold
         self.kelly_fraction = kelly_fraction
@@ -122,6 +126,8 @@ class EdgeScanner:
         self.ledger_path = ledger_path
         self.books_path = books_path
         self.min_liquidity = min_liquidity
+        self.notify = notify
+        self._last_notified_legs = None
         self._group_contexts = None
         self._pm = None
 
@@ -479,7 +485,25 @@ class EdgeScanner:
             print(f"Status: {len(entries)} paper recommendation(s), Σ stake {total*100:.2f}% bankroll "
                   f"(joint Kelly x{self.kelly_fraction}, caps {self.max_market_frac:.0%}/leg, "
                   f"{self.max_total_frac:.0%} total). Ledger: {os.path.relpath(self.ledger_path, _PROJECT_ROOT)}")
+        self._maybe_notify(entries)
         return entries
+
+    def _maybe_notify(self, entries: list):
+        """WhatsApp push when the actionable leg set changed since the last
+        notified scan (incl. edges DISAPPEARING after at least one alert)."""
+        if not self.notify:
+            return
+        legs = frozenset((e["market"], e["team"]) for e in entries)
+        if legs == self._last_notified_legs:
+            return
+        if entries:
+            sent = wa_notify.send_whatsapp(wa_notify.format_edges_message(entries))
+        elif self._last_notified_legs:          # edges existed before, now gone
+            sent = wa_notify.send_whatsapp("WM2026 scanner: previously flagged edges are gone — market efficient again.")
+        else:                                   # nothing before, nothing now
+            return
+        if sent:
+            self._last_notified_legs = legs
 
     def run_daemon(self, interval_seconds: int = 60, live_state_path: str = None):
         print(f"[{datetime.now().strftime('%H:%M:%S')}] Daemon active (paper mode). Scanning every {interval_seconds}s. Ctrl+C to abort.")
@@ -515,12 +539,16 @@ if __name__ == "__main__":
     parser.add_argument("--daemon", action="store_true", default=False, help="Run in continuous polling loop")
     parser.add_argument("--interval", type=int, default=60, help="Polling interval in seconds")
     parser.add_argument("--live-state", type=str, default=None, help="Path to live_state.json")
+    parser.add_argument("--notify", action="store_true", default=False,
+                        help="WhatsApp push (CallMeBot) when the actionable edge set changes; "
+                             "needs CALLMEBOT_PHONE/CALLMEBOT_APIKEY (utils/notify.py)")
     args = parser.parse_args()
 
     scanner = EdgeScanner(edge_threshold=args.threshold, kelly_fraction=args.kelly,
                           n_sims=args.sims, max_market_frac=args.max_market,
                           max_total_frac=args.max_total, ledger_path=args.ledger,
-                          books_path=args.books, min_liquidity=args.min_liquidity)
+                          books_path=args.books, min_liquidity=args.min_liquidity,
+                          notify=args.notify)
 
     live_state = None
     if args.live_state:

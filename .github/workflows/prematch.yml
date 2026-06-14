@@ -1,0 +1,89 @@
+name: prematch-alerts
+
+# T-30 pre-match WhatsApp alerts, run in the cloud — independent of whether the
+# ops Mac is awake/online and immune to its macOS TCC cron block (which had
+# fired ZERO times: every local cron attempt logged "Operation not permitted").
+#
+# IMPORTANT: GitHub only runs `schedule:`/`workflow_dispatch` from the DEFAULT
+# branch (main). This file does nothing until it is merged to main.
+#
+# Reliability note: GitHub's scheduled crons are best-effort — a tick can land a
+# few minutes late, and rarely one is dropped under platform load. We absorb that
+# by polling every 5 min across a wide pre-kickoff band (free: this is a PUBLIC
+# repo, so Actions minutes are unmetered) plus state dedup, so the first
+# in-window tick that succeeds wins and the rest are no-ops. This is strictly
+# more reliable than the local cron, which never ran at all.
+
+on:
+  schedule:
+    # UTC. WC2026 kickoffs (North America) span ~16:00 UTC to ~04:00 UTC.
+    - cron: '*/5 14-23 * * *'
+    - cron: '*/5 0-5 * * *'
+  workflow_dispatch:
+    inputs:
+      force_match:
+        description: 'Force one fixture regardless of window/state, e.g. "Canada vs Bosnia" (verification / catch-up)'
+        required: false
+        default: ''
+      dry_run:
+        description: 'true = compute + print only, do NOT send WhatsApp'
+        required: false
+        default: 'false'
+
+# Serialize runs so two ticks never race on the dedup-state commit/push.
+concurrency:
+  group: prematch-alerts
+  cancel-in-progress: false
+
+permissions:
+  contents: write   # commit the dedup state back so a match is never alerted twice
+
+jobs:
+  alert:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # No `pip install` on purpose: the alert pipeline is stdlib-only (the same
+      # scalar path the ops Mac runs daily with a numpy-less system python). One
+      # fewer network/install failure mode.
+
+      - name: Run prematch alert
+        env:
+          CALLMEBOT_PHONE: ${{ secrets.CALLMEBOT_PHONE }}
+          CALLMEBOT_APIKEY: ${{ secrets.CALLMEBOT_APIKEY }}
+          CALLMEBOT_RECIPIENTS: ${{ secrets.CALLMEBOT_RECIPIENTS }}
+          WM2026_PREMATCH_STATE: data/prematch_state_ci.json
+          # inputs passed via env (never interpolated into the shell) to avoid
+          # script injection from workflow_dispatch inputs
+          FORCE_MATCH: ${{ github.event.inputs.force_match }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: |
+          set -euo pipefail
+          FLAGS=""
+          [ "${DRY_RUN:-false}" = "true" ] && FLAGS="--dry-run"
+          if [ -n "${FORCE_MATCH:-}" ]; then
+            python3 scripts/prematch_alert.py --force-match "$FORCE_MATCH" $FLAGS
+          else
+            python3 scripts/prematch_alert.py --auto $FLAGS
+          fi
+
+      - name: Persist dedup state
+        if: ${{ github.event.inputs.dry_run != 'true' }}
+        run: |
+          if git diff --quiet -- data/prematch_state_ci.json; then
+            echo "no state change — nothing to persist"
+            exit 0
+          fi
+          git config user.name  "wm2026-ops-bot"
+          git config user.email "ops@users.noreply.github.com"
+          git add data/prematch_state_ci.json
+          git commit -m "ops: prematch alert state [skip ci]"
+          # tolerate a racing commit on main; the alert already went out, so a
+          # persistence failure at worst risks one duplicate on the next tick
+          git pull --rebase --autostash || true
+          git push || echo "WARN: state push failed (alert already sent)"

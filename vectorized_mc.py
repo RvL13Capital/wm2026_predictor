@@ -967,5 +967,11 @@ def main():
     else:
         print(output)
 
+    # Alert (stderr + WhatsApp if configured) when any Bonusfragen answer changed
+    # vs the last run of THIS engine (separate scope from the scalar engine — S11).
+    from utils import recommendations_state as rec_state
+    rec_state.alert_on_changes("bonusfragen:vectorized",
+                               rec_state.bonusfragen_recommendations(results))
+
 if __name__ == "__main__":
     main()

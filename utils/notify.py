@@ -1,0 +1,98 @@
+"""WhatsApp push notifications via CallMeBot (free personal-use API).
+
+One-time setup (per phone): add the CallMeBot bot number to your WhatsApp
+contacts and send it the message "I allow callmebot to send me messages".
+The bot replies with your personal apikey. Then export:
+
+    CALLMEBOT_PHONE='+4917xxxxxxxx'   # your own number, with country code
+    CALLMEBOT_APIKEY='123456'
+
+Design rules (ops loop safety):
+  - send_whatsapp() NEVER raises — a failed/unconfigured notification must
+    not kill a scan or scoring run. It returns True/False and logs to stderr.
+  - Unconfigured (missing env vars) is a silent no-op returning False, so
+    every call site can be unconditional and tests stay network-free.
+  - The container egress allowlist must include api.callmebot.com (it is
+    blocked by default here, like the odds hosts — run on the ops machine
+    or extend the allowlist).
+"""
+import os
+import re
+import sys
+import urllib.parse
+import urllib.request
+
+CALLMEBOT_URL = "https://api.callmebot.com/whatsapp.php"
+MAX_TEXT_LEN = 1400          # keep well under WhatsApp/CallMeBot practical limits
+_TIMEOUT_S = 10
+
+PHONE_ENV = "CALLMEBOT_PHONE"
+APIKEY_ENV = "CALLMEBOT_APIKEY"
+RECIPIENTS_ENV = "CALLMEBOT_RECIPIENTS"   # "phone:apikey[,phone:apikey…]" — additional recipients
+
+
+def _recipients(phone: str = None, apikey: str = None) -> list:
+    """Resolve the recipient list. Explicit phone+apikey args win (single
+    recipient); otherwise CALLMEBOT_PHONE/APIKEY (one) plus every
+    phone:apikey pair in CALLMEBOT_RECIPIENTS, deduplicated."""
+    if phone and apikey:
+        return [(phone, apikey)]
+    out = []
+    p, k = os.environ.get(PHONE_ENV), os.environ.get(APIKEY_ENV)
+    if p and k:
+        out.append((p, k))
+    for pair in re.split(r"[,;\s]+", os.environ.get(RECIPIENTS_ENV, "").strip()):
+        if ":" in pair:
+            ph, key = pair.split(":", 1)
+            if ph and key and (ph, key) not in out:
+                out.append((ph, key))
+    return out
+
+
+def is_configured() -> bool:
+    return bool(_recipients())
+
+
+def _send_one(text: str, phone: str, apikey: str) -> bool:
+    url = CALLMEBOT_URL + "?" + urllib.parse.urlencode(
+        {"phone": phone, "text": text, "apikey": apikey})
+    req = urllib.request.Request(url, headers={"User-Agent": "wm2026-predictor-ops"})
+    try:
+        with urllib.request.urlopen(req, timeout=_TIMEOUT_S) as resp:
+            ok = 200 <= resp.status < 300
+            if not ok:
+                sys.stderr.write(f"[notify] CallMeBot HTTP {resp.status} for …{phone[-4:]}\n")
+            return ok
+    except Exception as e:                       # noqa: BLE001 — must never raise
+        sys.stderr.write(f"[notify] WhatsApp send to …{phone[-4:]} failed: {e}\n")
+        return False
+
+
+def send_whatsapp(text: str, phone: str = None, apikey: str = None) -> bool:
+    """Send to every configured recipient. Returns True iff at least one send
+    succeeded (the alert is considered delivered; per-recipient failures go to
+    stderr). Unconfigured = no-op returning False with zero network I/O.
+    """
+    recipients = _recipients(phone, apikey)
+    if not recipients:
+        return False
+    text = (text or "").strip()
+    if not text:
+        return False
+    if len(text) > MAX_TEXT_LEN:
+        text = text[: MAX_TEXT_LEN - 1] + "…"
+    return any([_send_one(text, ph, key) for ph, key in recipients])
+
+
+def format_edges_message(entries: list, max_legs: int = 3) -> str:
+    """Compact one-message summary of an edge-scanner result set."""
+    if not entries:
+        return ""
+    lines = [f"WM2026 scanner: {len(entries)} paper edge(s)"]
+    for e in entries[:max_legs]:
+        lines.append(f"• {e['market']} / {e['team']}: odds {e['odds']:.2f}, "
+                     f"edge {e['edge'] * 100:+.1f}%, stake {e['stake'] * 100:.2f}%")
+    if len(entries) > max_legs:
+        lines.append(f"… +{len(entries) - max_legs} more")
+    lines.append(f"Σ stake {sum(e['stake'] for e in entries) * 100:.2f}% bankroll (paper)")
+    return "\n".join(lines)
