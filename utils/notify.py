@@ -118,6 +118,17 @@ def send_whatsapp(text: str, phone: str = None, apikey: str = None) -> bool:
     """
     recipients = _recipients(phone, apikey)
     if not recipients:
+        # Non-leaking diagnostic: which sources are SET (booleans only, never
+        # the values) and whether any digits survived — pinpoints a malformed
+        # secret without exposing it.
+        rcp = os.environ.get(RECIPIENTS_ENV, "")
+        sys.stderr.write(
+            "[notify] 0 recipients resolved — PHONE set=%s digits=%d | APIKEY set=%s | "
+            "RECIPIENTS set=%s has_colon=%s\n" % (
+                bool((os.environ.get(PHONE_ENV) or "").strip()),
+                len(re.sub(r"\D", "", os.environ.get(PHONE_ENV, ""))),
+                bool((os.environ.get(APIKEY_ENV) or "").strip()),
+                bool(rcp.strip()), (":" in rcp)))
         return False
     text = (text or "").strip()
     if not text:
