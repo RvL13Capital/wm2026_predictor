@@ -57,7 +57,12 @@ SCHEDULE_PATH = os.path.join(ROOT, "data", "match_schedule_2026.json")
 # flip as games finish, and rewriting the committed file would dirty the
 # worktree on every tick (same provenance hazard as the odds snapshot).
 SCHEDULE_LIVE_PATH = os.path.join(ROOT, "data", "match_schedule_live.json")
-STATE_PATH = os.path.join(ROOT, "data", "prematch_state.json")
+# Default is the gitignored local file; the GitHub Actions cloud runner sets
+# WM2026_PREMATCH_STATE=data/prematch_state_ci.json (a TRACKED file it commits
+# back each run) so dedup survives across ephemeral runners without colliding
+# with the ops Mac's local state.
+STATE_PATH = os.environ.get(
+    "WM2026_PREMATCH_STATE", os.path.join(ROOT, "data", "prematch_state.json"))
 # Live snapshot is a SEPARATE, gitignored file: the ferried
 # data/polymarket_match_odds.json is git-tracked, and overwriting it would
 # dirty the worktree -> "(dirty)" provenance flags on every later sheet run.
