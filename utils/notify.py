@@ -36,14 +36,17 @@ def _recipients(phone: str = None, apikey: str = None) -> list:
     recipient); otherwise CALLMEBOT_PHONE/APIKEY (one) plus every
     phone:apikey pair in CALLMEBOT_RECIPIENTS, deduplicated."""
     if phone and apikey:
-        return [(phone, apikey)]
+        return [(phone.strip(), apikey.strip())]
     out = []
-    p, k = os.environ.get(PHONE_ENV), os.environ.get(APIKEY_ENV)
+    # .strip() everywhere: a trailing newline/space in a GitHub Actions secret
+    # is invisible but makes CallMeBot reject the phone ("format is incorrect").
+    p, k = (os.environ.get(PHONE_ENV) or "").strip(), (os.environ.get(APIKEY_ENV) or "").strip()
     if p and k:
         out.append((p, k))
     for pair in re.split(r"[,;\s]+", os.environ.get(RECIPIENTS_ENV, "").strip()):
         if ":" in pair:
             ph, key = pair.split(":", 1)
+            ph, key = ph.strip(), key.strip()
             if ph and key and (ph, key) not in out:
                 out.append((ph, key))
     return out

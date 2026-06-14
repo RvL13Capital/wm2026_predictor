@@ -139,6 +139,23 @@ class TestSendWhatsapp(unittest.TestCase):
                         return_value=_Resp(body=b"Message queued. You will receive it in a few seconds.")):
             self.assertTrue(notify.send_whatsapp("x", phone="+1", apikey="k"))
 
+    def test_secret_whitespace_is_stripped(self):
+        # A trailing newline in a GitHub secret must not reach CallMeBot
+        # (it rejects the phone "format is incorrect").
+        os.environ[notify.PHONE_ENV] = "491700000\n"
+        os.environ[notify.APIKEY_ENV] = " 111111 "
+        captured = {}
+
+        def grab(req, timeout=None):
+            captured["url"] = req.full_url
+            return _Resp()
+
+        with mock.patch("urllib.request.urlopen", side_effect=grab):
+            self.assertTrue(notify.send_whatsapp("x"))
+        q = urllib.parse.parse_qs(urllib.parse.urlparse(captured["url"]).query)
+        self.assertEqual(q["phone"], ["491700000"])   # no %0A
+        self.assertEqual(q["apikey"], ["111111"])
+
     def test_long_text_truncated(self):
         captured = {}
 
