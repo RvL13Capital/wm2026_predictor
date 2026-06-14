@@ -17,7 +17,12 @@ from edge_scanner import EdgeScanner
 
 
 class _Resp:
-    status = 200
+    def __init__(self, status=200, body=b"Message queued. You will receive it in a few seconds."):
+        self.status = status
+        self._body = body
+
+    def read(self):
+        return self._body
 
     def __enter__(self):
         return self
@@ -75,7 +80,7 @@ class TestSendWhatsapp(unittest.TestCase):
             self.assertFalse(notify.send_whatsapp("x", phone="+1", apikey="k"))
 
     def test_multiple_recipients_all_receive(self):
-        os.environ[notify.RECIPIENTS_ENV] = "491626410039:5656521,4915122392324:1580516"
+        os.environ[notify.RECIPIENTS_ENV] = "49170000001:111111,49170000002:222222"
         self.assertTrue(notify.is_configured())
         sent_urls = []
 
@@ -87,13 +92,13 @@ class TestSendWhatsapp(unittest.TestCase):
             self.assertTrue(notify.send_whatsapp("hallo"))
         self.assertEqual(len(sent_urls), 2)
         qs = [urllib.parse.parse_qs(urllib.parse.urlparse(u).query) for u in sent_urls]
-        self.assertEqual({q["phone"][0] for q in qs}, {"491626410039", "4915122392324"})
-        self.assertEqual({q["apikey"][0] for q in qs}, {"5656521", "1580516"})
+        self.assertEqual({q["phone"][0] for q in qs}, {"49170000001", "49170000002"})
+        self.assertEqual({q["apikey"][0] for q in qs}, {"111111", "222222"})
 
     def test_phone_env_plus_recipients_deduplicated(self):
-        os.environ[notify.PHONE_ENV] = "491626410039"
-        os.environ[notify.APIKEY_ENV] = "5656521"
-        os.environ[notify.RECIPIENTS_ENV] = "491626410039:5656521,4915122392324:1580516"
+        os.environ[notify.PHONE_ENV] = "49170000001"
+        os.environ[notify.APIKEY_ENV] = "111111"
+        os.environ[notify.RECIPIENTS_ENV] = "49170000001:111111,49170000002:222222"
         with mock.patch("urllib.request.urlopen", return_value=_Resp()) as m:
             self.assertTrue(notify.send_whatsapp("hallo"))
         self.assertEqual(m.call_count, 2)        # not 3 — duplicate pair collapsed
@@ -122,6 +127,17 @@ class TestSendWhatsapp(unittest.TestCase):
             self.assertTrue(notify.send_whatsapp("x", phone="+9", apikey="k"))
         self.assertEqual(m.call_count, 1)
         self.assertIn("phone=%2B9", m.call_args[0][0].full_url)
+
+    def test_http200_with_error_body_is_failure(self):
+        # CallMeBot returns 200 even when it rejects — the body carries the truth.
+        with mock.patch("urllib.request.urlopen",
+                        return_value=_Resp(body=b"ApiKey 000000 is not valid for the phone 49xxx...")):
+            self.assertFalse(notify.send_whatsapp("x", phone="+1", apikey="k"))
+
+    def test_http200_with_success_body_is_delivery(self):
+        with mock.patch("urllib.request.urlopen",
+                        return_value=_Resp(body=b"Message queued. You will receive it in a few seconds.")):
+            self.assertTrue(notify.send_whatsapp("x", phone="+1", apikey="k"))
 
     def test_long_text_truncated(self):
         captured = {}
