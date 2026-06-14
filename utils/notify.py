@@ -55,7 +55,7 @@ def _recipients(phone: str = None, apikey: str = None) -> list:
     p, k = _norm_phone(os.environ.get(PHONE_ENV, "")), (os.environ.get(APIKEY_ENV) or "").strip()
     if p and k:
         out.append((p, k))
-    for pair in re.split(r"[,;]+", os.environ.get(RECIPIENTS_ENV, "").strip()):
+    for pair in re.split(r"[,;\s]+", os.environ.get(RECIPIENTS_ENV, "").strip()):
         if ":" in pair:
             ph, key = pair.split(":", 1)
             ph, key = _norm_phone(ph), key.strip()
