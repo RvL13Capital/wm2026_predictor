@@ -50,10 +50,17 @@ HOST_HOME_ADV = 60.0          # Elo points added to a host team's expectation wh
 ALTITUDE_ADV = 25.0           # extra expectation nudge for a high-altitude home team (Mexico City etc.)
 WC_K = 60.0                   # World Football Elo K-factor for a World Cup match
 HIGH_ALTITUDE_HOSTS = {"Mexico"}   # Mexico City / Guadalajara / Monterrey are materially elevated
-# When data/match_stats.json supplies xG, the re-rating uses a "deserved" result that blends the
-# scoreline with an xG-implied result, so a lucky/unlucky scoreline is re-rated for what it earned.
-XG_BLEND_ALPHA = 0.5          # weight on the actual scoreline; (1-α) on the xG-implied result
+# The re-rating result is a "deserved" blend of every available signal: the scoreline (always),
+# an xG-implied result (when xg supplied), and a territorial result from shots+possession (when
+# supplied). Weights are renormalized over whatever is present, so absent stats degrade cleanly —
+# scoreline-only reproduces the no-stats behavior exactly.
+W_SCORE = 0.50                # base weight on the actual scoreline result
+W_XG = 0.35                   # base weight on the xG-implied result (the sharpest "deserved" signal)
+W_TERR = 0.15                 # base weight on the territorial (shots+possession) result — weakest
 XG_LOGISTIC_SCALE = 1.0       # goals of xG difference per logit — 1.0 xG edge → ~0.73 deserved-W
+SHOTS_LOGISTIC_SCALE = 6.0    # shot-count edge per logit — a 6-shot edge → ~0.73
+POSS_LOGISTIC_SCALE = 12.0    # possession-% edge over 50 per logit — 62% → ~0.73
+SHOTS_WEIGHT_IN_TERR = 0.7    # shots are a sharper territory signal than raw possession
 
 
 def effective_pre_rating():
@@ -92,6 +99,32 @@ def _result_w(gd):
 def _xg_w(xg_gd):
     """xG difference → deserved-result probability via a logistic (the 'should-have-won' signal)."""
     return 1.0 / (1.0 + math.exp(-xg_gd / XG_LOGISTIC_SCALE))
+
+
+def _pair(vals, rev):
+    """Coerce a [a, b] stat to (float_a, float_b) in this fixture's orientation, or None."""
+    if not (isinstance(vals, list) and len(vals) == 2) or any(v is None for v in vals):
+        return None
+    a, b = float(vals[0]), float(vals[1])
+    return (b, a) if rev else (a, b)
+
+
+def _territory_w(shots, poss, rev):
+    """Shots + possession → a single territorial deserved-W (or None if neither supplied).
+
+    Shots dominate (sharper than raw possession); each maps through its own logistic, then a
+    weighted mean over whichever are present. Possession alone is noisy, so it carries less weight.
+    """
+    parts = []   # (weight, w_value)
+    sp = _pair(shots, rev)
+    if sp is not None:
+        parts.append((SHOTS_WEIGHT_IN_TERR, 1.0 / (1.0 + math.exp(-(sp[0] - sp[1]) / SHOTS_LOGISTIC_SCALE))))
+    pp = _pair(poss, rev)
+    if pp is not None:
+        parts.append((1.0 - SHOTS_WEIGHT_IN_TERR, 1.0 / (1.0 + math.exp(-(pp[0] - 50.0) / POSS_LOGISTIC_SCALE))))
+    if not parts:
+        return None
+    return sum(w * v for w, v in parts) / sum(w for w, _ in parts)
 
 
 def _expected(elo_a, elo_b):
@@ -140,26 +173,32 @@ def apply_results(pre, live_state, match_stats=None):
                 adv_b += ALTITUDE_ADV; ctx.append("altitude")
         w_e = _expected(post[a] + adv_a, post[b] + adv_b)   # A's context-adjusted expectation
 
-        # --- result used for re-rating: scoreline, or xG-blended "deserved" result if available ---
+        # --- "deserved" result = weighted blend of every available signal (scoreline always) ---
         stats, rev = _match_stats_for(match_stats, a, b)
-        xg = stats.get("xg")
-        xg_a = xg_b = None
-        if isinstance(xg, list) and len(xg) == 2 and all(v is not None for v in xg):
-            xg_a, xg_b = (float(xg[1]), float(xg[0])) if rev else (float(xg[0]), float(xg[1]))
+        xgp = _pair(stats.get("xg"), rev)
+        xg_a, xg_b = (xgp if xgp else (None, None))
         w_score = _result_w(ga - gb)
-        if xg_a is not None:
+        signals = [(W_SCORE, w_score)]                  # scoreline — always present
+        w_xg = None
+        if xgp is not None:
             w_xg = _xg_w(xg_a - xg_b)
-            w_a = XG_BLEND_ALPHA * w_score + (1.0 - XG_BLEND_ALPHA) * w_xg
-            eff_gd = XG_BLEND_ALPHA * (ga - gb) + (1.0 - XG_BLEND_ALPHA) * (xg_a - xg_b)
-        else:
-            w_a, w_xg, eff_gd = w_score, None, float(ga - gb)
+            signals.append((W_XG, w_xg))
+        w_terr = _territory_w(stats.get("shots"), stats.get("possession"), rev)
+        if w_terr is not None:
+            signals.append((W_TERR, w_terr))
+        w_a = sum(wt * v for wt, v in signals) / sum(wt for wt, _ in signals)
+        # margin (G weight): blend actual GD with xG GD when present; territory has no margin
+        eff_gd = 0.5 * (ga - gb) + 0.5 * (xg_a - xg_b) if xgp is not None else float(ga - gb)
         g = _g_weight(eff_gd)
         delta = WC_K * g * (w_a - w_e)
         post[a] += delta
         post[b] -= delta
+        sp = _pair(stats.get("shots"), rev)
+        pp = _pair(stats.get("possession"), rev)
         rows.append({"a": a, "b": b, "ga": ga, "gb": gb, "w_a": w_a, "w_e": w_e,
                      "delta": delta, "ctx": ", ".join(ctx),
-                     "xg_a": xg_a, "xg_b": xg_b, "w_xg": w_xg})
+                     "xg_a": xg_a, "xg_b": xg_b, "w_xg": w_xg,
+                     "shots": sp, "poss": pp, "w_terr": w_terr})
     return post, rows
 
 
@@ -248,6 +287,7 @@ def main():
     post, rows = apply_results(pre, live_state, match_stats)
     played = {r["a"] for r in rows} | {r["b"] for r in rows}
     used_xg = any(r.get("xg_a") is not None for r in rows)
+    used_terr = any(r.get("w_terr") is not None for r in rows)
 
     L = []
     L.append("=" * 74)
@@ -270,8 +310,17 @@ def main():
             extra.append(r["ctx"])
         if r.get("xg_a") is not None:
             extra.append(f"xG {r['xg_a']:.1f}-{r['xg_b']:.1f}")
-            # luck flag: scoreline result vs xG-deserved result
-            ld = _result_w(r["ga"] - r["gb"]) - r["w_xg"]
+        if r.get("shots"):
+            extra.append(f"sh {r['shots'][0]:.0f}-{r['shots'][1]:.0f}")
+        if r.get("poss"):
+            extra.append(f"pos {r['poss'][0]:.0f}-{r['poss'][1]:.0f}")
+        # luck flag: scoreline result vs what the underlying play (xG + territory) deserved
+        deserved = [(W_XG, r["w_xg"])] if r.get("w_xg") is not None else []
+        if r.get("w_terr") is not None:
+            deserved.append((W_TERR, r["w_terr"]))
+        if deserved:
+            d = sum(w * v for w, v in deserved) / sum(w for w, _ in deserved)
+            ld = _result_w(r["ga"] - r["gb"]) - d
             if ld > 0.20:
                 extra.append("flattered")
             elif ld < -0.20:
@@ -279,9 +328,9 @@ def main():
         tail = f"  [{', '.join(extra)}]" if extra else ""
         L.append(f"  {r['a']:>14} {r['ga']}:{r['gb']} {r['b']:<14}  "
                  f"xW(A)={r['w_e']*100:4.0f}%  {verdict:<5} {sign}{abs(r['delta']):4.1f}{tail}")
-    if used_xg:
-        L.append(f"  (form re-rated on a {int(XG_BLEND_ALPHA*100)}/{int((1-XG_BLEND_ALPHA)*100)} "
-                 "scoreline/xG blend where xG was supplied)")
+    if used_xg or used_terr:
+        sig = "scoreline" + (" + xG" if used_xg else "") + (" + shots/possession" if used_terr else "")
+        L.append(f"  (form re-rated on a weighted 'deserved' blend of {sig}, renormalized per match)")
     L.append("")
 
     # --- team power ranking ---
@@ -333,14 +382,15 @@ def main():
     L.append("")
 
     # --- data-availability footer (honest about what did / didn't enter) ---
-    have_xg = "xG" if used_xg else "—"
-    have_sc = "goalscorers" if actual else "—"
-    if used_xg or actual:
-        L.append(f"  data ingested: {have_xg}, {have_sc} (from {args.match_stats})")
+    if used_xg or used_terr or actual:
+        ingested = [lbl for lbl, on in
+                    (("xG", used_xg), ("shots/possession", used_terr), ("goalscorers", bool(actual)))
+                    if on]
+        L.append(f"  data ingested: {', '.join(ingested)} (from {args.match_stats})")
     else:
-        L.append("  ⚠ No per-game xG / shots / goalscorer data ingested — scoreline + ratings only.")
-        L.append(f"    Fill {args.match_stats} (see data/match_stats.template.json) to upgrade the")
-        L.append("    form term (xG-deserved re-rating) and the Golden Boot (real goals).")
+        L.append("  ⚠ No per-game xG / shots / possession / goalscorer data ingested — scoreline +")
+        L.append(f"    ratings only. Fill {args.match_stats} (see data/match_stats.template.json) to")
+        L.append("    upgrade the form term (deserved re-rating) and the Golden Boot (real goals).")
     L.append("=" * 74)
 
     out = "\n".join(L)

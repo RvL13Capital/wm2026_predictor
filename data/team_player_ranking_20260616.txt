@@ -60,7 +60,7 @@
    5  Valencia           Ecuador          5.7%
    6  Morata             Spain            4.5%
 
-  ⚠ No per-game xG / shots / goalscorer data ingested — scoreline + ratings only.
-    Fill data/match_stats.json (see data/match_stats.template.json) to upgrade the
-    form term (xG-deserved re-rating) and the Golden Boot (real goals).
+  ⚠ No per-game xG / shots / possession / goalscorer data ingested — scoreline +
+    ratings only. Fill data/match_stats.json (see data/match_stats.template.json) to
+    upgrade the form term (deserved re-rating) and the Golden Boot (real goals).
 ==========================================================================

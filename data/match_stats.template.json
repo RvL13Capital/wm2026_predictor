@@ -1,9 +1,9 @@
 {
   "_schema": {
     "_doc": "Optional per-match stats consumed by scripts/rank_teams.py. Keys mirror live_state.json ('Team A vs Team B'). All fields optional; omit or null = not provided (graceful). DO NOT invent values — fill only from real box scores.",
-    "xg": "[xg_team_a, xg_team_b] floats, same orientation as the key",
-    "shots": "[shots_a, shots_b] ints (display only, not yet rated)",
-    "possession": "[pct_a, pct_b] ints summing ~100 (display only)",
+    "xg": "[xg_a, xg_b] floats (same orientation as key) — primary 'deserved-result' signal in the form re-rating",
+    "shots": "[shots_a, shots_b] ints — territorial signal (sharper of the two) in the form re-rating",
+    "possession": "[pct_a, pct_b] ints ~100 — territorial signal (lower weight; noisier) in the form re-rating",
     "scorers": "[{player, team, goals(optional, default 1)}] — one entry per scorer; omit own goals"
   },
   "Mexico vs South Africa": {
