@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""T-30 pre-match WhatsApp alert pipeline (ops machine, cron-driven).
+"""T-45 pre-match WhatsApp alert pipeline (ops machine, cron-driven).
 
-For every match kicking off within --lead minutes (default 35) that has not
+For every match kicking off within --lead minutes (default 45) that has not
 been alerted yet (state file), this script:
 
   1. fetches the OFFICIAL starting XIs from the FIFA live API (published
@@ -69,7 +69,7 @@ STATE_PATH = os.environ.get(
 SNAPSHOT_PATH = os.path.join(ROOT, "data", "polymarket_match_odds_live.json")
 FERRIED_SNAPSHOT_PATH = os.path.join(ROOT, "data", "polymarket_match_odds.json")
 
-DEFAULT_LEAD_MIN = 35     # alert when 0 < kickoff - now <= lead
+DEFAULT_LEAD_MIN = 45     # alert when 0 < kickoff - now <= lead (T-45; official XIs are out by ~T-75)
 TIP_SIMULATIONS = 1000    # same MC depth as the published sheets
 TIP_SEED = 42             # pre-registered seed — keep identical to the sheets
 
@@ -294,7 +294,16 @@ def build_message(match, team_a, team_b, tip_row, lineups_by_team, snapshot_path
     tip_row orientation so a FIFA home/away flip can never mislabel the tip."""
     ko_utc = (match.get("utc") or "")[11:16]
     label = match.get("group") or match.get("stage") or ""
-    lines = [f"⚽ T-30 {team_a} vs {team_b} ({label}, {ko_utc}Z)"]
+    tlabel = "T-45"
+    try:
+        from datetime import datetime, timezone
+        ko_dt = datetime.fromisoformat((match.get("utc") or "").replace("Z", "+00:00"))
+        mins = int(round((ko_dt - datetime.now(timezone.utc)).total_seconds() / 60))
+        if mins > 0:
+            tlabel = f"T-{mins}"
+    except Exception:
+        pass
+    lines = [f"⚽ {tlabel} {team_a} vs {team_b} ({label}, {ko_utc}Z)"]
 
     if tip_row:
         ta, tb = tip_row["optimal_tip"]
@@ -437,7 +446,7 @@ def process_match(match, dry_run: bool = False, refresh_odds: bool = True) -> bo
 
 
 def main(argv=None) -> int:
-    ap = argparse.ArgumentParser(description="T-30 pre-match WhatsApp alerts")
+    ap = argparse.ArgumentParser(description="T-45 pre-match WhatsApp alerts")
     ap.add_argument("--auto", action="store_true",
                     help="cron mode: alert every due, not-yet-alerted match")
     ap.add_argument("--lead", type=int, default=DEFAULT_LEAD_MIN,

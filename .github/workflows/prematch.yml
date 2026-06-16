@@ -1,6 +1,6 @@
 name: prematch-alerts
 
-# T-30 pre-match WhatsApp alerts, run in the cloud — independent of whether the
+# T-45 pre-match WhatsApp alerts, run in the cloud — independent of whether the
 # ops Mac is awake/online and immune to its macOS TCC cron block (which had
 # fired ZERO times: every local cron attempt logged "Operation not permitted").
 #
