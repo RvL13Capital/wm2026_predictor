@@ -1,0 +1,284 @@
+{
+  "n_sims": 100000,
+  "elapsed_seconds": 10.791,
+  "group_winners": {
+    "A": {
+      "tip": "Mexico",
+      "probability": 0.6394,
+      "all": {
+        "Mexico": 0.6394,
+        "South Korea": 0.3215,
+        "Czechia": 0.0373,
+        "South Africa": 0.0018
+      }
+    },
+    "B": {
+      "tip": "Canada",
+      "probability": 0.4988,
+      "all": {
+        "Canada": 0.4988,
+        "Switzerland": 0.3907,
+        "Bosnia": 0.1024,
+        "Qatar": 0.0081
+      }
+    },
+    "C": {
+      "tip": "Brazil",
+      "probability": 0.5583,
+      "all": {
+        "Brazil": 0.5583,
+        "Morocco": 0.263,
+        "Scotland": 0.1773,
+        "Haiti": 0.0014
+      }
+    },
+    "D": {
+      "tip": "USA",
+      "probability": 0.6528,
+      "all": {
+        "USA": 0.6528,
+        "Australia": 0.2435,
+        "Turkey": 0.0812,
+        "Paraguay": 0.0225
+      }
+    },
+    "E": {
+      "tip": "Germany",
+      "probability": 0.7114,
+      "all": {
+        "Germany": 0.7114,
+        "Ivory Coast": 0.2622,
+        "Ecuador": 0.0263,
+        "Curaçao": 0.0001
+      }
+    },
+    "F": {
+      "tip": "Netherlands",
+      "probability": 0.397,
+      "all": {
+        "Netherlands": 0.397,
+        "Sweden": 0.3212,
+        "Japan": 0.2772,
+        "Tunisia": 0.0047
+      }
+    },
+    "G": {
+      "tip": "Belgium",
+      "probability": 0.6237,
+      "all": {
+        "Belgium": 0.6237,
+        "Egypt": 0.2195,
+        "Iran": 0.1215,
+        "New Zealand": 0.0353
+      }
+    },
+    "H": {
+      "tip": "Spain",
+      "probability": 0.869,
+      "all": {
+        "Spain": 0.869,
+        "Uruguay": 0.1283,
+        "Cape Verde": 0.0018,
+        "Saudi Arabia": 0.0008
+      }
+    },
+    "I": {
+      "tip": "France",
+      "probability": 0.7215,
+      "all": {
+        "France": 0.7215,
+        "Norway": 0.1904,
+        "Senegal": 0.0877,
+        "Iraq": 0.0004
+      }
+    },
+    "J": {
+      "tip": "Argentina",
+      "probability": 0.8321,
+      "all": {
+        "Argentina": 0.8321,
+        "Austria": 0.1163,
+        "Algeria": 0.0477,
+        "Jordan": 0.0039
+      }
+    },
+    "K": {
+      "tip": "Portugal",
+      "probability": 0.608,
+      "all": {
+        "Portugal": 0.608,
+        "Colombia": 0.37,
+        "DR Congo": 0.0139,
+        "Uzbekistan": 0.0082
+      }
+    },
+    "L": {
+      "tip": "England",
+      "probability": 0.7522,
+      "all": {
+        "England": 0.7522,
+        "Croatia": 0.2194,
+        "Panama": 0.0181,
+        "Ghana": 0.0103
+      }
+    }
+  },
+  "semifinalists": {
+    "tips": [
+      "Spain",
+      "France",
+      "Argentina",
+      "England"
+    ],
+    "probabilities": {
+      "Spain": 0.4262,
+      "France": 0.3786,
+      "Argentina": 0.3592,
+      "England": 0.2854,
+      "Germany": 0.2638,
+      "Portugal": 0.2421,
+      "Brazil": 0.1936,
+      "Norway": 0.1619,
+      "Colombia": 0.1309,
+      "Belgium": 0.1244,
+      "Ecuador": 0.1152,
+      "Netherlands": 0.1084,
+      "Switzerland": 0.105,
+      "Mexico": 0.102,
+      "Canada": 0.096,
+      "Morocco": 0.0947,
+      "Croatia": 0.093,
+      "Uruguay": 0.0905,
+      "Turkey": 0.0884,
+      "Senegal": 0.0824,
+      "USA": 0.0691,
+      "Japan": 0.0648,
+      "Ivory Coast": 0.0588,
+      "Austria": 0.0449,
+      "South Korea": 0.0377,
+      "Scotland": 0.0349,
+      "Sweden": 0.0316,
+      "Australia": 0.027,
+      "Czechia": 0.0175,
+      "Algeria": 0.0173,
+      "Egypt": 0.0163,
+      "Paraguay": 0.0147,
+      "Bosnia": 0.0071,
+      "Iran": 0.0064,
+      "DR Congo": 0.0036,
+      "Panama": 0.0017,
+      "Uzbekistan": 0.0015,
+      "Cape Verde": 0.001,
+      "New Zealand": 0.0006,
+      "Ghana": 0.0006,
+      "Jordan": 0.0004,
+      "Tunisia": 0.0004,
+      "Saudi Arabia": 0.0002,
+      "South Africa": 0.0001,
+      "Iraq": 0.0001,
+      "Haiti": 0.0001,
+      "Qatar": 0.0
+    }
+  },
+  "champion": {
+    "tip": "Spain",
+    "probability": 0.1829,
+    "all": {
+      "Spain": 0.1829,
+      "Argentina": 0.1448,
+      "France": 0.1384,
+      "England": 0.08,
+      "Portugal": 0.0717,
+      "Germany": 0.0667,
+      "Brazil": 0.047,
+      "Norway": 0.032,
+      "Colombia": 0.0255,
+      "Ecuador": 0.0216,
+      "Belgium": 0.0209,
+      "Netherlands": 0.0182,
+      "Turkey": 0.0172,
+      "Uruguay": 0.0152,
+      "Croatia": 0.0152,
+      "Switzerland": 0.0151,
+      "Mexico": 0.0145,
+      "Morocco": 0.0143,
+      "Senegal": 0.0112,
+      "Canada": 0.0109,
+      "Japan": 0.0075,
+      "USA": 0.0073,
+      "Austria": 0.0051
+    }
+  },
+  "top_scorer_team": {
+    "tip": "France",
+    "probability": 0.2416,
+    "avg_goals": {
+      "Mexico": 7.6,
+      "South Africa": 0.9,
+      "South Korea": 6.3,
+      "Czechia": 4.4,
+      "Canada": 8.1,
+      "Bosnia": 3.9,
+      "Qatar": 1.7,
+      "Switzerland": 7.0,
+      "Brazil": 9.3,
+      "Morocco": 6.6,
+      "Haiti": 0.6,
+      "Scotland": 4.0,
+      "USA": 9.1,
+      "Paraguay": 3.3,
+      "Australia": 5.3,
+      "Turkey": 4.8,
+      "Germany": 15.0,
+      "Curaçao": 1.5,
+      "Ivory Coast": 6.1,
+      "Ecuador": 7.3,
+      "Netherlands": 8.0,
+      "Japan": 7.0,
+      "Sweden": 8.5,
+      "Tunisia": 1.8,
+      "Belgium": 8.2,
+      "Egypt": 4.7,
+      "Iran": 4.0,
+      "New Zealand": 3.1,
+      "Spain": 15.7,
+      "Cape Verde": 1.5,
+      "Saudi Arabia": 1.2,
+      "Uruguay": 6.6,
+      "France": 13.5,
+      "Senegal": 5.8,
+      "Iraq": 0.8,
+      "Norway": 8.8,
+      "Argentina": 12.2,
+      "Algeria": 3.3,
+      "Austria": 4.8,
+      "Jordan": 1.1,
+      "Portugal": 10.5,
+      "DR Congo": 1.9,
+      "Uzbekistan": 1.5,
+      "Colombia": 8.2,
+      "England": 11.0,
+      "Croatia": 6.2,
+      "Ghana": 1.5,
+      "Panama": 1.8
+    },
+    "all": {
+      "France": 0.2416,
+      "Portugal": 0.138,
+      "England": 0.1263,
+      "Norway": 0.1223,
+      "Argentina": 0.0514,
+      "Ecuador": 0.0375,
+      "Canada": 0.032,
+      "Belgium": 0.0301,
+      "Germany": 0.03,
+      "Spain": 0.0278
+    }
+  },
+  "provenance": {
+    "command": "vectorized_mc.py --sims 100000 --seed 42 --live-state data/live_state.json --json --output data/resim_20260616_live.json --quiet",
+    "timestamp": "2026-06-16T03:51:55.864726+00:00",
+    "seed": 42,
+    "commit": "fe65d6a30165939f950ea7413055b432e15417d8"
+  }
+}
