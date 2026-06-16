@@ -53,6 +53,23 @@
 
   ▲ biggest riser: USA +21    ▼ biggest faller: Paraguay -21
 
+── RUN WATCH — opponent-adjusted over/under-performance ──────────────────
+  (only 1 matchday played — signals are PROVISIONAL; a run confirms over MD2+)
+  ⚡ early     Ivory Coast    1g  Σedge  +82   1:0 v Ecuador (＋82)
+  ⚡ early     Australia      1g  Σedge  +68   2:0 v Turkey (＋68)
+  ⚡ early     USA            1g  Σedge  +59   4:1 v Paraguay (＋59)
+  ⚡ early     South Korea    1g  Σedge  +49   2:1 v Czechia (＋49)
+  ⚡ early     Qatar          1g  Σedge  +44   1:1 v Switzerland (＋44)
+  ⚡ early     Sweden         1g  Σedge  +39   5:1 v Tunisia (＋39)
+  ⚡ early     Bosnia         1g  Σedge  +33   1:1 v Canada (＋33)
+  ⚠ early-poor Canada         1g  Σedge  -33   1:1 v Bosnia (－33)
+  ⚠ early-poor Tunisia        1g  Σedge  -39   1:5 v Sweden (－39)
+  ⚠ early-poor Switzerland    1g  Σedge  -44   1:1 v Qatar (－44)
+  ⚠ early-poor Czechia        1g  Σedge  -49   1:2 v South Korea (－49)
+  ⚠ early-poor Paraguay       1g  Σedge  -59   1:4 v USA (－59)
+  ⚠ early-poor Turkey         1g  Σedge  -68   0:2 v Australia (－68)
+  ⚠ early-poor Ecuador        1g  Σedge  -82   0:1 v Ivory Coast (－82)
+
 ── GOLDEN BOOT — MODEL PROJECTION ────────────────────────────────────────
   (pre-tournament goal-share × expected team goals — projection, not goals scored)
    1  Mbappé             France          29.2%

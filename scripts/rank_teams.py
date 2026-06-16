@@ -19,6 +19,11 @@ Players (Golden Boot) are read from the scalar bonusfragen sheet's Torschützenk
 (player-level shares). NOTE: this is the pre-tournament goal-share estimate — real per-goal
 scorer data is not ingested here (we have none; it must be supplied). Honest by construction.
 
+A separate SIGNAL LAYER (does NOT feed the rating) surfaces the predictive cases without letting
+form dominate: a RUN WATCH escalates a team's opponent-adjusted overperformance from provisional
+(one strong game) to confirmed (beating expectation across ≥2 matchdays — how a real run separates
+from variance), and a BREAKOUT TALENT flag marks scorers who were not pre-tournament favorites.
+
 This is READ-ONLY analytics: it does NOT mutate the sealed engine, ratings, or any sim. It only
 reads live_state.json + a conditioned re-sim json + the bonusfragen sheet, and prints/saves a report.
 
@@ -73,6 +78,11 @@ XG_LOGISTIC_SCALE = 1.0       # goals of xG difference per logit — 1.0 xG edge
 SHOTS_LOGISTIC_SCALE = 6.0    # shot-count edge per logit — a 6-shot edge → ~0.73
 POSS_LOGISTIC_SCALE = 12.0    # possession-% edge over 50 per logit — 62% → ~0.73
 SHOTS_WEIGHT_IN_TERR = 0.7    # shots are a sharper territory signal than raw possession
+# --- run-watch / breakout signal layer (surfaced separately; does NOT feed the rating) ---
+RUN_OVER_EDGE = 0.15          # opponent-adjusted overperformance (deserved-W minus expectation) per game
+RUN_STRONG_EDGE = 0.30        # a single-game edge this large is a notable provisional signal
+BREAKOUT_PROJ_PCT = 5.0       # a scorer projected below this % pre-tournament counts as a breakout
+BREAKOUT_MIN_GOALS = 2        # require multiple goals — one goal from anyone is noise, not a breakout
 
 
 def effective_pre_rating(include_priors=False):
@@ -285,6 +295,69 @@ def aggregate_scorers(match_stats):
     return ranked
 
 
+def _norm(name):
+    """Accent-insensitive lowercase key for matching scorer names to the projection list."""
+    import unicodedata
+    return "".join(c for c in unicodedata.normalize("NFKD", name or "")
+                   if not unicodedata.combining(c)).lower().strip()
+
+
+def run_watch(rows):
+    """Per-team opponent-adjusted overperformance across played games → escalating run signal.
+
+    Each team's per-game edge = (its deserved-result) − (its rating-expectation), so it is already
+    opponent-adjusted: beating a strong side scores a big positive edge, an expected win ≈ 0. The
+    signal ESCALATES with repetition — one strong game is provisional; the same team beating
+    expectation across ≥2 matchdays is a building/confirmed run (this is how a real run separates
+    from one-game variance). Returns [(team, n_games, n_over, sum_edge, flag, [game_strs])] desc.
+    """
+    per = {}
+    for r in rows:
+        eA = r["w_a"] - r["w_e"]                       # A's opponent-adjusted edge this game
+        for team, edge, opp, res in ((r["a"], eA, r["b"], f"{r['ga']}:{r['gb']}"),
+                                     (r["b"], -eA, r["a"], f"{r['gb']}:{r['ga']}")):
+            d = per.setdefault(team, {"edges": [], "games": []})
+            d["edges"].append(edge)
+            tag = "＋" if edge >= 0 else "－"
+            d["games"].append(f"{res} v {opp} ({tag}{abs(edge)*100:.0f})")
+    out = []
+    for team, d in per.items():
+        edges = d["edges"]; n = len(edges)
+        n_over = sum(1 for e in edges if e > RUN_OVER_EDGE)
+        n_under = sum(1 for e in edges if e < -RUN_OVER_EDGE)
+        s = sum(edges); mean = s / n
+        if n >= 2 and n_over == n and mean > RUN_OVER_EDGE:
+            flag = "🔥 RUN"                             # beat expectation EVERY game — confirmed
+        elif n >= 2 and mean > RUN_OVER_EDGE:
+            flag = "📈 building"                        # net overperforming across matchdays
+        elif n == 1 and edges[0] > RUN_STRONG_EDGE:
+            flag = "⚡ early"                            # strong single game — provisional, needs MD2+
+        elif n >= 2 and mean < -RUN_OVER_EDGE:
+            flag = "❄️ cold"                            # net underperforming
+        elif n == 1 and edges[0] < -RUN_STRONG_EDGE:
+            flag = "⚠ early-poor"
+        else:
+            flag = ""
+        out.append((team, n, n_over, n_under, s, flag, d["games"]))
+    return sorted(out, key=lambda x: -x[4])
+
+
+def breakout_talent(actual, projection):
+    """Scorers who were NOT pre-tournament favorites → breakout flag.
+
+    actual = [(player, team, goals)]; projection = [(player, team, pct)] from the model. A scorer
+    absent from the projection, or projected below BREAKOUT_PROJ_PCT, is a breakout. Returns
+    [(player, team, goals, proj_pct_or_None)] by goals desc. Empty until scorer data is supplied.
+    """
+    proj = {_norm(p): pct for (p, _t, pct) in projection}
+    out = []
+    for player, team, goals in actual:
+        pct = proj.get(_norm(player))
+        if goals >= BREAKOUT_MIN_GOALS and (pct is None or pct < BREAKOUT_PROJ_PCT):
+            out.append((player, team, goals, pct))
+    return sorted(out, key=lambda x: -x[2])
+
+
 def main():
     ap = argparse.ArgumentParser(description="Team & Player evaluation from games played")
     ap.add_argument("--live-state", default="data/live_state.json")
@@ -403,15 +476,39 @@ def main():
         L.append(f"  ▲ biggest riser: {up[0]} {up[1]:+.0f}    ▼ biggest faller: {down[0]} {down[1]:+.0f}")
         L.append("")
 
+    # --- RUN WATCH (separate signal layer; does NOT feed the rating) ---
+    watch = run_watch(rows)
+    flagged = [w for w in watch if w[5]]
+    max_games = max((w[1] for w in watch), default=0)
+    L.append("── RUN WATCH — opponent-adjusted over/under-performance " + "─" * 18)
+    if max_games < 2:
+        L.append("  (only 1 matchday played — signals are PROVISIONAL; a run confirms over MD2+)")
+    if flagged:
+        for team, n, n_over, n_under, s, flag, games in flagged:
+            L.append(f"  {flag:<11} {team:<14} {n}g  Σedge {s*100:+4.0f}   " + " · ".join(games))
+    else:
+        L.append("  (no team is materially over/under-performing its opponent-adjusted expectation yet)")
+    L.append("")
+
     # --- player ranking: ACTUAL tournament goals (if scorer data present) then the model estimate ---
     actual = aggregate_scorers(match_stats)
+    players = parse_golden_boot(args.bonus)
+    breakouts = {_norm(p): (p, t, g, pct) for (p, t, g, pct) in breakout_talent(actual, players)}
     if actual:
         L.append("── GOLDEN BOOT — ACTUAL GOALS (so far) " + "─" * 35)
         for i, (player, team, goals) in enumerate(actual[:12], 1):
-            L.append(f"  {i:>2}  {player:<18} {team:<14} {goals:>2} ⚽")
+            star = "  🌟 breakout" if _norm(player) in breakouts else ""
+            L.append(f"  {i:>2}  {player:<18} {team:<14} {goals:>2} ⚽{star}")
         L.append("")
+        if breakouts:
+            L.append(f"── BREAKOUT WATCH — outscoring the model projection (≥{BREAKOUT_MIN_GOALS} goals) " + "─" * 8)
+            L.append("  (vs the model's narrow top-tier projection — a star outside the top list can")
+            L.append("   appear here too; treat as 'scoring more than projected', not 'unknown player')")
+            for player, team, goals, pct in sorted(breakouts.values(), key=lambda x: -x[2]):
+                proj = f"projected {pct:.1f}%" if pct is not None else "outside projected leaders"
+                L.append(f"  🌟 {player:<18} {team:<14} {goals} ⚽  ({proj})")
+            L.append("")
 
-    players = parse_golden_boot(args.bonus)
     L.append("── GOLDEN BOOT — MODEL PROJECTION " + "─" * 40)
     if players:
         L.append("  (pre-tournament goal-share × expected team goals — projection, not goals scored)")
