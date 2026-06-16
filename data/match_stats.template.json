@@ -1,0 +1,93 @@
+{
+  "_schema": {
+    "_doc": "Optional per-match stats consumed by scripts/rank_teams.py. Keys mirror live_state.json ('Team A vs Team B'). All fields optional; omit or null = not provided (graceful). DO NOT invent values — fill only from real box scores.",
+    "xg": "[xg_team_a, xg_team_b] floats, same orientation as the key",
+    "shots": "[shots_a, shots_b] ints (display only, not yet rated)",
+    "possession": "[pct_a, pct_b] ints summing ~100 (display only)",
+    "scorers": "[{player, team, goals(optional, default 1)}] — one entry per scorer; omit own goals"
+  },
+  "Mexico vs South Africa": {
+    "xg": null,
+    "shots": null,
+    "possession": null,
+    "scorers": []
+  },
+  "South Korea vs Czechia": {
+    "xg": null,
+    "shots": null,
+    "possession": null,
+    "scorers": []
+  },
+  "Canada vs Bosnia": {
+    "xg": null,
+    "shots": null,
+    "possession": null,
+    "scorers": []
+  },
+  "Qatar vs Switzerland": {
+    "xg": null,
+    "shots": null,
+    "possession": null,
+    "scorers": []
+  },
+  "USA vs Paraguay": {
+    "xg": null,
+    "shots": null,
+    "possession": null,
+    "scorers": []
+  },
+  "Australia vs Turkey": {
+    "xg": null,
+    "shots": null,
+    "possession": null,
+    "scorers": []
+  },
+  "Brazil vs Morocco": {
+    "xg": null,
+    "shots": null,
+    "possession": null,
+    "scorers": []
+  },
+  "Haiti vs Scotland": {
+    "xg": null,
+    "shots": null,
+    "possession": null,
+    "scorers": []
+  },
+  "Germany vs Curaçao": {
+    "xg": null,
+    "shots": null,
+    "possession": null,
+    "scorers": []
+  },
+  "Ivory Coast vs Ecuador": {
+    "xg": null,
+    "shots": null,
+    "possession": null,
+    "scorers": []
+  },
+  "Netherlands vs Japan": {
+    "xg": null,
+    "shots": null,
+    "possession": null,
+    "scorers": []
+  },
+  "Sweden vs Tunisia": {
+    "xg": null,
+    "shots": null,
+    "possession": null,
+    "scorers": []
+  },
+  "Belgium vs Egypt": {
+    "xg": null,
+    "shots": null,
+    "possession": null,
+    "scorers": []
+  },
+  "Iran vs New Zealand": {
+    "xg": null,
+    "shots": null,
+    "possession": null,
+    "scorers": []
+  }
+}

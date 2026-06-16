@@ -51,8 +51,8 @@
 
   ▲ biggest riser: Australia +67    ▼ biggest faller: Turkey -67
 
-── PLAYER RANKING — GOLDEN BOOT ──────────────────────────────────────────
-  (pre-tournament goal-share × expected team goals — NOT real scorer data)
+── GOLDEN BOOT — MODEL PROJECTION ────────────────────────────────────────
+  (pre-tournament goal-share × expected team goals — projection, not goals scored)
    1  Mbappé             France          29.2%
    2  Kane               England         14.4%
    3  Ronaldo            Portugal        13.2%
@@ -60,6 +60,7 @@
    5  Valencia           Ecuador          5.7%
    6  Morata             Spain            4.5%
 
-  ⚠ No real per-game xG / shots / goalscorer data ingested — scoreline + ratings
-    only. Supply per-match stats to upgrade the form term and player eval.
+  ⚠ No per-game xG / shots / goalscorer data ingested — scoreline + ratings only.
+    Fill data/match_stats.json (see data/match_stats.template.json) to upgrade the
+    form term (xG-deserved re-rating) and the Golden Boot (real goals).
 ==========================================================================
