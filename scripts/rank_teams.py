@@ -56,7 +56,11 @@ _FRIENDLY_OVERLAY_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.ab
 # --- context constants (folded into the EXPECTATION of a played match, not the rating) ---
 HOST_HOME_ADV = 60.0          # Elo points added to a host team's expectation when it plays at home
 ALTITUDE_ADV = 25.0           # extra expectation nudge for a high-altitude home team (Mexico City etc.)
-WC_K = 60.0                   # World Football Elo K-factor for a World Cup match
+# Form K is deliberately MODEST — this is a current-form nudge on top of a strong rating, not FIFA's
+# settled-rating update (their World-Cup K=60 would let ONE game swing a team ±60+, overvaluing a
+# single result). At K=20 a big upset moves ~15-25 pts (~1% of rating): form informs, never dominates.
+FORM_K = 20.0
+DELTA_CAP = 30.0              # hard cap on |rating move| from a single match — no one game runs away
 HIGH_ALTITUDE_HOSTS = {"Mexico"}   # Mexico City / Guadalajara / Monterrey are materially elevated
 # The re-rating result is a "deserved" blend of every available signal: the scoreline (always),
 # an xG-implied result (when xg supplied), and a territorial result from shots+possession (when
@@ -214,7 +218,10 @@ def apply_results(pre, live_state, match_stats=None):
         # margin (G weight): blend actual GD with xG GD when present; territory has no margin
         eff_gd = 0.5 * (ga - gb) + 0.5 * (xg_a - xg_b) if xgp is not None else float(ga - gb)
         g = _g_weight(eff_gd)
-        delta = WC_K * g * (w_a - w_e)
+        # (w_a - w_e) is OPPONENT-ADJUSTED: w_e already prices the opponent's strength, so beating a
+        # strong side (low w_e) moves the rating far more than thrashing a weak one (w_e ≈ 1).
+        delta = FORM_K * g * (w_a - w_e)
+        delta = max(-DELTA_CAP, min(DELTA_CAP, delta))   # no single game runs away
         post[a] += delta
         post[b] -= delta
         sp = _pair(stats.get("shots"), rev)
@@ -326,9 +333,10 @@ def main():
     else:
         L.append("  Rating = WC-ONLY: neutral base Elo + injury Elo (club squad-value & friendly")
         L.append("  Elo priors STRIPPED), re-rated purely on World Cup results.")
-    L.append(f"  World-Football-Elo, K={WC_K:.0f}, GD-weighted; host +{HOST_HOME_ADV:.0f} & altitude "
-             f"+{ALTITUDE_ADV:.0f} in expectation.")
-    L.append("  Champion%/SF% = results-conditioned vectorized re-sim. ✓played · ±Δ = WC form move.")
+    L.append(f"  Form move ±Δ is OPPONENT-ADJUSTED (result vs rating-expectation) and deliberately")
+    L.append(f"  modest — K={FORM_K:.0f}, capped ±{DELTA_CAP:.0f}/match — so form informs, never dominates.")
+    L.append(f"  GD-weighted; host +{HOST_HOME_ADV:.0f} & altitude +{ALTITUDE_ADV:.0f} in expectation.")
+    L.append("  Champion%/SF% = results-conditioned vectorized re-sim. ✓played · xW(A)=opp-adj expectation.")
     L.append("")
 
     # --- per-match performance vs expectation ---
