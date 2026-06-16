@@ -1,55 +1,55 @@
 ==========================================================================
   WM 2026 — TEAM & PLAYER EVALUATION  (read-only; through games played)
 ==========================================================================
-  Rating = post-friendlies Elo + squad VORP + injury Elo, re-rated from
-  played results (World-Football-Elo, K=60, GD-weighted; host +60
-  & altitude +25 folded into expectation). Champion%/SF% = results-
-  conditioned vectorized re-sim. ✓played  ·  ±Δ = form move from MD1.
+  Rating = WC-ONLY: neutral base Elo + injury Elo (club squad-value & friendly
+  Elo priors STRIPPED), re-rated purely on World Cup results.
+  World-Football-Elo, K=60, GD-weighted; host +60 & altitude +25 in expectation.
+  Champion%/SF% = results-conditioned vectorized re-sim. ✓played · ±Δ = WC form move.
 
 ── MD1 performance vs expectation ────────────────────────────────────────
-       Australia 2:0 Turkey          xW(A)=  25%  OVER  ＋67.5
-             USA 4:1 Paraguay        xW(A)=  45%  OVER  ＋58.2  [USA home]
-     Ivory Coast 1:0 Ecuador         xW(A)=  20%  OVER  ＋47.8
-          Sweden 5:1 Tunisia         xW(A)=  65%  OVER  ＋38.9
-     South Korea 2:1 Czechia         xW(A)=  50%  OVER  ＋30.1
-           Qatar 1:1 Switzerland     xW(A)=   4%  OVER  ＋27.4
-          Canada 1:1 Bosnia          xW(A)=  85%  UNDER －20.9  [Canada home]
-         Belgium 1:1 Egypt           xW(A)=  80%  UNDER －18.0
-            Iran 2:2 New Zealand     xW(A)=  76%  UNDER －15.6
-           Haiti 0:1 Scotland        xW(A)=  21%  UNDER －12.3
-          Brazil 1:1 Morocco         xW(A)=  66%  UNDER － 9.8
-          Mexico 2:0 South Africa    xW(A)=  94%  ≈par  ＋ 5.4  [Mexico home, altitude]
-         Germany 7:1 Curaçao         xW(A)=  96%  ≈par  ＋ 4.7
-     Netherlands 2:2 Japan           xW(A)=  51%  ≈par  － 0.8
+             USA 4:1 Paraguay        xW(A)=  41%  OVER  ＋62.1  [USA home]
+       Australia 2:0 Turkey          xW(A)=  32%  OVER  ＋61.2
+     Ivory Coast 1:0 Ecuador         xW(A)=  18%  OVER  ＋49.0
+          Sweden 5:1 Tunisia         xW(A)=  61%  OVER  ＋43.4
+     South Korea 2:1 Czechia         xW(A)=  51%  OVER  ＋29.5
+           Qatar 1:1 Switzerland     xW(A)=   6%  OVER  ＋26.3
+          Canada 1:1 Bosnia          xW(A)=  83%  UNDER －19.7  [Canada home]
+         Belgium 1:1 Egypt           xW(A)=  79%  UNDER －17.1
+            Iran 2:2 New Zealand     xW(A)=  73%  UNDER －14.0
+           Haiti 0:1 Scotland        xW(A)=  20%  UNDER －12.2
+          Brazil 1:1 Morocco         xW(A)=  67%  UNDER －10.4
+         Germany 7:1 Curaçao         xW(A)=  94%  ≈par  ＋ 7.3
+          Mexico 2:0 South Africa    xW(A)=  92%  ≈par  ＋ 7.0  [Mexico home, altitude]
+     Netherlands 2:2 Japan           xW(A)=  54%  ≈par  － 2.4
 
 ── TEAM POWER RANKING ────────────────────────────────────────────────────
    #  Team               pre     Δ   post   Champ%   SF%  MD1
-   1  Spain             2184     ·   2184    18.3% 42.6%  
-   2  Argentina         2128     ·   2128    14.5% 35.9%  
-   3  France            2088     ·   2088    13.8% 37.9%  
-   4  England           2044     ·   2044     8.0% 28.5%  
-   5  Portugal          2018     ·   2018     7.2% 24.2%  
-   6  Colombia          1994     ·   1994     2.5% 13.1%  
-   7  Germany           1968    +5   1973     6.7% 26.4% ✓7:1 v Curaçao
-   8  Brazil            1975   -10   1965     4.7% 19.4% ✓1:1 v Morocco
-   9  Norway            1949     ·   1949     3.2% 16.2%  
-  10  Ecuador           1968   -48   1920     2.2% 11.5% ✓0:1 v Ivory Coast
-  11  Uruguay           1905     ·   1905     1.5%  9.0%  
-  12  Netherlands       1904    -1   1904     1.8% 10.8% ✓2:2 v Japan
-  13  Japan             1896    +1   1896     0.8%  6.5% ✓2:2 v Netherlands
-  14  Mexico            1887    +5   1892     1.5% 10.2% ✓2:0 v South Africa
-  15  Croatia           1886     ·   1886     1.5%  9.3%  
-  16  Belgium           1901   -18   1883     2.1% 12.4% ✓1:1 v Egypt
-  17  Turkey            1949   -67   1881     1.7%  8.8% ✓0:2 v Australia
-  18  Switzerland       1906   -27   1879     1.5% 10.5% ✓1:1 v Qatar
-  19  Senegal           1872     ·   1872     1.1%  8.2%  
-  20  Morocco           1856   +10   1866     1.4%  9.5% ✓1:1 v Brazil
-  21  Austria           1847     ·   1847     0.5%  4.5%  
-  22  Australia         1758   +67   1826     0.0%  2.7% ✓2:0 v Turkey
-  23  Canada            1827   -21   1806     1.1%  9.6% ✓1:1 v Bosnia
-  24  Scotland          1787   +12   1800     0.0%  3.5% ✓1:0 v Haiti
+   1  Spain             2148     ·   2148    18.3% 42.6%  
+   2  Argentina         2098     ·   2098    14.5% 35.9%  
+   3  France            2068     ·   2068    13.8% 37.9%  
+   4  England           2008     ·   2008     8.0% 28.5%  
+   5  Portugal          1979     ·   1979     7.2% 24.2%  
+   6  Colombia          1975     ·   1975     2.5% 13.1%  
+   7  Brazil            1946   -10   1936     4.7% 19.4% ✓1:1 v Morocco
+   8  Germany           1920    +7   1927     6.7% 26.4% ✓7:1 v Curaçao
+   9  Norway            1917     ·   1917     3.2% 16.2%  
+  10  Croatia           1903     ·   1903     1.5%  9.3%  
+  11  Netherlands       1902    -2   1900     1.8% 10.8% ✓2:2 v Japan
+  12  Ecuador           1935   -49   1886     2.2% 11.5% ✓0:1 v Ivory Coast
+  13  Uruguay           1882     ·   1882     1.5%  9.0%  
+  14  Japan             1874    +2   1876     0.8%  6.5% ✓2:2 v Netherlands
+  15  Mexico            1862    +7   1869     1.5% 10.2% ✓2:0 v South Africa
+  16  Switzerland       1894   -26   1868     1.5% 10.5% ✓1:1 v Qatar
+  17  Senegal           1867     ·   1867     1.1%  8.2%  
+  18  Belgium           1878   -17   1861     2.1% 12.4% ✓1:1 v Egypt
+  19  Turkey            1906   -61   1845     1.7%  8.8% ✓0:2 v Australia
+  20  Australia         1775   +61   1836     0.0%  2.7% ✓2:0 v Turkey
+  21  Morocco           1821   +10   1831     1.4%  9.5% ✓1:1 v Brazil
+  22  Austria           1830     ·   1830     0.5%  4.5%  
+  23  South Korea       1756   +29   1785     0.0%  3.8% ✓2:1 v Czechia
+  24  Canada            1805   -20   1785     1.1%  9.6% ✓1:1 v Bosnia
 
-  ▲ biggest riser: Australia +67    ▼ biggest faller: Turkey -67
+  ▲ biggest riser: USA +62    ▼ biggest faller: Paraguay -62
 
 ── GOLDEN BOOT — MODEL PROJECTION ────────────────────────────────────────
   (pre-tournament goal-share × expected team goals — projection, not goals scored)

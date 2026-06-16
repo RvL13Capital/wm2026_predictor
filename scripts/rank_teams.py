@@ -42,8 +42,16 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+# WC-ONLY by default: disable the pre-tournament FRIENDLY Elo overlay at import so predictor loads
+# the neutral pre-friendly international base. The form ranking is then moved purely by World Cup
+# results (--include-priors re-applies the friendly overlay + club squad-value VORP).
+os.environ.setdefault("WM2026_NO_FRIENDLY_ELO", "1")
+
 import predictor
 import tournament_bonusfragen as tbf
+
+_FRIENDLY_OVERLAY_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                                      "data", "elo_2026_post_friendlies.json")
 
 # --- context constants (folded into the EXPECTATION of a played match, not the rating) ---
 HOST_HOME_ADV = 60.0          # Elo points added to a host team's expectation when it plays at home
@@ -63,22 +71,38 @@ POSS_LOGISTIC_SCALE = 12.0    # possession-% edge over 50 per logit — 62% → 
 SHOTS_WEIGHT_IN_TERR = 0.7    # shots are a sharper territory signal than raw possession
 
 
-def effective_pre_rating():
-    """Each team's pre-tournament rating = base Elo + squad VORP + injury Elo (the engine stack).
+def effective_pre_rating(include_priors=False):
+    """Each team's starting rating before WC results are applied.
 
-    Restricted to the 48-team field (GROUPS): the Elo table also carries non-qualified
-    reference nations (Denmark, Cameroon, …) that must not pollute the tournament ranking.
+    WC-only (default): neutral pre-friendly international Elo + injury Elo. The club squad-value
+    VORP and the pre-tournament FRIENDLY Elo overlay are STRIPPED so the ranking rests on World Cup
+    evidence, not non-WC priors. (Injuries are kept — they reflect who is available AT the WC, a
+    roster fact, not a non-WC match result.)
+
+    include_priors: re-apply the full pre-tournament stack — friendly Elo overlay + squad VORP.
+
+    Restricted to the 48-team field (GROUPS): the Elo table also carries non-qualified reference
+    nations (Denmark, Cameroon, …) that must not pollute the tournament ranking.
     """
-    squad = tbf.compute_squad_elo_adjustments() if tbf.SQUAD_MARKET_VALUES else {}
     field = {t for teams in tbf.GROUPS.values() for t in teams}
+    overlay = {}
+    squad = {}
+    if include_priors:
+        squad = tbf.compute_squad_elo_adjustments() if tbf.SQUAD_MARKET_VALUES else {}
+        if os.path.exists(_FRIENDLY_OVERLAY_PATH):
+            with open(_FRIENDLY_OVERLAY_PATH, encoding="utf-8") as f:
+                raw = json.load(f)
+            for t, d in raw.items():
+                tc = predictor.TEAM_NAME_MAPPING.get(t.strip().lower(), t.strip())
+                overlay[tc] = float(d["elo"])          # absolute post-friendly Elo (replaces base)
     out = {}
     for team in field:
         data = predictor.WORLD_CUP_2026_TEAMS.get(team)
         if not data:
             continue
-        out[team] = (float(data["elo"]) + float(squad.get(team, 0.0))
-                     + float(tbf.INJURY_ELO_ADJUSTMENTS.get(team, 0.0)))
-    return out, squad
+        base = overlay.get(team, float(data["elo"]))   # post-friendly if priors on, else base
+        out[team] = base + float(squad.get(team, 0.0)) + float(tbf.INJURY_ELO_ADJUSTMENTS.get(team, 0.0))
+    return out
 
 
 def _g_weight(gd):
@@ -263,6 +287,9 @@ def main():
                     help="Optional per-match xG/shots/scorers (graceful if absent)")
     ap.add_argument("--output")
     ap.add_argument("--top", type=int, default=24, help="How many teams to print in the ranking")
+    ap.add_argument("--include-priors", action="store_true",
+                    help="Re-apply non-WC priors (friendly Elo overlay + club squad VORP). "
+                         "Default is WC-only: neutral base Elo + injuries, re-rated on WC results.")
     args = ap.parse_args()
 
     with open(args.live_state, encoding="utf-8") as f:
@@ -283,7 +310,7 @@ def main():
         for team, p in (d.get("all", {}) or {}).items():
             gw[team] = (g, p)
 
-    pre, _ = effective_pre_rating()
+    pre = effective_pre_rating(include_priors=args.include_priors)
     post, rows = apply_results(pre, live_state, match_stats)
     played = {r["a"] for r in rows} | {r["b"] for r in rows}
     used_xg = any(r.get("xg_a") is not None for r in rows)
@@ -293,10 +320,15 @@ def main():
     L.append("=" * 74)
     L.append("  WM 2026 — TEAM & PLAYER EVALUATION  (read-only; through games played)")
     L.append("=" * 74)
-    L.append("  Rating = post-friendlies Elo + squad VORP + injury Elo, re-rated from")
-    L.append(f"  played results (World-Football-Elo, K={WC_K:.0f}, GD-weighted; host +{HOST_HOME_ADV:.0f}")
-    L.append(f"  & altitude +{ALTITUDE_ADV:.0f} folded into expectation). Champion%/SF% = results-")
-    L.append("  conditioned vectorized re-sim. ✓played  ·  ±Δ = form move from MD1.")
+    if args.include_priors:
+        L.append("  Rating = post-friendly Elo + squad VORP + injury Elo (full pre-tournament")
+        L.append("  stack), re-rated from World Cup results.")
+    else:
+        L.append("  Rating = WC-ONLY: neutral base Elo + injury Elo (club squad-value & friendly")
+        L.append("  Elo priors STRIPPED), re-rated purely on World Cup results.")
+    L.append(f"  World-Football-Elo, K={WC_K:.0f}, GD-weighted; host +{HOST_HOME_ADV:.0f} & altitude "
+             f"+{ALTITUDE_ADV:.0f} in expectation.")
+    L.append("  Champion%/SF% = results-conditioned vectorized re-sim. ✓played · ±Δ = WC form move.")
     L.append("")
 
     # --- per-match performance vs expectation ---
