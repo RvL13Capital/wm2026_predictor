@@ -288,6 +288,30 @@ def _grid_probs(grid: dict):
     return p_h * 100, p_d * 100, p_a * 100
 
 
+def _reorient_tip_row(tip_row, home, away):
+    """Re-express tip_row in (home, away) order so the alert matches the official
+    fixture / pool home–away. Flips EVERY orientation-dependent field — tip,
+    grid (drives P(model)), and the runner-up string — not just the headline, so
+    a reversed fixture can never be mislabelled. No-op if already in order."""
+    if not tip_row or (tip_row.get("team_a"), tip_row.get("team_b")) == (home, away):
+        return tip_row
+    r = dict(tip_row)
+    r["team_a"], r["team_b"] = home, away
+    ta, tb = tip_row["optimal_tip"]
+    r["optimal_tip"] = (tb, ta)
+    ng = {}
+    for ga, row in (tip_row.get("grid") or {}).items():
+        for gb, p in row.items():
+            ng.setdefault(gb, {})[ga] = p
+    r["grid"] = ng
+    flipped = []
+    for t in (tip_row.get("top_tips") or []):
+        h, a = t["tip"].split(":")
+        flipped.append(dict(t, tip=f"{a}:{h}"))
+    r["top_tips"] = flipped
+    return r
+
+
 def build_message(match, team_a, team_b, tip_row, lineups_by_team, snapshot_path) -> str:
     """Compose the alert. team_a/team_b define the orientation of EVERY
     number in the message (tip, P(model), market 1X2) — the caller passes the
@@ -438,12 +462,12 @@ def process_match(match, dry_run: bool = False, refresh_odds: bool = True,
     except Exception as e:   # noqa: BLE001 — always still send something
         log(f"tip computation failed: {e}")
 
-    # message orientation ALWAYS follows the tip computation, never FIFA's
-    # home/away — a flipped fixture must not mislabel tip/probabilities
-    if tip_row:
-        team_a, team_b = tip_row["team_a"], tip_row["team_b"]
-    else:
-        team_a, team_b = eng_home, eng_away
+    # Present in the OFFICIAL fixture order (eng_home vs eng_away) so the WhatsApp
+    # matches the pool's home–away and is enter-ready. _reorient_tip_row flips
+    # EVERY field (tip, grid->P(model), runner-up) for a reversed fixture, so the
+    # numbers can never be mislabelled (build_message still trusts team_a/team_b).
+    tip_row = _reorient_tip_row(tip_row, eng_home, eng_away)
+    team_a, team_b = eng_home, eng_away
     msg = build_message(match, team_a, team_b, tip_row, lineups_by_team, snapshot_path)
     print(msg)
     if dry_run:
