@@ -122,7 +122,7 @@ def load_goldenboot():
     return None
 
 
-def build_html(tips, bonus, mode="optimal", goldenboot=None):
+def build_html(tips, bonus, mode="optimal", goldenboot=None, md=1):
     diff = (mode == "differential")
     master = (mode == "master")
     full = (mode == "full")
@@ -190,7 +190,7 @@ def build_html(tips, bonus, mode="optimal", goldenboot=None):
                  '<th>EV&nbsp;Tip<small>safe / grind</small></th><th>Exp<small>pts</small></th>'
                  '<th>Modal<small>snipe</small></th><th>Mode<small>%</small></th></tr></thead><tbody>'
                  + "".join(body) + '</tbody></table>')
-        title = "Matchday 1 — Master Dashboard"
+        title = f"Matchday {md} — Master Dashboard"
         subtitle = f"EV-safe grind vs modal snipe · {blend_label} · {stamp}"
         summary = (f"<b>EV Tip</b> maximises expected points (the safe grind); <b>Modal</b> is the single "
                    f"most-likely exact score from the NB grid. {ndiff} of {n} differ "
@@ -200,7 +200,7 @@ def build_html(tips, bonus, mode="optimal", goldenboot=None):
     else:
         table = '<table class="tips">' + "\n".join(tip_rows(tips)) + "</table>"
         if diff:
-            title = "Matchday 1 — Differential Tips"
+            title = f"Matchday {md} — Differential Tips"
             subtitle = f"both-teams-score scorelines for pool play · {blend_label} · {stamp}"
             summary = (f"Σ expected ≈ {btts_total:.1f} pts (avg {btts_total/n:.2f}/match) — only "
                        f"{opt_total-btts_total:.1f} pts below the EV-optimal sheet over {n} matches. "
@@ -208,7 +208,7 @@ def build_html(tips, bonus, mode="optimal", goldenboot=None):
                        f"far more differential variance for chasing a pool, at near-zero EV cost. "
                        f"Small scores beside each tip are the next-likeliest exact results from the grid.")
         else:
-            title = "Matchday 1 — Optimal Tips"
+            title = f"Matchday {md} — Optimal Tips"
             subtitle = f"EV-maximised for 4-3-2 Kicktipp scoring · {blend_label} · {stamp}"
             summary = (f"Σ expected ≈ {opt_total:.1f} pts over {n} matches (avg {opt_total/n:.2f}/match). "
                        f"Tips are the points-maximising single guess, not the modal scoreline — the small "
@@ -367,16 +367,17 @@ def main():
     mode = ("master" if "--master" in sys.argv else
             "differential" if "--differential" in sys.argv else
             "full" if "--full" in sys.argv else "optimal")
+    md = next((int(a[5:]) for a in sys.argv if a.startswith("--md=")), 1)
     pos = [a for a in sys.argv[1:] if not a.startswith("--")]
     bonus_path = pos[0] if len(pos) > 0 else "/tmp/bonus.json"
-    default_name = {"master": "von_linck_capital_wm2026_md1_master.pdf",
-                    "differential": "von_linck_capital_wm2026_md1_differential.pdf",
+    default_name = {"master": f"von_linck_capital_wm2026_md{md}_master.pdf",
+                    "differential": f"von_linck_capital_wm2026_md{md}_differential.pdf",
                     "full": "von_linck_capital_wm2026_groupstage.pdf",
-                    "optimal": "von_linck_capital_wm2026_md1.pdf"}[mode]
+                    "optimal": f"von_linck_capital_wm2026_md{md}.pdf"}[mode]
     out = pos[1] if len(pos) > 1 else os.path.join(HERE, default_name)
-    tips = {md: md_tips(md) for md in (1, 2, 3)} if mode == "full" else md_tips()
+    tips = {m: md_tips(m) for m in (1, 2, 3)} if mode == "full" else md_tips(md)
     bonus = load_bonus(bonus_path)
-    html = build_html(tips, bonus, mode, load_goldenboot())
+    html = build_html(tips, bonus, mode, load_goldenboot(), md=md)
     from weasyprint import HTML
     HTML(string=html, base_url=HERE).write_pdf(out)
     print(f"✓ wrote {out}  ({os.path.getsize(out)//1024} KB)  mode={mode}  "

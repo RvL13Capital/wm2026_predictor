@@ -385,7 +385,8 @@ def due_matches(schedule: list, lead_min: int, now=None) -> list:
     return out
 
 
-def process_match(match, dry_run: bool = False, refresh_odds: bool = True) -> bool:
+def process_match(match, dry_run: bool = False, refresh_odds: bool = True,
+                  require_xi: bool = True) -> bool:
     eng_home = engine_name(match["home"])
     eng_away = engine_name(match["away"])
     log(f"processing {eng_home} vs {eng_away} (FIFA {match['id']}, ko {match['utc']})")
@@ -396,6 +397,14 @@ def process_match(match, dry_run: bool = False, refresh_odds: bool = True) -> bo
     lineups_by_team = None
     if lineups:
         lineups_by_team = {eng_home: lineups["home"], eng_away: lineups["away"]}
+
+    # GATE (user policy): game alerts go out only AFTER the official starting XIs
+    # are confirmed. No XI yet -> don't send, don't dedup; the 5-min runner retries
+    # until FIFA publishes them (~T-75), so a delivered message always reflects the
+    # final lineup. --force-match bypasses (operator override); --dry-run still prints.
+    if require_xi and lineups_by_team is None and not dry_run:
+        log("HOLDING alert — official starting XI not published yet; will retry next tick")
+        return False
 
     if refresh_odds:
         snapshot_path = refresh_snapshot()
@@ -466,7 +475,8 @@ def main(argv=None) -> int:
             if m.get("home") and m.get("away") and \
                     {engine_name(m["home"]), engine_name(m["away"])} == want:
                 ok = process_match(m, dry_run=args.dry_run,
-                                   refresh_odds=not args.no_odds_refresh)
+                                   refresh_odds=not args.no_odds_refresh,
+                                   require_xi=False)  # operator override: may send pre-XI
                 return 0 if ok else 1
         log(f"fixture not found in schedule: {args.force_match}")
         return 2
