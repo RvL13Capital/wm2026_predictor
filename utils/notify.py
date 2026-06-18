@@ -31,19 +31,34 @@ APIKEY_ENV = "CALLMEBOT_APIKEY"
 RECIPIENTS_ENV = "CALLMEBOT_RECIPIENTS"   # "phone:apikey[,phone:apikey…]" — additional recipients
 
 
+def _norm_phone(p: str) -> str:
+    """Normalize a phone to the bare international format CallMeBot accepts
+    (digits only, no '+', no '00' trunk, no spaces/dashes). The bare form
+    e.g. '491626410039' is the proven-good format; '+49…', '0049…', and
+    spaced/dashed variants are all rejected as "format is incorrect"."""
+    digits = re.sub(r"\D", "", (p or ""))
+    if digits.startswith("00"):
+        digits = digits[2:]
+    return digits
+
+
 def _recipients(phone: str = None, apikey: str = None) -> list:
     """Resolve the recipient list. Explicit phone+apikey args win (single
     recipient); otherwise CALLMEBOT_PHONE/APIKEY (one) plus every
     phone:apikey pair in CALLMEBOT_RECIPIENTS, deduplicated."""
     if phone and apikey:
-        return [(phone, apikey)]
+        return [(_norm_phone(phone), apikey.strip())]
     out = []
-    p, k = os.environ.get(PHONE_ENV), os.environ.get(APIKEY_ENV)
+    # Normalize phones + strip keys: an invisible trailing newline, a stray '+'
+    # or '00' trunk in a GitHub Actions secret all make CallMeBot reject the
+    # phone ("format is incorrect") even though the bare number works.
+    p, k = _norm_phone(os.environ.get(PHONE_ENV, "")), (os.environ.get(APIKEY_ENV) or "").strip()
     if p and k:
         out.append((p, k))
     for pair in re.split(r"[,;\s]+", os.environ.get(RECIPIENTS_ENV, "").strip()):
         if ":" in pair:
             ph, key = pair.split(":", 1)
+            ph, key = _norm_phone(ph), key.strip()
             if ph and key and (ph, key) not in out:
                 out.append((ph, key))
     return out
@@ -53,18 +68,46 @@ def is_configured() -> bool:
     return bool(_recipients())
 
 
+# CallMeBot's whatsapp.php returns HTTP 200 EVEN ON FAILURE, with the real
+# status in the response BODY (e.g. "ApiKey is not valid", "You need to add the
+# phone number…"). Checking only the status code reports rejected messages as
+# sent — so we inspect the body too. Markers are matched case-insensitively.
+_BODY_ERROR_MARKERS = (
+    "not valid", "invalid", "is incorrect", "not registered", "you must",
+    "you need to", "enable the api", "apikey is", "api key is", "error",
+    "couldn't", "could not", "can't", "wasn't", "was not sent", "failed",
+)
+_BODY_SUCCESS_MARKERS = (
+    "queued", "message sent", "will receive", "sent successfully",
+    "message accepted", "successfully",
+)
+
+
 def _send_one(text: str, phone: str, apikey: str) -> bool:
+    tail = phone[-4:] if phone else "????"
     url = CALLMEBOT_URL + "?" + urllib.parse.urlencode(
         {"phone": phone, "text": text, "apikey": apikey})
     req = urllib.request.Request(url, headers={"User-Agent": "wm2026-predictor-ops"})
     try:
         with urllib.request.urlopen(req, timeout=_TIMEOUT_S) as resp:
             ok = 200 <= resp.status < 300
-            if not ok:
-                sys.stderr.write(f"[notify] CallMeBot HTTP {resp.status} for …{phone[-4:]}\n")
+            try:
+                body = resp.read().decode("utf-8", "replace").strip()
+            except Exception:                    # body unreadable — fall back to status only
+                body = ""
+            low = body.lower()
+            # 200 + an error body = a rejected message, not a delivery.
+            if ok and low:
+                if any(m in low for m in _BODY_ERROR_MARKERS) and \
+                        not any(m in low for m in _BODY_SUCCESS_MARKERS):
+                    ok = False
+            # Always surface what CallMeBot actually said — the only way to debug
+            # non-delivery (the API lies via the body, not the status code).
+            snippet = body[:180].replace("\n", " ") if body else "<empty body>"
+            sys.stderr.write(f"[notify] …{tail} HTTP {resp.status} {'OK' if ok else 'REJECTED'}: {snippet}\n")
             return ok
     except Exception as e:                       # noqa: BLE001 — must never raise
-        sys.stderr.write(f"[notify] WhatsApp send to …{phone[-4:]} failed: {e}\n")
+        sys.stderr.write(f"[notify] WhatsApp send to …{tail} failed: {e}\n")
         return False
 
 
@@ -75,6 +118,17 @@ def send_whatsapp(text: str, phone: str = None, apikey: str = None) -> bool:
     """
     recipients = _recipients(phone, apikey)
     if not recipients:
+        # Non-leaking diagnostic: which sources are SET (booleans only, never
+        # the values) and whether any digits survived — pinpoints a malformed
+        # secret without exposing it.
+        rcp = os.environ.get(RECIPIENTS_ENV, "")
+        sys.stderr.write(
+            "[notify] 0 recipients resolved — PHONE set=%s digits=%d | APIKEY set=%s | "
+            "RECIPIENTS set=%s has_colon=%s\n" % (
+                bool((os.environ.get(PHONE_ENV) or "").strip()),
+                len(re.sub(r"\D", "", os.environ.get(PHONE_ENV, ""))),
+                bool((os.environ.get(APIKEY_ENV) or "").strip()),
+                bool(rcp.strip()), (":" in rcp)))
         return False
     text = (text or "").strip()
     if not text:
