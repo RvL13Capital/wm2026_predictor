@@ -127,21 +127,22 @@ def _get_match_elevation(team_a: str, team_b: str) -> tuple:
     return float(elevation), accl_a, accl_b
 
 # ==============================================================================
-# INJURY-BASED ELO CORRECTIONS (Stand: 16. Juni 2026, ~14:00 UTC, nach Spieltag-1 Gruppen A–I, vor FRA–SEN)
+# INJURY-BASED ELO CORRECTIONS (Stand: 18. Juni 2026, nach Spieltag 1 komplett, vor MD2)
 # ==============================================================================
 # Source: Verified via ESPN injuries tracker, Yahoo/CBC/UPI squad reports, FIFA/ESPN match reports;
 # Canada/Bosnia from the OFFICIAL FIFA lineups (api.fifa.com match 400021449, Jun 12).
-# Updated after the Jun 13–16 MD1 openers (Groups A–I; FRA–SEN & IRQ–NOR still to play Jun 16).
+# MD1 complete (24/24): NO new red cards beyond the openers; the two suspensions below
+# are still pending each side's MD2 match (Czechia–SA today, Mexico–SK Jun 19).
 # Negative values = weaker due to injuries + form crisis
 # Suspension entries are flagged [SUSPENSION MD2] — REVERT after the team's MD2 match.
 INJURY_ELO_ADJUSTMENTS = {
     "Netherlands": -42,   # Xavi Simons (ACL) OUT, de Ligt (back) OUT, Timber definitively OUT (replaced by Geertruida), Verbruggen (keeper) injured in friendly.
     "Brazil":      -38,   # Rodrygo (ACL/meniscus) OUT, Militão (hamstring surgery) OUT, Estevão OUT. Neymar (grade-2 calf tear) CONFIRMED OUT of opener + MD2 — Ancelotti targets MD3 vs Haiti (Jun 20); held 1-1 by Morocco.
     "Japan":       -32,   # Mitoma (hamstring) OUT of squad, Kubo doubtful, captain Wataru Endo struggling with foot injury.
-    "USA":         -18,   # WAS -25: Richards back in full training (Jun 8). Cardoso (ankle) still OUT.
+    "USA":         -18,   # Richards back. Cardoso (ankle) still OUT. Pulisic (calf knock vs Paraguay) day-to-day — expected to feature vs Australia MD2, possibly off the bench [monitor T-45 XI].
     "Mexico":      -10,   # Malagón (Achilles) OUT. [SUSPENSION MD2] César Montes red card in opener — misses MD2 vs South Korea.
     "Argentina":   -12,   # WAS -15: Messi fit again (20' + penalty vs Iceland, full training). Romero (MCL), Foyth, Panichelli, Balerdi still OUT.
-    "France":      -14,   # Hugo Ekitike (Achilles) OUT, Kamara OUT (new). Mbappé fit. Internal FFF tension.
+    "France":       -8,   # WAS -14: full first-choice XI available — started + won 3-1 vs Senegal (Mbappé x2; Saliba/Koundé/Tchouaméni/Dembélé all played). Only Ekitike (Achilles) + Kamara OUT (squad depth).
     "England":     -12,   # White (knee) OUT, Branthwaite (thigh) OUT, Grealish (foot) OUT, Saka managing Achilles workload.
     "Canada":      -15,   # Davies (hamstring) BENCH-only for the opener — official XI has Oluwaseyi/De Fougerolles in; Marsch targets MD2/MD3 return. Bombito (tibia) bench-only, Flores (ACL) OUT, Shaffelburg recovering. [REVERT to ~-5 once Davies starts]
     "Uruguay":     -10,   # de Arrascaeta (calf tear) group doubt, Ronald Araújo (calf) injured in training, Cáceres (concussion).
@@ -149,7 +150,7 @@ INJURY_ELO_ADJUSTMENTS = {
     "Spain":        -3,   # WAS -8: Yamal, Nico Williams, Dani Olmo all came off the bench vs Cape Verde (Jun 15) — fit/available going forward (minutes-managed). Only Fermín López (metatarsal), Barrenetxea still OUT.
     "South Africa": -8,   # [SUSPENSION MD2] Sithole + Zwane red cards in opener — both miss MD2 vs Czechia.
     "Bosnia":       -6,   # Džeko (shoulder, 40) BENCH-only for the opener per official XI (Lukić starts with Demirović), Tabaković (metatarsal) bench, Šunjić (muscle) bench; 3rd GK Hadžikić withdrew (Jurkas in).
-    "Portugal":     -5,   # Cristiano Ronaldo (hamstring concerns), Mateus Nunes (health issues, missed friendly).
+    "Portugal":     -5,   # Rúben Dias missed MD1 injured (unclear duration — monitor). Ronaldo fit (started vs DR Congo). Mateus Nunes health issues.
     "Germany":      -5,   # Gnabry (adductor) OUT, Karl (thigh muscle tear) OUT — Ouédraogo called up.
     "Croatia":      -5,   # Modrić cheekbone fracture (playing with mask).
 }
