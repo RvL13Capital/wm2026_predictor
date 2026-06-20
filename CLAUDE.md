@@ -39,7 +39,7 @@ python3 scripts/validate_live_state.py data/live_state.json     # typos are sile
 python3 scripts/score_predictions.py --results data/live_state.json  # realized pts vs model EV ("luck" per matchday)
 python3 scripts/log_predictions.py --kind matchday --file data/matchdayN_tips_vX.txt  # pre-register BEFORE kickoff
 python3 tests/gate_check.py --bonus <bonus.txt> --matchday <tips.txt>
-python3 make_tips_pdf.py data/bonusfragen_tips.json out.pdf [--differential|--master|--full]  # branded sheets; --full = all 72 fixtures + Bonusfragen; beware stale /tmp/bonus.json (the default)
+python3 make_tips_pdf.py data/bonusfragen_tips.json out.pdf [--differential|--master|--full] [--md=N]  # branded sheets; --md=N picks the matchday (default 1); --full = all 72 fixtures + Bonusfragen; beware stale /tmp/bonus.json (the default)
 
 # Gate-G2 odds data (templates are committed with blank odds — data/ODDS_DATA_README.md)
 python3 scripts/fill_odds_theoddsapi.py --year 2022 --estimate   # The Odds API historical (2022 only; paid; run where the host is allowlisted)
@@ -91,4 +91,7 @@ Everything flows through one engine; **`predictor.predict_single_match(row) -> d
 - **Change freeze from Jun 28** (first KO match): only P0 fixes merge, each with the full suite + points-floor + equivalence tests green.
 - **One commit per plan step ID**, message referencing the step (S-number).
 - **Sandboxed container sessions** have an egress allowlist that blocks `gamma-api.polymarket.com` and `api.the-odds-api.com` (verified: "Host not in allowlist"). Fix: add them (plus `api.open-meteo.com`, `flagcdn.com`, `api.callmebot.com` for WhatsApp pushes) to the environment's network allowlist in the Claude Code settings; until then run live fetches on the ops machine (full egress) and ferry snapshots via `git add -f data/polymarket_match_odds.json` committed onto the container session's PR branch.
+- **Market blend is opt-in:** `matchday_tips.py` blends Polymarket **only** with `--odds-snapshot <file>`; without it the sheet is Elo+context-only (the v6 "market" sheets that outscore the Elo ones need it). `make_tips_pdf.py` and the bonus path auto-load `data/polymarket_match_odds.json`.
+- **Venue data:** `data/fifa_2026_schedule.json` shipped placeholder venues — WRONG for 54/72 group matches (drives travel/altitude). Rebuild from the authoritative FIFA calendar `Stadium`/`CityName`. The WBGT heat term in `get_adjusted_lambdas` is **dormant** (fed the flat 20 °C default, no forecast feed), so venues affect only travel/altitude in live tips.
+- **Local prematch ops:** `scripts/prematch_local_runner.py` (nohup 5-min T-45 alert daemon, XI-gated, messages in pool home–away order) + `scripts/results_sweep.py` (auto-records finished First-Stage results into `live_state`, commits, flags injuries to `data/logs/sweep.log`) — the GitHub Actions cron is disabled. `source ~/.zshrc` for CallMeBot/odds creds (absent from the non-login Bash shell).
 - **Open items:** S11 canonical-dynamics decision (recommendation: vectorized fatigue canonical; execute post-tournament); S15 third-place match M103 (absent from both engines — Golden Boot misses its goals); ~~G2 odds data~~ (supplied + verdict rendered NOT PASSED 2026-06-11); optional pool-history check of the shootout score representation (`validation/POOL_RULES.md`).
