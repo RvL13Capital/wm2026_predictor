@@ -260,6 +260,11 @@ def run_matchday(md: int, n_simulations: int, seed: int, market_probs: dict = No
                 "optimal_tip": optimal_tip,
                 "ev": max_ev,
                 "top_tips": result.get("top_tips", []),
+                # inert metadata: the canonical config_90 (dist_type/alpha/rho/max_goals/
+                # max_tip), carried so the SEPARATE, read-only O/U-total engine
+                # (ou_total_engine.py) can clone it and change ONLY the lambdas. The core
+                # tip path never reads this back — no feedback into other tips.
+                "config": result.get("config"),
                 "market_total": market_total,
                 "market_longshot": market_longshot,
                 "mc": mc_stats
