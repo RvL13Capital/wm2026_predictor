@@ -1,12 +1,12 @@
 {
   "source": "polymarket_matches_1x2",
   "probabilities": {
-    "Czechia|South Africa": {
-      "1": 1.905,
-      "X": 3.774,
+    "Netherlands|Sweden": {
+      "1": 1.739,
+      "X": 4.255,
       "2": 4.878,
-      "liquidity": 1755327.61,
-      "volume": 4670456.38,
+      "liquidity": 1122553.3,
+      "volume": 2233026.33,
       "spreads": {
         "1": 0.01,
         "X": 0.01,
@@ -18,12 +18,12 @@
         "rel_spread": 0.049
       }
     },
-    "Switzerland|Bosnia-Herzegovina": {
-      "1": 1.6,
-      "X": 4.255,
-      "2": 6.897,
-      "liquidity": 935867.79,
-      "volume": 912333.71,
+    "Germany|Côte d'Ivoire": {
+      "1": 1.527,
+      "X": 4.878,
+      "2": 6.452,
+      "liquidity": 1223064.55,
+      "volume": 1938640.33,
       "spreads": {
         "1": 0.01,
         "X": 0.01,
@@ -31,87 +31,19 @@
       },
       "longshot": {
         "side": "2",
-        "odds": 6.897,
-        "rel_spread": 0.069
+        "odds": 6.452,
+        "rel_spread": 0.065
       }
     },
-    "Canada|Qatar": {
-      "1": 1.307,
-      "X": 6.061,
-      "2": 13.333,
-      "liquidity": 1015183.6,
-      "volume": 1000824.0,
-      "spreads": {
-        "1": 0.01,
-        "X": 0.01,
-        "2": 0.01
-      },
-      "longshot": {
-        "side": "2",
-        "odds": 13.333,
-        "rel_spread": 0.133
-      }
-    },
-    "Mexico|Korea Republic": {
-      "1": 2.105,
-      "X": 3.39,
-      "2": 4.082,
-      "liquidity": 849760.12,
-      "volume": 1502670.11,
-      "spreads": {
-        "1": 0.01,
-        "X": 0.01,
-        "2": 0.01
-      },
-      "longshot": {
-        "side": "2",
-        "odds": 4.082,
-        "rel_spread": 0.041
-      }
-    },
-    "United States|Australia": {
-      "1": 1.653,
-      "X": 4.651,
-      "2": 5.714,
-      "liquidity": 644672.1,
-      "volume": 854122.2,
-      "spreads": {
-        "1": 0.01,
-        "X": 0.01,
-        "2": 0.01
-      },
-      "longshot": {
-        "side": "2",
-        "odds": 5.714,
-        "rel_spread": 0.057
-      }
-    },
-    "Scotland|Morocco": {
-      "1": 5.714,
-      "X": 3.774,
-      "2": 1.77,
-      "liquidity": 483546.78,
-      "volume": 296946.57,
-      "spreads": {
-        "1": 0.01,
-        "X": 0.01,
-        "2": 0.01
-      },
-      "longshot": {
-        "side": "1",
-        "odds": 5.714,
-        "rel_spread": 0.057
-      }
-    },
-    "Brazil|Haiti": {
-      "1": 1.13,
-      "X": 12.579,
+    "Ecuador|Curaçao": {
+      "1": 1.156,
+      "X": 10.526,
       "2": 25.974,
-      "liquidity": 459355.92,
-      "volume": 620990.58,
+      "liquidity": 562437.0,
+      "volume": 1598565.75,
       "spreads": {
         "1": 0.01,
-        "X": 0.001,
+        "X": 0.01,
         "2": 0.001
       },
       "longshot": {
@@ -120,80 +52,12 @@
         "rel_spread": 0.026
       }
     },
-    "Türkiye|Paraguay": {
-      "1": 2.151,
-      "X": 3.509,
-      "2": 4.082,
-      "liquidity": 455771.05,
-      "volume": 314990.14,
-      "spreads": {
-        "1": 0.01,
-        "X": 0.01,
-        "2": 0.01
-      },
-      "longshot": {
-        "side": "2",
-        "odds": 4.082,
-        "rel_spread": 0.041
-      }
-    },
-    "Netherlands|Sweden": {
-      "1": 1.77,
-      "X": 4.082,
-      "2": 5.128,
-      "liquidity": 478717.4,
-      "volume": 132480.49,
-      "spreads": {
-        "1": 0.01,
-        "X": 0.01,
-        "2": 0.01
-      },
-      "longshot": {
-        "side": "2",
-        "odds": 5.128,
-        "rel_spread": 0.051
-      }
-    },
-    "Germany|Côte d'Ivoire": {
-      "1": 1.575,
-      "X": 4.878,
-      "2": 6.061,
-      "liquidity": 430824.62,
-      "volume": 337765.63,
-      "spreads": {
-        "1": 0.01,
-        "X": 0.01,
-        "2": 0.01
-      },
-      "longshot": {
-        "side": "2",
-        "odds": 6.061,
-        "rel_spread": 0.061
-      }
-    },
-    "Ecuador|Curaçao": {
-      "1": 1.13,
-      "X": 11.765,
-      "2": 26.316,
-      "liquidity": 414407.66,
-      "volume": 650168.18,
-      "spreads": {
-        "1": 0.01,
-        "X": 0.01,
-        "2": 0.002
-      },
-      "longshot": {
-        "side": "2",
-        "odds": 26.316,
-        "rel_spread": 0.053
-      }
-    },
     "Tunisia|Japan": {
-      "1": 8.0,
+      "1": 6.897,
       "X": 4.255,
-      "2": 1.55,
-      "liquidity": 483311.86,
-      "volume": 148652.24,
+      "2": 1.6,
+      "liquidity": 819218.39,
+      "volume": 836555.01,
       "spreads": {
         "1": 0.01,
         "X": 0.01,
@@ -201,16 +65,16 @@
       },
       "longshot": {
         "side": "1",
-        "odds": 8.0,
-        "rel_spread": 0.08
+        "odds": 6.897,
+        "rel_spread": 0.069
       }
     },
     "Spain|Saudi Arabia": {
-      "1": 1.143,
+      "1": 1.13,
       "X": 11.765,
-      "2": 25.316,
-      "liquidity": 377201.35,
-      "volume": 478384.02,
+      "2": 31.746,
+      "liquidity": 504471.68,
+      "volume": 919331.21,
       "spreads": {
         "1": 0.01,
         "X": 0.01,
@@ -218,16 +82,16 @@
       },
       "longshot": {
         "side": "2",
-        "odds": 25.316,
-        "rel_spread": 0.025
+        "odds": 31.746,
+        "rel_spread": 0.032
       }
     },
     "Belgium|IR Iran": {
-      "1": 1.46,
+      "1": 1.481,
       "X": 4.878,
       "2": 8.696,
-      "liquidity": 383985.42,
-      "volume": 131862.23,
+      "liquidity": 500399.64,
+      "volume": 217531.12,
       "spreads": {
         "1": 0.01,
         "X": 0.01,
@@ -240,11 +104,11 @@
       }
     },
     "Uruguay|Cabo Verde": {
-      "1": 1.504,
+      "1": 1.481,
       "X": 4.444,
-      "2": 8.696,
-      "liquidity": 415522.74,
-      "volume": 100999.77,
+      "2": 9.524,
+      "liquidity": 502252.06,
+      "volume": 181822.38,
       "spreads": {
         "1": 0.01,
         "X": 0.01,
@@ -252,16 +116,16 @@
       },
       "longshot": {
         "side": "2",
-        "odds": 8.696,
-        "rel_spread": 0.087
+        "odds": 9.524,
+        "rel_spread": 0.095
       }
     },
     "New Zealand|Egypt": {
       "1": 6.061,
       "X": 4.255,
       "2": 1.653,
-      "liquidity": 396762.15,
-      "volume": 97565.96,
+      "liquidity": 463596.77,
+      "volume": 137007.56,
       "spreads": {
         "1": 0.01,
         "X": 0.01,
@@ -274,11 +138,11 @@
       }
     },
     "Argentina|Austria": {
-      "1": 1.626,
+      "1": 1.6,
       "X": 4.255,
       "2": 6.897,
-      "liquidity": 431066.53,
-      "volume": 227419.01,
+      "liquidity": 461173.45,
+      "volume": 532817.53,
       "spreads": {
         "1": 0.01,
         "X": 0.01,
@@ -291,11 +155,11 @@
       }
     },
     "France|Iraq": {
-      "1": 1.13,
+      "1": 1.105,
       "X": 13.333,
-      "2": 31.746,
-      "liquidity": 319057.19,
-      "volume": 363631.99,
+      "2": 36.364,
+      "liquidity": 327623.64,
+      "volume": 560345.2,
       "spreads": {
         "1": 0.01,
         "X": 0.01,
@@ -303,16 +167,16 @@
       },
       "longshot": {
         "side": "2",
-        "odds": 31.746,
-        "rel_spread": 0.032
+        "odds": 36.364,
+        "rel_spread": 0.036
       }
     },
     "Norway|Senegal": {
       "1": 2.353,
       "X": 3.636,
-      "2": 3.175,
-      "liquidity": 427182.77,
-      "volume": 167464.65,
+      "2": 3.279,
+      "liquidity": 469958.48,
+      "volume": 279388.11,
       "spreads": {
         "1": 0.01,
         "X": 0.01,
@@ -328,8 +192,8 @@
       "1": 6.452,
       "X": 4.255,
       "2": 1.626,
-      "liquidity": 323087.18,
-      "volume": 91883.29,
+      "liquidity": 406329.31,
+      "volume": 141837.87,
       "spreads": {
         "1": 0.01,
         "X": 0.01,
@@ -342,11 +206,11 @@
       }
     },
     "Portugal|Uzbekistan": {
-      "1": 1.242,
-      "X": 7.407,
+      "1": 1.227,
+      "X": 8.0,
       "2": 18.182,
-      "liquidity": 331554.59,
-      "volume": 97098.24,
+      "liquidity": 358014.86,
+      "volume": 127164.47,
       "spreads": {
         "1": 0.01,
         "X": 0.01,
@@ -359,11 +223,11 @@
       }
     },
     "England|Ghana": {
-      "1": 1.258,
+      "1": 1.242,
       "X": 6.897,
       "2": 15.385,
-      "liquidity": 336301.92,
-      "volume": 191928.29,
+      "liquidity": 389327.32,
+      "volume": 357029.06,
       "spreads": {
         "1": 0.01,
         "X": 0.01,
@@ -379,8 +243,8 @@
       "1": 7.407,
       "X": 4.255,
       "2": 1.575,
-      "liquidity": 345757.67,
-      "volume": 50321.66,
+      "liquidity": 400622.89,
+      "volume": 68461.49,
       "spreads": {
         "1": 0.01,
         "X": 0.01,
@@ -395,9 +259,43 @@
     "Colombia|DR Congo": {
       "1": 1.55,
       "X": 4.444,
+      "2": 8.0,
+      "liquidity": 379403.2,
+      "volume": 57428.6,
+      "spreads": {
+        "1": 0.01,
+        "X": 0.01,
+        "2": 0.01
+      },
+      "longshot": {
+        "side": "2",
+        "odds": 8.0,
+        "rel_spread": 0.08
+      }
+    },
+    "Switzerland|Canada": {
+      "1": 2.532,
+      "X": 3.175,
+      "2": 3.39,
+      "liquidity": 363768.72,
+      "volume": 91915.82,
+      "spreads": {
+        "1": 0.01,
+        "X": 0.01,
+        "2": 0.01
+      },
+      "longshot": {
+        "side": "2",
+        "odds": 3.39,
+        "rel_spread": 0.034
+      }
+    },
+    "Bosnia-Herzegovina|Qatar": {
+      "1": 1.481,
+      "X": 5.128,
       "2": 7.407,
-      "liquidity": 347833.89,
-      "volume": 42223.23,
+      "liquidity": 304464.27,
+      "volume": 96812.22,
       "spreads": {
         "1": 0.01,
         "X": 0.01,
@@ -409,12 +307,12 @@
         "rel_spread": 0.074
       }
     },
-    "Switzerland|Canada": {
-      "1": 2.198,
-      "X": 3.509,
-      "2": 3.636,
-      "liquidity": 248385.7,
-      "volume": 32537.01,
+    "Morocco|Haiti": {
+      "1": 1.227,
+      "X": 7.407,
+      "2": 18.182,
+      "liquidity": 381026.48,
+      "volume": 101363.7,
       "spreads": {
         "1": 0.01,
         "X": 0.01,
@@ -422,101 +320,67 @@
       },
       "longshot": {
         "side": "2",
-        "odds": 3.636,
-        "rel_spread": 0.036
+        "odds": 18.182,
+        "rel_spread": 0.182
       }
     },
-    "Bosnia-Herzegovina|Qatar": {
-      "1": 1.626,
-      "X": 4.255,
-      "2": 6.452,
-      "liquidity": 268150.74,
-      "volume": 45583.89,
+    "Scotland|Brazil": {
+      "1": 8.696,
+      "X": 5.714,
+      "2": 1.418,
+      "liquidity": 365591.04,
+      "volume": 153853.64,
       "spreads": {
         "1": 0.01,
         "X": 0.01,
         "2": 0.01
       },
       "longshot": {
-        "side": "2",
+        "side": "1",
+        "odds": 8.696,
+        "rel_spread": 0.087
+      }
+    },
+    "Czechia|Mexico": {
+      "1": 3.636,
+      "X": 4.255,
+      "2": 2.02,
+      "liquidity": 411126.49,
+      "volume": 477858.35,
+      "spreads": {
+        "1": 0.01,
+        "X": 0.01,
+        "2": 0.01
+      },
+      "longshot": {
+        "side": "X",
+        "odds": 4.255,
+        "rel_spread": 0.043
+      }
+    },
+    "South Africa|Korea Republic": {
+      "1": 6.452,
+      "X": 4.082,
+      "2": 1.653,
+      "liquidity": 329981.47,
+      "volume": 177333.2,
+      "spreads": {
+        "1": 0.01,
+        "X": 0.01,
+        "2": 0.01
+      },
+      "longshot": {
+        "side": "1",
         "odds": 6.452,
         "rel_spread": 0.065
       }
     },
-    "Morocco|Haiti": {
-      "1": 1.342,
-      "X": 6.061,
-      "2": 11.765,
-      "liquidity": 263255.95,
-      "volume": 71815.23,
-      "spreads": {
-        "1": 0.01,
-        "X": 0.01,
-        "2": 0.01
-      },
-      "longshot": {
-        "side": "2",
-        "odds": 11.765,
-        "rel_spread": 0.118
-      }
-    },
-    "Scotland|Brazil": {
-      "1": 7.407,
-      "X": 5.714,
-      "2": 1.439,
-      "liquidity": 261957.25,
-      "volume": 103889.63,
-      "spreads": {
-        "1": 0.01,
-        "X": 0.01,
-        "2": 0.01
-      },
-      "longshot": {
-        "side": "1",
-        "odds": 7.407,
-        "rel_spread": 0.074
-      }
-    },
-    "Czechia|Mexico": {
-      "1": 4.878,
-      "X": 3.774,
-      "2": 1.869,
-      "liquidity": 244206.14,
-      "volume": 40176.23,
-      "spreads": {
-        "1": 0.01,
-        "X": 0.01,
-        "2": 0.01
-      },
-      "longshot": {
-        "side": "1",
-        "odds": 4.878,
-        "rel_spread": 0.049
-      }
-    },
-    "South Africa|Korea Republic": {
-      "1": 6.061,
-      "X": 4.444,
-      "2": 1.626,
-      "liquidity": 264333.75,
-      "volume": 76279.35,
-      "spreads": {
-        "1": 0.01,
-        "X": 0.01,
-        "2": 0.01
-      },
-      "longshot": {
-        "side": "1",
-        "odds": 6.061,
-        "rel_spread": 0.061
-      }
-    },
     "Ecuador|Germany": {
-      "1": 5.128,
+      "1": 5.405,
       "X": 4.255,
-      "2": 1.709,
-      "liquidity": 263417.09,
-      "volume": 97752.91,
+      "2": 1.739,
+      "liquidity": 257885.86,
+      "volume": 123958.21,
       "spreads": {
         "1": 0.01,
         "X": 0.01,
@@ -524,33 +388,33 @@
       },
       "longshot": {
         "side": "1",
-        "odds": 5.128,
-        "rel_spread": 0.051
+        "odds": 5.405,
+        "rel_spread": 0.054
       }
     },
     "Curaçao|Côte d'Ivoire": {
-      "1": 20.0,
+      "1": 22.222,
       "X": 9.524,
       "2": 1.17,
-      "liquidity": 263717.32,
-      "volume": 163894.88,
+      "liquidity": 240881.02,
+      "volume": 180341.83,
       "spreads": {
-        "1": 0.02,
+        "1": 0.01,
         "X": 0.01,
         "2": 0.01
       },
       "longshot": {
         "side": "1",
-        "odds": 20.0,
-        "rel_spread": 0.4
+        "odds": 22.222,
+        "rel_spread": 0.222
       }
     },
     "Japan|Sweden": {
-      "1": 2.198,
+      "1": 2.299,
       "X": 3.636,
-      "2": 3.636,
-      "liquidity": 262059.17,
-      "volume": 46353.49,
+      "2": 3.39,
+      "liquidity": 270190.45,
+      "volume": 51818.96,
       "spreads": {
         "1": 0.01,
         "X": 0.01,
@@ -563,11 +427,11 @@
       }
     },
     "Tunisia|Netherlands": {
-      "1": 9.524,
-      "X": 6.452,
+      "1": 10.526,
+      "X": 6.061,
       "2": 1.342,
-      "liquidity": 237453.06,
-      "volume": 68298.19,
+      "liquidity": 273008.72,
+      "volume": 72378.03,
       "spreads": {
         "1": 0.01,
         "X": 0.01,
@@ -575,16 +439,16 @@
       },
       "longshot": {
         "side": "1",
-        "odds": 9.524,
-        "rel_spread": 0.095
+        "odds": 10.526,
+        "rel_spread": 0.105
       }
     },
     "Paraguay|Australia": {
-      "1": 2.247,
-      "X": 3.509,
-      "2": 3.636,
-      "liquidity": 240809.78,
-      "volume": 29458.79,
+      "1": 2.899,
+      "X": 2.41,
+      "2": 4.082,
+      "liquidity": 425060.09,
+      "volume": 250804.12,
       "spreads": {
         "1": 0.01,
         "X": 0.01,
@@ -592,16 +456,16 @@
       },
       "longshot": {
         "side": "2",
-        "odds": 3.636,
-        "rel_spread": 0.036
+        "odds": 4.082,
+        "rel_spread": 0.041
       }
     },
     "Türkiye|United States": {
-      "1": 2.985,
-      "X": 3.922,
-      "2": 2.353,
-      "liquidity": 232890.64,
-      "volume": 150670.09,
+      "1": 3.279,
+      "X": 4.255,
+      "2": 2.151,
+      "liquidity": 362679.19,
+      "volume": 623282.23,
       "spreads": {
         "1": 0.01,
         "X": 0.01,
@@ -609,16 +473,16 @@
       },
       "longshot": {
         "side": "X",
-        "odds": 3.922,
-        "rel_spread": 0.039
+        "odds": 4.255,
+        "rel_spread": 0.043
       }
     },
     "Norway|France": {
-      "1": 4.444,
-      "X": 4.082,
-      "2": 1.869,
-      "liquidity": 262697.77,
-      "volume": 82643.82,
+      "1": 4.651,
+      "X": 4.255,
+      "2": 1.835,
+      "liquidity": 276541.15,
+      "volume": 107445.75,
       "spreads": {
         "1": 0.01,
         "X": 0.01,
@@ -626,16 +490,16 @@
       },
       "longshot": {
         "side": "1",
-        "odds": 4.444,
-        "rel_spread": 0.044
+        "odds": 4.651,
+        "rel_spread": 0.047
       }
     },
     "Senegal|Iraq": {
-      "1": 1.379,
-      "X": 5.714,
-      "2": 9.524,
-      "liquidity": 234610.04,
-      "volume": 31309.69,
+      "1": 1.342,
+      "X": 6.061,
+      "2": 11.765,
+      "liquidity": 237249.09,
+      "volume": 39575.66,
       "spreads": {
         "1": 0.01,
         "X": 0.01,
@@ -643,33 +507,33 @@
       },
       "longshot": {
         "side": "2",
-        "odds": 9.524,
-        "rel_spread": 0.095
+        "odds": 11.765,
+        "rel_spread": 0.118
       }
     },
     "Cabo Verde|Saudi Arabia": {
-      "1": 2.899,
-      "X": 3.846,
+      "1": 2.985,
+      "X": 3.774,
       "2": 2.469,
-      "liquidity": 247914.29,
-      "volume": 136836.28,
+      "liquidity": 314340.62,
+      "volume": 174099.46,
       "spreads": {
         "1": 0.01,
-        "X": 0.02,
+        "X": 0.01,
         "2": 0.01
       },
       "longshot": {
         "side": "X",
-        "odds": 3.846,
-        "rel_spread": 0.077
+        "odds": 3.774,
+        "rel_spread": 0.038
       }
     },
     "Uruguay|Spain": {
       "1": 6.452,
       "X": 4.444,
-      "2": 1.6,
-      "liquidity": 234629.12,
-      "volume": 25970.53,
+      "2": 1.575,
+      "liquidity": 280507.42,
+      "volume": 32599.42,
       "spreads": {
         "1": 0.01,
         "X": 0.01,
@@ -685,8 +549,8 @@
       "1": 2.151,
       "X": 3.39,
       "2": 4.082,
-      "liquidity": 237025.52,
-      "volume": 48183.95,
+      "liquidity": 275752.84,
+      "volume": 51515.69,
       "spreads": {
         "1": 0.01,
         "X": 0.01,
@@ -702,8 +566,8 @@
       "1": 13.333,
       "X": 6.897,
       "2": 1.274,
-      "liquidity": 265133.26,
-      "volume": 83594.82,
+      "liquidity": 265668.82,
+      "volume": 87785.76,
       "spreads": {
         "1": 0.01,
         "X": 0.01,
@@ -716,11 +580,11 @@
       }
     },
     "Panama|England": {
-      "1": 10.526,
-      "X": 7.407,
-      "2": 1.29,
-      "liquidity": 240051.38,
-      "volume": 88096.3,
+      "1": 13.333,
+      "X": 8.0,
+      "2": 1.258,
+      "liquidity": 291505.92,
+      "volume": 102677.57,
       "spreads": {
         "1": 0.01,
         "X": 0.01,
@@ -728,16 +592,16 @@
       },
       "longshot": {
         "side": "1",
-        "odds": 10.526,
-        "rel_spread": 0.105
+        "odds": 13.333,
+        "rel_spread": 0.133
       }
     },
     "Croatia|Ghana": {
       "1": 1.681,
       "X": 4.082,
       "2": 6.452,
-      "liquidity": 283055.52,
-      "volume": 60231.72,
+      "liquidity": 276675.09,
+      "volume": 75764.88,
       "spreads": {
         "1": 0.01,
         "X": 0.01,
@@ -750,11 +614,11 @@
       }
     },
     "Colombia|Portugal": {
-      "1": 3.636,
-      "X": 3.774,
+      "1": 3.774,
+      "X": 3.922,
       "2": 2.105,
-      "liquidity": 254995.88,
-      "volume": 106433.21,
+      "liquidity": 274812.74,
+      "volume": 144565.29,
       "spreads": {
         "1": 0.01,
         "X": 0.01,
@@ -762,16 +626,16 @@
       },
       "longshot": {
         "side": "X",
-        "odds": 3.774,
-        "rel_spread": 0.038
+        "odds": 3.922,
+        "rel_spread": 0.039
       }
     },
     "DR Congo|Uzbekistan": {
       "1": 2.151,
       "X": 3.922,
-      "2": 3.39,
-      "liquidity": 281431.38,
-      "volume": 37381.4,
+      "2": 3.509,
+      "liquidity": 262322.83,
+      "volume": 39662.03,
       "spreads": {
         "1": 0.01,
         "X": 0.01,
@@ -784,31 +648,31 @@
       }
     },
     "Jordan|Argentina": {
-      "1": 15.748,
+      "1": 16.129,
       "X": 8.0,
       "2": 1.227,
-      "liquidity": 229342.12,
-      "volume": 42657.58,
+      "liquidity": 284283.14,
+      "volume": 50288.21,
       "spreads": {
-        "1": 0.003,
+        "1": 0.004,
         "X": 0.01,
         "2": 0.01
       },
       "longshot": {
         "side": "1",
-        "odds": 15.748,
-        "rel_spread": 0.047
+        "odds": 16.129,
+        "rel_spread": 0.065
       }
     },
     "Algeria|Austria": {
       "1": 3.279,
-      "X": 3.125,
+      "X": 3.175,
       "2": 2.667,
-      "liquidity": 252642.85,
-      "volume": 58202.61,
+      "liquidity": 242297.98,
+      "volume": 74838.61,
       "spreads": {
         "1": 0.01,
-        "X": 0.02,
+        "X": 0.01,
         "2": 0.01
       },
       "longshot": {
@@ -819,1292 +683,428 @@
     }
   },
   "extras": {
-    "Czechia|South Africa": {
-      "exact": [
-        {
-          "score": "Any Other Score",
-          "prob": 0.105,
-          "liq": 50253.12
-        }
-      ],
-      "totals": [
-        {
-          "line": 0.5,
-          "over": 0.915,
-          "liq": 93622.3
-        },
-        {
-          "line": 1.5,
-          "over": 0.715,
-          "liq": 264332.35
-        },
-        {
-          "line": 2.5,
-          "over": 0.445,
-          "liq": 414066.84
-        },
-        {
-          "line": 3.5,
-          "over": 0.235,
-          "liq": 178996.24
-        },
-        {
-          "line": 4.5,
-          "over": 0.105,
-          "liq": 124009.42
-        },
-        {
-          "line": 5.5,
-          "over": 0.0365,
-          "liq": 38281.56
-        },
-        {
-          "line": 6.5,
-          "over": 0.016,
-          "liq": 52000.63
-        },
-        {
-          "line": 7.5,
-          "over": 0.007,
-          "liq": 30787.49
-        },
-        {
-          "line": 8.5,
-          "over": 0.006,
-          "liq": 118983.02
-        }
-      ],
-      "market_total": 2.48,
-      "spreads": [
-        {
-          "team": "Czechia",
-          "line": -1.5,
-          "cover": 0.275,
-          "liq": 233926.93
-        },
-        {
-          "team": "Czechia",
-          "line": -2.5,
-          "cover": 0.105,
-          "liq": 64836.84
-        },
-        {
-          "team": "South Africa",
-          "line": -1.5,
-          "cover": 0.065,
-          "liq": 189520.37
-        },
-        {
-          "team": "South Africa",
-          "line": -2.5,
-          "cover": 0.016,
-          "liq": 54457.58
-        },
-        {
-          "team": "Czechia",
-          "line": -5.5,
-          "cover": 0.006,
-          "liq": 20442.76
-        },
-        {
-          "team": "Czechia",
-          "line": -3.5,
-          "cover": 0.0355,
-          "liq": 37284.25
-        },
-        {
-          "team": "South Africa",
-          "line": -5.5,
-          "cover": 0.0045,
-          "liq": 26248.71
-        },
-        {
-          "team": "Czechia",
-          "line": -4.5,
-          "cover": 0.0085,
-          "liq": 14060.28
-        },
-        {
-          "team": "South Africa",
-          "line": -3.5,
-          "cover": 0.006,
-          "liq": 45226.41
-        },
-        {
-          "team": "South Africa",
-          "line": -4.5,
-          "cover": 0.0055,
-          "liq": 19896.78
-        }
-      ],
-      "btts": {
-        "yes": 0.245,
-        "liq": 36809.57
-      }
-    },
-    "Switzerland|Bosnia-Herzegovina": {
-      "exact": [
-        {
-          "score": "Any Other Score",
-          "prob": 0.135,
-          "liq": 52173.69
-        }
-      ]
-    },
-    "Canada|Qatar": {
-      "exact": [
-        {
-          "score": "Any Other Score",
-          "prob": 0.21,
-          "liq": 53776.87
-        }
-      ],
-      "totals": [
-        {
-          "line": 0.5,
-          "over": 0.945,
-          "liq": 95057.87
-        },
-        {
-          "line": 1.5,
-          "over": 0.795,
-          "liq": 93048.16
-        },
-        {
-          "line": 2.5,
-          "over": 0.565,
-          "liq": 491732.17
-        },
-        {
-          "line": 3.5,
-          "over": 0.335,
-          "liq": 153361.24
-        },
-        {
-          "line": 4.5,
-          "over": 0.165,
-          "liq": 60175.29
-        },
-        {
-          "line": 5.5,
-          "over": 0.0735,
-          "liq": 58480.42
-        },
-        {
-          "line": 6.5,
-          "over": 0.025,
-          "liq": 105458.85
-        },
-        {
-          "line": 7.5,
-          "over": 0.013,
-          "liq": 36347.77
-        },
-        {
-          "line": 8.5,
-          "over": 0.006,
-          "liq": 41112.48
-        }
-      ],
-      "market_total": 2.92,
-      "spreads": [
-        {
-          "team": "Canada",
-          "line": -1.5,
-          "cover": 0.525,
-          "liq": 546681.85
-        },
-        {
-          "team": "Qatar",
-          "line": -1.5,
-          "cover": 0.0195,
-          "liq": 62649.64
-        },
-        {
-          "team": "Canada",
-          "line": -2.5,
-          "cover": 0.295,
-          "liq": 154855.45
-        },
-        {
-          "team": "Qatar",
-          "line": -2.5,
-          "cover": 0.0075,
-          "liq": 82407.2
-        },
-        {
-          "team": "Canada",
-          "line": -3.5,
-          "cover": 0.145,
-          "liq": 81960.67
-        },
-        {
-          "team": "Qatar",
-          "line": -3.5,
-          "cover": 0.004,
-          "liq": 57726.21
-        },
-        {
-          "team": "Canada",
-          "line": -5.5,
-          "cover": 0.055,
-          "liq": 10288.8
-        },
-        {
-          "team": "Qatar",
-          "line": -4.5,
-          "cover": 0.005,
-          "liq": 6329.03
-        },
-        {
-          "team": "Qatar",
-          "line": -5.5,
-          "cover": 0.045,
-          "liq": 162.19
-        },
-        {
-          "team": "Canada",
-          "line": -4.5,
-          "cover": 0.05,
-          "liq": 13169.14
-        }
-      ],
-      "btts": {
-        "yes": 0.21,
-        "liq": 55224.43
-      }
-    },
-    "Mexico|Korea Republic": {
-      "exact": [
-        {
-          "score": "Any Other Score",
-          "prob": 0.0655,
-          "liq": 35433.12
-        }
-      ],
-      "totals": [
-        {
-          "line": 0.5,
-          "over": 0.905,
-          "liq": 52521.89
-        },
-        {
-          "line": 1.5,
-          "over": 0.685,
-          "liq": 197445.97
-        },
-        {
-          "line": 2.5,
-          "over": 0.415,
-          "liq": 213264.71
-        },
-        {
-          "line": 3.5,
-          "over": 0.215,
-          "liq": 82848.52
-        },
-        {
-          "line": 4.5,
-          "over": 0.09,
-          "liq": 59961.14
-        },
-        {
-          "line": 5.5,
-          "over": 0.037,
-          "liq": 26671.98
-        },
-        {
-          "line": 6.5,
-          "over": 0.015,
-          "liq": 10701.24
-        },
-        {
-          "line": 7.5,
-          "over": 0.007,
-          "liq": 8591.98
-        },
-        {
-          "line": 8.5,
-          "over": 0.0025,
-          "liq": 12376.85
-        }
-      ],
-      "market_total": 2.36,
-      "spreads": [
-        {
-          "team": "Mexico",
-          "line": -1.5,
-          "cover": 0.215,
-          "liq": 170945.75
-        },
-        {
-          "team": "Korea Republic",
-          "line": -1.5,
-          "cover": 0.075,
-          "liq": 50486.78
-        },
-        {
-          "team": "Mexico",
-          "line": -2.5,
-          "cover": 0.075,
-          "liq": 40189.67
-        },
-        {
-          "team": "Korea Republic",
-          "line": -2.5,
-          "cover": 0.021,
-          "liq": 19381.83
-        },
-        {
-          "team": "Mexico",
-          "line": -4.5,
-          "cover": 0.045,
-          "liq": 693.41
-        },
-        {
-          "team": "Mexico",
-          "line": -3.5,
-          "cover": 0.025,
-          "liq": 10734.9
-        },
-        {
-          "team": "Korea Republic",
-          "line": -5.5,
-          "cover": 0.045,
-          "liq": 23.53
-        },
-        {
-          "team": "Mexico",
-          "line": -5.5,
-          "cover": 0.045,
-          "liq": 23.59
-        },
-        {
-          "team": "Korea Republic",
-          "line": -3.5,
-          "cover": 0.0075,
-          "liq": 8904.19
-        },
-        {
-          "team": "Korea Republic",
-          "line": -4.5,
-          "cover": 0.045,
-          "liq": 606.93
-        }
-      ],
-      "btts": {
-        "yes": 0.25,
-        "liq": 35081.06
-      }
-    },
-    "United States|Australia": {
-      "exact": [
-        {
-          "score": "Any Other Score",
-          "prob": 0.145,
-          "liq": 22679.73
-        }
-      ],
-      "totals": [
-        {
-          "line": 0.5,
-          "over": 0.935,
-          "liq": 35075.3
-        },
-        {
-          "line": 1.5,
-          "over": 0.735,
-          "liq": 86674.26
-        },
-        {
-          "line": 2.5,
-          "over": 0.495,
-          "liq": 102832.86
-        },
-        {
-          "line": 3.5,
-          "over": 0.275,
-          "liq": 94694.94
-        },
-        {
-          "line": 4.5,
-          "over": 0.125,
-          "liq": 44543.1
-        },
-        {
-          "line": 5.5,
-          "over": 0.0545,
-          "liq": 30298.36
-        },
-        {
-          "line": 6.5,
-          "over": 0.0105,
-          "liq": 19872.58
-        },
-        {
-          "line": 7.5,
-          "over": 0.007,
-          "liq": 19252.98
-        },
-        {
-          "line": 8.5,
-          "over": 0.0025,
-          "liq": 20789.84
-        }
-      ],
-      "market_total": 2.64,
-      "spreads": [
-        {
-          "team": "United States",
-          "line": -1.5,
-          "cover": 0.345,
-          "liq": 96037.84
-        },
-        {
-          "team": "Australia",
-          "line": -1.5,
-          "cover": 0.055,
-          "liq": 37530.8
-        },
-        {
-          "team": "United States",
-          "line": -2.5,
-          "cover": 0.155,
-          "liq": 56301.26
-        },
-        {
-          "team": "Australia",
-          "line": -2.5,
-          "cover": 0.015,
-          "liq": 22338.76
-        },
-        {
-          "team": "United States",
-          "line": -3.5,
-          "cover": 0.055,
-          "liq": 28236.04
-        },
-        {
-          "team": "Australia",
-          "line": -5.5,
-          "cover": 0.05,
-          "liq": 4245.59
-        },
-        {
-          "team": "Australia",
-          "line": -4.5,
-          "cover": 0.045,
-          "liq": 3709.09
-        },
-        {
-          "team": "United States",
-          "line": -4.5,
-          "cover": 0.05,
-          "liq": 7508.39
-        },
-        {
-          "team": "United States",
-          "line": -5.5,
-          "cover": 0.05,
-          "liq": 4317.09
-        },
-        {
-          "team": "Australia",
-          "line": -3.5,
-          "cover": 0.006,
-          "liq": 12634.72
-        }
-      ],
-      "btts": {
-        "yes": 0.225,
-        "liq": 27333.21
-      }
-    },
-    "Scotland|Morocco": {
-      "exact": [
-        {
-          "score": "Any Other Score",
-          "prob": 0.09,
-          "liq": 10300.09
-        }
-      ],
-      "totals": [
-        {
-          "line": 0.5,
-          "over": 0.905,
-          "liq": 45384.16
-        },
-        {
-          "line": 1.5,
-          "over": 0.675,
-          "liq": 87106.45
-        },
-        {
-          "line": 2.5,
-          "over": 0.415,
-          "liq": 93187.41
-        },
-        {
-          "line": 3.5,
-          "over": 0.215,
-          "liq": 42229.15
-        },
-        {
-          "line": 4.5,
-          "over": 0.085,
-          "liq": 31153.05
-        },
-        {
-          "line": 5.5,
-          "over": 0.03,
-          "liq": 17491.05
-        },
-        {
-          "line": 6.5,
-          "over": 0.013,
-          "liq": 10785.47
-        },
-        {
-          "line": 7.5,
-          "over": 0.006,
-          "liq": 10267.06
-        },
-        {
-          "line": 8.5,
-          "over": 0.0055,
-          "liq": 11597.07
-        }
-      ],
-      "market_total": 2.34,
-      "spreads": [
-        {
-          "team": "Scotland",
-          "line": -1.5,
-          "cover": 0.045,
-          "liq": 28982.8
-        },
-        {
-          "team": "Morocco",
-          "line": -1.5,
-          "cover": 0.285,
-          "liq": 96709.39
-        },
-        {
-          "team": "Scotland",
-          "line": -2.5,
-          "cover": 0.0135,
-          "liq": 12929.94
-        },
-        {
-          "team": "Morocco",
-          "line": -2.5,
-          "cover": 0.115,
-          "liq": 30622.32
-        },
-        {
-          "team": "Morocco",
-          "line": -4.5,
-          "cover": 0.455,
-          "liq": 9.35
-        },
-        {
-          "team": "Morocco",
-          "line": -3.5,
-          "cover": 0.04,
-          "liq": 10782.18
-        },
-        {
-          "team": "Scotland",
-          "line": -3.5,
-          "cover": 0.006,
-          "liq": 8523.05
-        },
-        {
-          "team": "Morocco",
-          "line": -5.5,
-          "cover": 0.26,
-          "liq": 3.46
-        },
-        {
-          "team": "Scotland",
-          "line": -4.5,
-          "cover": 0.3,
-          "liq": 4011.26
-        },
-        {
-          "team": "Scotland",
-          "line": -5.5,
-          "cover": 0.35,
-          "liq": 3802.71
-        }
-      ],
-      "btts": {
-        "yes": 0.14,
-        "liq": 21553.56
-      }
-    },
-    "Brazil|Haiti": {
-      "exact": [
-        {
-          "score": "Any Other Score",
-          "prob": 0.445,
-          "liq": 21857.57
-        }
-      ],
-      "totals": [
-        {
-          "line": 0.5,
-          "over": 0.9815,
-          "liq": 42476.87
-        },
-        {
-          "line": 1.5,
-          "over": 0.885,
-          "liq": 66942.88
-        },
-        {
-          "line": 2.5,
-          "over": 0.715,
-          "liq": 63236.25
-        },
-        {
-          "line": 3.5,
-          "over": 0.505,
-          "liq": 131028.01
-        },
-        {
-          "line": 4.5,
-          "over": 0.315,
-          "liq": 75236.06
-        },
-        {
-          "line": 5.5,
-          "over": 0.175,
-          "liq": 75888.98
-        },
-        {
-          "line": 6.5,
-          "over": 0.085,
-          "liq": 27196.29
-        },
-        {
-          "line": 7.5,
-          "over": 0.03,
-          "liq": 14807.15
-        },
-        {
-          "line": 8.5,
-          "over": 0.014,
-          "liq": 18973.24
-        }
-      ],
-      "market_total": 3.7,
-      "spreads": [
-        {
-          "team": "Brazil",
-          "line": -1.5,
-          "cover": 0.725,
-          "liq": 68665.7
-        },
-        {
-          "team": "Brazil",
-          "line": -2.5,
-          "cover": 0.505,
-          "liq": 136999.66
-        },
-        {
-          "team": "Brazil",
-          "line": -3.5,
-          "cover": 0.305,
-          "liq": 55586.79
-        },
-        {
-          "team": "Haiti",
-          "line": -1.5,
-          "cover": 0.0065,
-          "liq": 34368.74
-        },
-        {
-          "team": "Haiti",
-          "line": -2.5,
-          "cover": 0.004,
-          "liq": 22759.8
-        },
-        {
-          "team": "Brazil",
-          "line": -4.5,
-          "cover": 0.165,
-          "liq": 68129.09
-        },
-        {
-          "team": "Haiti",
-          "line": -3.5,
-          "cover": 0.0005,
-          "liq": 18575.94
-        },
-        {
-          "team": "Haiti",
-          "line": -4.5,
-          "cover": 0.0005,
-          "liq": 14949.8
-        },
-        {
-          "team": "Haiti",
-          "line": -5.5,
-          "cover": 0.05,
-          "liq": 4234.83
-        }
-      ],
-      "btts": {
-        "yes": 0.21,
-        "liq": 25183.27
-      }
-    },
-    "Türkiye|Paraguay": {
-      "exact": [
-        {
-          "score": "Any Other Score",
-          "prob": 0.095,
-          "liq": 9724.72
-        }
-      ],
-      "totals": [
-        {
-          "line": 0.5,
-          "over": 0.915,
-          "liq": 39617.39
-        },
-        {
-          "line": 1.5,
-          "over": 0.715,
-          "liq": 76338.79
-        },
-        {
-          "line": 2.5,
-          "over": 0.455,
-          "liq": 85979.61
-        },
-        {
-          "line": 3.5,
-          "over": 0.235,
-          "liq": 43231.88
-        },
-        {
-          "line": 4.5,
-          "over": 0.1,
-          "liq": 41466.47
-        },
-        {
-          "line": 5.5,
-          "over": 0.0355,
-          "liq": 18364.43
-        },
-        {
-          "line": 6.5,
-          "over": 0.0105,
-          "liq": 13879.61
-        },
-        {
-          "line": 7.5,
-          "over": 0.007,
-          "liq": 17956.11
-        },
-        {
-          "line": 8.5,
-          "over": 0.006,
-          "liq": 12864.55
-        }
-      ],
-      "market_total": 2.48,
-      "spreads": [
-        {
-          "team": "Türkiye",
-          "line": -1.5,
-          "cover": 0.225,
-          "liq": 73521.81
-        },
-        {
-          "team": "Türkiye",
-          "line": -2.5,
-          "cover": 0.085,
-          "liq": 41051.68
-        },
-        {
-          "team": "Paraguay",
-          "line": -1.5,
-          "cover": 0.085,
-          "liq": 31583.39
-        },
-        {
-          "team": "Paraguay",
-          "line": -2.5,
-          "cover": 0.0215,
-          "liq": 15729.8
-        },
-        {
-          "team": "Paraguay",
-          "line": -4.5,
-          "cover": 0.045,
-          "liq": 24.39
-        },
-        {
-          "team": "Paraguay",
-          "line": -3.5,
-          "cover": 0.006,
-          "liq": 8192.25
-        },
-        {
-          "team": "Türkiye",
-          "line": -3.5,
-          "cover": 0.0305,
-          "liq": 12221.88
-        },
-        {
-          "team": "Paraguay",
-          "line": -5.5,
-          "cover": 0.05,
-          "liq": 4375.85
-        },
-        {
-          "team": "Türkiye",
-          "line": -4.5,
-          "cover": 0.045,
-          "liq": 25.16
-        },
-        {
-          "team": "Türkiye",
-          "line": -5.5,
-          "cover": 0.05,
-          "liq": 4378.47
-        }
-      ],
-      "btts": {
-        "yes": 0.235,
-        "liq": 21686.09
-      }
-    },
     "Netherlands|Sweden": {
       "exact": [
         {
           "score": "Any Other Score",
           "prob": 0.115,
-          "liq": 9038.02
+          "liq": 41991.89
         }
       ],
       "totals": [
         {
           "line": 0.5,
-          "over": 0.935,
-          "liq": 32502.8
+          "over": 0.955,
+          "liq": 101930.53
         },
         {
           "line": 1.5,
-          "over": 0.76,
-          "liq": 77203.74
+          "over": 0.815,
+          "liq": 121975.17
         },
         {
           "line": 2.5,
-          "over": 0.515,
-          "liq": 91897.14
+          "over": 0.585,
+          "liq": 480834.62
         },
         {
           "line": 3.5,
-          "over": 0.29,
-          "liq": 80576.1
+          "over": 0.355,
+          "liq": 244077.9
         },
         {
           "line": 4.5,
-          "over": 0.135,
-          "liq": 54091.37
+          "over": 0.185,
+          "liq": 137289.09
         },
         {
           "line": 5.5,
-          "over": 0.0555,
-          "liq": 23362.16
+          "over": 0.0875,
+          "liq": 61481.57
         },
         {
           "line": 6.5,
-          "over": 0.0185,
-          "liq": 10122.63
+          "over": 0.033,
+          "liq": 117491.75
         },
         {
           "line": 7.5,
-          "over": 0.0075,
-          "liq": 8461.03
+          "over": 0.014,
+          "liq": 145474.33
         },
         {
           "line": 8.5,
-          "over": 0.0055,
-          "liq": 9116.3
+          "over": 0.0075,
+          "liq": 65016.26
         }
       ],
-      "market_total": 2.72,
+      "market_total": 3.04,
       "spreads": [
         {
           "team": "Netherlands",
           "line": -1.5,
-          "cover": 0.315,
-          "liq": 58472.02
+          "cover": 0.325,
+          "liq": 394459.59
         },
         {
           "team": "Netherlands",
           "line": -2.5,
-          "cover": 0.14,
-          "liq": 31735.36
+          "cover": 0.145,
+          "liq": 168132.53
         },
         {
           "team": "Sweden",
           "line": -1.5,
-          "cover": 0.0615,
-          "liq": 38394.6
+          "cover": 0.069,
+          "liq": 92303.56
         },
         {
           "team": "Sweden",
           "line": -2.5,
-          "cover": 0.0185,
-          "liq": 13076.23
+          "cover": 0.0195,
+          "liq": 137473.17
         },
         {
           "team": "Sweden",
           "line": -3.5,
           "cover": 0.006,
-          "liq": 10949.31
+          "liq": 176343.81
         },
         {
           "team": "Netherlands",
           "line": -5.5,
-          "cover": 0.05,
-          "liq": 4495.85
+          "cover": 0.0045,
+          "liq": 18868.06
         },
         {
           "team": "Sweden",
           "line": -4.5,
-          "cover": 0.05,
-          "liq": 4381.04
+          "cover": 0.002,
+          "liq": 16854.17
         },
         {
           "team": "Netherlands",
           "line": -3.5,
-          "cover": 0.05,
-          "liq": 12718.27
+          "cover": 0.055,
+          "liq": 117281.83
         },
         {
           "team": "Sweden",
           "line": -5.5,
-          "cover": 0.05,
-          "liq": 4408.54
+          "cover": 0.005,
+          "liq": 11828.62
         },
         {
           "team": "Netherlands",
           "line": -4.5,
-          "cover": 0.05,
-          "liq": 3220.11
+          "cover": 0.01,
+          "liq": 16734.84
         }
       ],
       "btts": {
-        "yes": 0.185,
-        "liq": 17900.67
+        "yes": 0.235,
+        "liq": 55272.42
       }
     },
     "Germany|Côte d'Ivoire": {
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.18,
-          "liq": 10165.82
+          "prob": 0.205,
+          "liq": 69876.81
         }
       ],
       "totals": [
         {
           "line": 0.5,
-          "over": 0.9535,
-          "liq": 20341.91
+          "over": 0.958,
+          "liq": 84130.33
         },
         {
           "line": 1.5,
-          "over": 0.805,
-          "liq": 73877.28
+          "over": 0.825,
+          "liq": 102856.91
         },
         {
           "line": 2.5,
-          "over": 0.585,
-          "liq": 102377.11
+          "over": 0.615,
+          "liq": 534411.67
         },
         {
           "line": 3.5,
-          "over": 0.355,
-          "liq": 78608.59
+          "over": 0.385,
+          "liq": 269349.61
         },
         {
           "line": 4.5,
-          "over": 0.185,
-          "liq": 47226.88
+          "over": 0.205,
+          "liq": 125760.77
         },
         {
           "line": 5.5,
-          "over": 0.085,
-          "liq": 41873.01
+          "over": 0.095,
+          "liq": 74169.59
         },
         {
           "line": 6.5,
-          "over": 0.035,
-          "liq": 15585.94
+          "over": 0.0405,
+          "liq": 52005.15
         },
         {
           "line": 7.5,
-          "over": 0.015,
-          "liq": 14409.44
+          "over": 0.0155,
+          "liq": 102704.51
         },
         {
           "line": 8.5,
-          "over": 0.006,
-          "liq": 14971.96
+          "over": 0.008,
+          "liq": 65288.9
         }
       ],
-      "market_total": 3.02,
+      "market_total": 3.14,
       "spreads": [
         {
           "team": "Germany",
           "line": -1.5,
-          "cover": 0.385,
-          "liq": 104992.14
+          "cover": 0.415,
+          "liq": 276868.1
         },
         {
           "team": "Germany",
           "line": -2.5,
-          "cover": 0.185,
-          "liq": 49446.37
+          "cover": 0.215,
+          "liq": 163096.66
         },
         {
           "team": "Côte d'Ivoire",
           "line": -1.5,
-          "cover": 0.0495,
-          "liq": 23548.48
+          "cover": 0.0485,
+          "liq": 141940.33
         },
         {
           "team": "Côte d'Ivoire",
           "line": -2.5,
           "cover": 0.014,
-          "liq": 17089.6
+          "liq": 93379.06
         },
         {
           "team": "Germany",
           "line": -5.5,
-          "cover": 0.073,
-          "liq": 7400.97
+          "cover": 0.02,
+          "liq": 24679.3
         },
         {
           "team": "Germany",
           "line": -4.5,
-          "cover": 0.07,
-          "liq": 3949.1
+          "cover": 0.0445,
+          "liq": 22582.58
         },
         {
           "team": "Côte d'Ivoire",
           "line": -3.5,
           "cover": 0.0055,
-          "liq": 8210.69
+          "liq": 58210.65
         },
         {
           "team": "Côte d'Ivoire",
           "line": -4.5,
-          "cover": 0.39,
-          "liq": 35.68
+          "cover": 0.001,
+          "liq": 13786.32
         },
         {
           "team": "Germany",
           "line": -3.5,
-          "cover": 0.075,
-          "liq": 29284.2
+          "cover": 0.095,
+          "liq": 212671.14
         },
         {
           "team": "Côte d'Ivoire",
           "line": -5.5,
-          "cover": 0.38,
-          "liq": 63.07
+          "cover": 0.003,
+          "liq": 11277.2
         }
       ],
       "btts": {
-        "yes": 0.19,
-        "liq": 21022.3
+        "yes": 0.215,
+        "liq": 34556.98
       }
     },
     "Ecuador|Curaçao": {
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.37,
-          "liq": 9798.39
+          "prob": 0.325,
+          "liq": 62305.57
         }
       ],
       "totals": [
         {
           "line": 0.5,
-          "over": 0.9705,
-          "liq": 15072.06
+          "over": 0.963,
+          "liq": 59895.63
         },
         {
           "line": 1.5,
-          "over": 0.845,
-          "liq": 51313.44
+          "over": 0.835,
+          "liq": 175046.67
         },
         {
           "line": 2.5,
-          "over": 0.655,
-          "liq": 63527.18
+          "over": 0.615,
+          "liq": 288842.67
         },
         {
           "line": 3.5,
-          "over": 0.425,
-          "liq": 80118.33
+          "over": 0.385,
+          "liq": 191204.93
         },
         {
           "line": 4.5,
-          "over": 0.245,
-          "liq": 56063.62
+          "over": 0.215,
+          "liq": 169466.38
         },
         {
           "line": 5.5,
-          "over": 0.115,
-          "liq": 51457.41
+          "over": 0.095,
+          "liq": 72609.86
         },
         {
           "line": 6.5,
-          "over": 0.0495,
-          "liq": 15185.8
+          "over": 0.041,
+          "liq": 235395.83
         },
         {
           "line": 7.5,
-          "over": 0.0175,
-          "liq": 9434.61
+          "over": 0.015,
+          "liq": 29394.63
         },
         {
           "line": 8.5,
-          "over": 0.015,
-          "liq": 7219.58
+          "over": 0.0055,
+          "liq": 57960.17
         }
       ],
-      "market_total": 3.34,
+      "market_total": 3.16,
       "spreads": [
         {
           "team": "Ecuador",
           "line": -1.5,
-          "cover": 0.705,
-          "liq": 63693.07
+          "cover": 0.675,
+          "liq": 265747.7
         },
         {
           "team": "Ecuador",
           "line": -2.5,
-          "cover": 0.485,
-          "liq": 73096.95
+          "cover": 0.435,
+          "liq": 342460.05
         },
         {
           "team": "Curaçao",
           "line": -1.5,
-          "cover": 0.007,
-          "liq": 19412.0
+          "cover": 0.0085,
+          "liq": 126296.83
         },
         {
           "team": "Curaçao",
           "line": -2.5,
-          "cover": 0.003,
-          "liq": 15036.08
+          "cover": 0.0015,
+          "liq": 44222.85
         },
         {
           "team": "Curaçao",
           "line": -4.5,
-          "cover": 0.05,
-          "liq": 4356.03
-        },
-        {
-          "team": "Curaçao",
-          "line": -3.5,
           "cover": 0.005,
-          "liq": 12400.99
+          "liq": 3070.19
+        },
+        {
+          "team": "Curaçao",
+          "line": -3.5,
+          "cover": 0.001,
+          "liq": 179438.4
         },
         {
           "team": "Ecuador",
           "line": -3.5,
-          "cover": 0.275,
-          "liq": 35025.79
+          "cover": 0.235,
+          "liq": 151813.93
         },
         {
           "team": "Curaçao",
           "line": -5.5,
-          "cover": 0.015,
-          "liq": 10192.24
+          "cover": 0.0005,
+          "liq": 5678.75
         },
         {
           "team": "Ecuador",
           "line": -4.5,
-          "cover": 0.13,
-          "liq": 14531.2
+          "cover": 0.115,
+          "liq": 19515.23
         },
         {
           "team": "Ecuador",
           "line": -5.5,
-          "cover": 0.1,
-          "liq": 8.8
+          "cover": 0.055,
+          "liq": 14057.52
         }
       ],
       "btts": {
-        "yes": 0.155,
-        "liq": 17245.28
+        "yes": 0.165,
+        "liq": 24509.1
       }
     },
     "Tunisia|Japan": {
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.13,
-          "liq": 9165.53
+          "prob": 0.125,
+          "liq": 36526.31
         }
       ],
       "totals": [
         {
           "line": 0.5,
           "over": 0.925,
-          "liq": 36563.32
+          "liq": 93094.06
         },
         {
           "line": 1.5,
           "over": 0.715,
-          "liq": 75044.32
+          "liq": 165380.39
         },
         {
           "line": 2.5,
           "over": 0.455,
-          "liq": 77171.51
+          "liq": 257881.52
         },
         {
           "line": 3.5,
-          "over": 0.235,
-          "liq": 44179.67
+          "over": 0.245,
+          "liq": 140146.05
         },
         {
           "line": 4.5,
           "over": 0.105,
-          "liq": 50960.17
+          "liq": 224704.54
         },
         {
           "line": 5.5,
-          "over": 0.0375,
-          "liq": 16748.29
+          "over": 0.043,
+          "liq": 57067.81
         },
         {
           "line": 6.5,
-          "over": 0.0105,
-          "liq": 11733.06
+          "over": 0.015,
+          "liq": 78696.71
         },
         {
           "line": 7.5,
-          "over": 0.006,
-          "liq": 6049.8
+          "over": 0.005,
+          "liq": 107248.29
         },
         {
           "line": 8.5,
-          "over": 0.0015,
-          "liq": 9916.66
+          "over": 0.004,
+          "liq": 83952.54
         }
       ],
       "market_total": 2.5,
@@ -2112,614 +1112,614 @@
         {
           "team": "Tunisia",
           "line": -1.5,
-          "cover": 0.0345,
-          "liq": 22344.43
+          "cover": 0.0365,
+          "liq": 80474.34
         },
         {
           "team": "Tunisia",
           "line": -2.5,
-          "cover": 0.0095,
-          "liq": 14542.63
+          "cover": 0.008,
+          "liq": 37901.44
         },
         {
           "team": "Japan",
           "line": -1.5,
           "cover": 0.355,
-          "liq": 56860.83
+          "liq": 344111.85
         },
         {
           "team": "Japan",
           "line": -2.5,
           "cover": 0.155,
-          "liq": 29749.7
+          "liq": 110887.32
         },
         {
           "team": "Tunisia",
           "line": -5.5,
-          "cover": 0.435,
-          "liq": 8.52
+          "cover": 0.002,
+          "liq": 2916.94
         },
         {
           "team": "Japan",
           "line": -4.5,
-          "cover": 0.375,
-          "liq": 3914.56
+          "cover": 0.013,
+          "liq": 14886.56
         },
         {
           "team": "Japan",
           "line": -3.5,
           "cover": 0.055,
-          "liq": 23399.85
+          "liq": 200621.46
         },
         {
           "team": "Tunisia",
           "line": -3.5,
-          "cover": 0.0055,
-          "liq": 6897.89
+          "cover": 0.002,
+          "liq": 81360.69
         },
         {
           "team": "Japan",
           "line": -5.5,
-          "cover": 0.4995,
-          "liq": 0.72
+          "cover": 0.022,
+          "liq": 12215.8
         },
         {
           "team": "Tunisia",
           "line": -4.5,
-          "cover": 0.33,
-          "liq": 38.74
+          "cover": 0.0015,
+          "liq": 3507.67
         }
       ],
       "btts": {
         "yes": 0.21,
-        "liq": 15118.43
+        "liq": 21350.52
       }
     },
     "Spain|Saudi Arabia": {
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.345,
-          "liq": 8558.49
+          "prob": 0.365,
+          "liq": 26573.45
         }
       ],
       "totals": [
         {
           "line": 0.5,
-          "over": 0.9705,
-          "liq": 34739.82
+          "over": 0.968,
+          "liq": 44212.15
         },
         {
           "line": 1.5,
-          "over": 0.855,
-          "liq": 64112.95
+          "over": 0.865,
+          "liq": 79636.58
         },
         {
           "line": 2.5,
-          "over": 0.66,
-          "liq": 88252.99
+          "over": 0.675,
+          "liq": 118539.63
         },
         {
           "line": 3.5,
-          "over": 0.425,
-          "liq": 77239.88
+          "over": 0.445,
+          "liq": 122744.98
         },
         {
           "line": 4.5,
-          "over": 0.245,
-          "liq": 48628.36
+          "over": 0.255,
+          "liq": 78992.58
         },
         {
           "line": 5.5,
-          "over": 0.115,
-          "liq": 38037.36
+          "over": 0.125,
+          "liq": 61809.31
         },
         {
           "line": 6.5,
-          "over": 0.05,
-          "liq": 17245.17
+          "over": 0.055,
+          "liq": 44056.97
         },
         {
           "line": 7.5,
-          "over": 0.018,
-          "liq": 14047.43
+          "over": 0.022,
+          "liq": 26831.1
         },
         {
           "line": 8.5,
-          "over": 0.0035,
-          "liq": 18676.94
+          "over": 0.0125,
+          "liq": 28144.89
         }
       ],
-      "market_total": 3.34,
+      "market_total": 3.42,
       "spreads": [
         {
           "team": "Spain",
           "line": -1.5,
-          "cover": 0.695,
-          "liq": 80165.61
+          "cover": 0.715,
+          "liq": 108610.77
         },
         {
           "team": "Spain",
           "line": -2.5,
-          "cover": 0.485,
-          "liq": 87846.42
+          "cover": 0.505,
+          "liq": 148046.67
         },
         {
           "team": "Saudi Arabia",
           "line": -1.5,
-          "cover": 0.0085,
-          "liq": 18520.99
+          "cover": 0.0065,
+          "liq": 29918.15
         },
         {
           "team": "Saudi Arabia",
           "line": -2.5,
+          "cover": 0.005,
+          "liq": 26212.0
+        },
+        {
+          "team": "Spain",
+          "line": -4.5,
+          "cover": 0.145,
+          "liq": 23261.33
+        },
+        {
+          "team": "Spain",
+          "line": -5.5,
+          "cover": 0.075,
+          "liq": 13777.4
+        },
+        {
+          "team": "Saudi Arabia",
+          "line": -3.5,
           "cover": 0.0015,
-          "liq": 12780.65
-        },
-        {
-          "team": "Spain",
-          "line": -4.5,
-          "cover": 0.125,
-          "liq": 17601.71
-        },
-        {
-          "team": "Spain",
-          "line": -5.5,
-          "cover": 0.1,
-          "liq": 8.8
-        },
-        {
-          "team": "Saudi Arabia",
-          "line": -3.5,
-          "cover": 0.0045,
-          "liq": 3099.31
+          "liq": 18408.3
         },
         {
           "team": "Saudi Arabia",
           "line": -4.5,
-          "cover": 0.045,
-          "liq": 3641.15
+          "cover": 0.003,
+          "liq": 1705.16
         },
         {
           "team": "Spain",
           "line": -3.5,
-          "cover": 0.275,
-          "liq": 49932.45
+          "cover": 0.295,
+          "liq": 68099.15
         },
         {
           "team": "Saudi Arabia",
           "line": -5.5,
-          "cover": 0.045,
-          "liq": 3582.98
+          "cover": 0.002,
+          "liq": 5133.86
         }
       ],
       "btts": {
-        "yes": 0.165,
-        "liq": 18913.52
+        "yes": 0.15,
+        "liq": 19646.82
       }
     },
     "Belgium|IR Iran": {
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.135,
-          "liq": 7919.98
+          "prob": 0.175,
+          "liq": 19150.52
         }
       ],
       "totals": [
         {
           "line": 0.5,
-          "over": 0.935,
-          "liq": 32958.23
+          "over": 0.945,
+          "liq": 55218.16
         },
         {
           "line": 1.5,
-          "over": 0.755,
-          "liq": 64735.61
+          "over": 0.765,
+          "liq": 100970.8
         },
         {
           "line": 2.5,
-          "over": 0.515,
-          "liq": 77188.23
+          "over": 0.535,
+          "liq": 128396.23
         },
         {
           "line": 3.5,
-          "over": 0.285,
-          "liq": 59280.14
+          "over": 0.305,
+          "liq": 76352.56
         },
         {
           "line": 4.5,
-          "over": 0.135,
-          "liq": 45056.79
+          "over": 0.145,
+          "liq": 46642.26
         },
         {
           "line": 5.5,
-          "over": 0.055,
-          "liq": 20031.23
+          "over": 0.065,
+          "liq": 72226.1
         },
         {
           "line": 6.5,
-          "over": 0.0185,
-          "liq": 8855.83
+          "over": 0.019,
+          "liq": 39285.22
         },
         {
           "line": 7.5,
           "over": 0.008,
-          "liq": 6429.44
+          "liq": 26794.27
         },
         {
           "line": 8.5,
-          "over": 0.0045,
-          "liq": 6620.03
+          "over": 0.005,
+          "liq": 21066.97
         }
       ],
-      "market_total": 2.72,
+      "market_total": 2.8,
       "spreads": [
         {
           "team": "Belgium",
           "line": -1.5,
-          "cover": 0.415,
-          "liq": 60892.63
+          "cover": 0.425,
+          "liq": 105846.88
         },
         {
           "team": "Belgium",
           "line": -2.5,
-          "cover": 0.205,
-          "liq": 23914.62
+          "cover": 0.215,
+          "liq": 61790.62
         },
         {
           "team": "IR Iran",
           "line": -1.5,
-          "cover": 0.0315,
-          "liq": 16726.84
+          "cover": 0.0345,
+          "liq": 23401.4
         },
         {
           "team": "IR Iran",
           "line": -2.5,
-          "cover": 0.0065,
-          "liq": 11904.96
+          "cover": 0.0075,
+          "liq": 27720.66
         },
         {
           "team": "Belgium",
           "line": -4.5,
-          "cover": 0.085,
-          "liq": 10.1
+          "cover": 0.0505,
+          "liq": 8958.33
         },
         {
           "team": "Belgium",
           "line": -5.5,
           "cover": 0.015,
-          "liq": 8439.04
+          "liq": 9008.51
         },
         {
           "team": "IR Iran",
           "line": -3.5,
-          "cover": 0.002,
-          "liq": 7429.97
+          "cover": 0.0025,
+          "liq": 19766.51
         },
         {
           "team": "Belgium",
           "line": -3.5,
           "cover": 0.085,
-          "liq": 19545.42
+          "liq": 43805.28
         },
         {
           "team": "IR Iran",
           "line": -4.5,
-          "cover": 0.045,
-          "liq": 50.58
+          "cover": 0.0025,
+          "liq": 4148.0
         },
         {
           "team": "IR Iran",
           "line": -5.5,
-          "cover": 0.045,
-          "liq": 114.1
+          "cover": 0.003,
+          "liq": 3702.27
         }
       ],
       "btts": {
-        "yes": 0.215,
-        "liq": 15557.28
+        "yes": 0.235,
+        "liq": 13100.23
       }
     },
     "Uruguay|Cabo Verde": {
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.1,
-          "liq": 7283.43
+          "prob": 0.12,
+          "liq": 16727.46
         }
       ],
       "totals": [
         {
           "line": 0.5,
-          "over": 0.9095,
-          "liq": 44134.72
+          "over": 0.9105,
+          "liq": 48382.2
         },
         {
           "line": 1.5,
           "over": 0.675,
-          "liq": 72373.04
+          "liq": 94052.37
         },
         {
           "line": 2.5,
-          "over": 0.405,
-          "liq": 66780.31
+          "over": 0.415,
+          "liq": 108212.22
         },
         {
           "line": 3.5,
           "over": 0.205,
-          "liq": 32500.24
+          "liq": 96286.58
         },
         {
           "line": 4.5,
-          "over": 0.085,
-          "liq": 40297.61
+          "over": 0.0865,
+          "liq": 57741.26
         },
         {
           "line": 5.5,
-          "over": 0.035,
-          "liq": 12609.98
+          "over": 0.0325,
+          "liq": 28919.78
         },
         {
           "line": 6.5,
-          "over": 0.015,
-          "liq": 8050.92
+          "over": 0.0105,
+          "liq": 26171.31
         },
         {
           "line": 7.5,
-          "over": 0.007,
-          "liq": 6145.22
+          "over": 0.0055,
+          "liq": 24543.25
         },
         {
           "line": 8.5,
-          "over": 0.006,
-          "liq": 6170.73
+          "over": 0.0055,
+          "liq": 24436.63
         }
       ],
-      "market_total": 2.32,
+      "market_total": 2.34,
       "spreads": [
         {
           "team": "Uruguay",
           "line": -1.5,
-          "cover": 0.365,
-          "liq": 72632.45
+          "cover": 0.385,
+          "liq": 147613.77
         },
         {
           "team": "Uruguay",
           "line": -2.5,
-          "cover": 0.165,
-          "liq": 27609.71
+          "cover": 0.175,
+          "liq": 54179.11
         },
         {
           "team": "Cabo Verde",
           "line": -1.5,
-          "cover": 0.022,
-          "liq": 17151.48
+          "cover": 0.0265,
+          "liq": 31573.85
         },
         {
           "team": "Cabo Verde",
           "line": -2.5,
           "cover": 0.0075,
-          "liq": 12433.59
+          "liq": 25852.79
         },
         {
           "team": "Uruguay",
           "line": -3.5,
           "cover": 0.065,
-          "liq": 18792.14
+          "liq": 46823.36
         },
         {
           "team": "Cabo Verde",
           "line": -5.5,
-          "cover": 0.045,
-          "liq": 24.12
+          "cover": 0.003,
+          "liq": 1493.62
         },
         {
           "team": "Uruguay",
           "line": -4.5,
-          "cover": 0.07,
-          "liq": 9.1
+          "cover": 0.0495,
+          "liq": 10697.96
         },
         {
           "team": "Uruguay",
           "line": -5.5,
-          "cover": 0.045,
-          "liq": 24.12
+          "cover": 0.0055,
+          "liq": 14916.95
         },
         {
           "team": "Cabo Verde",
           "line": -3.5,
           "cover": 0.006,
-          "liq": 6365.54
+          "liq": 23399.07
         },
         {
           "team": "Cabo Verde",
           "line": -4.5,
-          "cover": 0.05,
-          "liq": 3648.73
+          "cover": 0.005,
+          "liq": 3402.15
         }
       ],
       "btts": {
-        "yes": 0.115,
-        "liq": 12675.73
+        "yes": 0.11,
+        "liq": 15678.44
       }
     },
     "New Zealand|Egypt": {
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.075,
-          "liq": 7648.63
-        }
-      ],
-      "totals": [
-        {
-          "line": 0.5,
-          "over": 0.915,
-          "liq": 31198.98
-        },
-        {
-          "line": 1.5,
-          "over": 0.695,
-          "liq": 76094.73
-        },
-        {
-          "line": 2.5,
-          "over": 0.435,
-          "liq": 64233.59
-        },
-        {
-          "line": 3.5,
-          "over": 0.225,
-          "liq": 52409.57
-        },
-        {
-          "line": 4.5,
-          "over": 0.095,
-          "liq": 39025.35
-        },
-        {
-          "line": 5.5,
-          "over": 0.035,
-          "liq": 16452.89
-        },
-        {
-          "line": 6.5,
-          "over": 0.0105,
-          "liq": 11800.05
-        },
-        {
-          "line": 7.5,
-          "over": 0.006,
-          "liq": 9999.04
-        },
-        {
-          "line": 8.5,
-          "over": 0.006,
-          "liq": 9939.56
-        }
-      ],
-      "market_total": 2.42,
-      "spreads": [
-        {
-          "team": "New Zealand",
-          "line": -2.5,
-          "cover": 0.011,
-          "liq": 15690.85
-        },
-        {
-          "team": "New Zealand",
-          "line": -1.5,
-          "cover": 0.046,
-          "liq": 20387.88
-        },
-        {
-          "team": "Egypt",
-          "line": -1.5,
-          "cover": 0.325,
-          "liq": 71005.05
-        },
-        {
-          "team": "Egypt",
-          "line": -2.5,
-          "cover": 0.135,
-          "liq": 31255.39
-        },
-        {
-          "team": "New Zealand",
-          "line": -5.5,
-          "cover": 0.045,
-          "liq": 3692.7
-        },
-        {
-          "team": "Egypt",
-          "line": -4.5,
-          "cover": 0.05,
-          "liq": 3224.58
-        },
-        {
-          "team": "New Zealand",
-          "line": -3.5,
-          "cover": 0.006,
-          "liq": 7029.76
-        },
-        {
-          "team": "Egypt",
-          "line": -5.5,
-          "cover": 0.045,
-          "liq": 53.89
-        },
-        {
-          "team": "New Zealand",
-          "line": -4.5,
-          "cover": 0.045,
-          "liq": 55.11
-        },
-        {
-          "team": "Egypt",
-          "line": -3.5,
-          "cover": 0.0485,
-          "liq": 17162.47
-        }
-      ],
-      "btts": {
-        "yes": 0.2,
-        "liq": 15055.09
-      }
-    },
-    "Argentina|Austria": {
-      "exact": [
-        {
-          "score": "Any Other Score",
-          "prob": 0.083,
-          "liq": 9347.16
+          "prob": 0.105,
+          "liq": 10061.53
         }
       ],
       "totals": [
         {
           "line": 0.5,
           "over": 0.925,
-          "liq": 19993.56
+          "liq": 62756.61
+        },
+        {
+          "line": 1.5,
+          "over": 0.705,
+          "liq": 87808.37
+        },
+        {
+          "line": 2.5,
+          "over": 0.455,
+          "liq": 116196.72
+        },
+        {
+          "line": 3.5,
+          "over": 0.235,
+          "liq": 71101.67
+        },
+        {
+          "line": 4.5,
+          "over": 0.105,
+          "liq": 47525.96
+        },
+        {
+          "line": 5.5,
+          "over": 0.04,
+          "liq": 28117.83
+        },
+        {
+          "line": 6.5,
+          "over": 0.0115,
+          "liq": 26384.47
+        },
+        {
+          "line": 7.5,
+          "over": 0.006,
+          "liq": 25260.97
+        },
+        {
+          "line": 8.5,
+          "over": 0.0055,
+          "liq": 25785.62
+        }
+      ],
+      "market_total": 2.48,
+      "spreads": [
+        {
+          "team": "New Zealand",
+          "line": -2.5,
+          "cover": 0.0115,
+          "liq": 23352.98
+        },
+        {
+          "team": "New Zealand",
+          "line": -1.5,
+          "cover": 0.046,
+          "liq": 28663.9
+        },
+        {
+          "team": "Egypt",
+          "line": -1.5,
+          "cover": 0.325,
+          "liq": 101185.44
+        },
+        {
+          "team": "Egypt",
+          "line": -2.5,
+          "cover": 0.145,
+          "liq": 58467.98
+        },
+        {
+          "team": "New Zealand",
+          "line": -5.5,
+          "cover": 0.003,
+          "liq": 2455.06
+        },
+        {
+          "team": "Egypt",
+          "line": -4.5,
+          "cover": 0.014,
+          "liq": 10713.76
+        },
+        {
+          "team": "New Zealand",
+          "line": -3.5,
+          "cover": 0.006,
+          "liq": 21894.43
+        },
+        {
+          "team": "Egypt",
+          "line": -5.5,
+          "cover": 0.0065,
+          "liq": 9205.66
+        },
+        {
+          "team": "New Zealand",
+          "line": -4.5,
+          "cover": 0.005,
+          "liq": 4656.03
+        },
+        {
+          "team": "Egypt",
+          "line": -3.5,
+          "cover": 0.053,
+          "liq": 41868.6
+        }
+      ],
+      "btts": {
+        "yes": 0.215,
+        "liq": 10924.99
+      }
+    },
+    "Argentina|Austria": {
+      "exact": [
+        {
+          "score": "Any Other Score",
+          "prob": 0.1305,
+          "liq": 11636.03
+        }
+      ],
+      "totals": [
+        {
+          "line": 0.5,
+          "over": 0.93,
+          "liq": 54903.09
         },
         {
           "line": 1.5,
           "over": 0.745,
-          "liq": 75430.68
+          "liq": 87383.39
         },
         {
           "line": 2.5,
           "over": 0.495,
-          "liq": 69062.74
+          "liq": 103161.07
         },
         {
           "line": 3.5,
           "over": 0.265,
-          "liq": 62661.28
+          "liq": 66896.66
         },
         {
           "line": 4.5,
-          "over": 0.125,
-          "liq": 25885.42
+          "over": 0.12,
+          "liq": 68037.63
         },
         {
           "line": 5.5,
           "over": 0.045,
-          "liq": 15373.24
+          "liq": 27336.39
         },
         {
           "line": 6.5,
-          "over": 0.0185,
-          "liq": 9543.09
+          "over": 0.017,
+          "liq": 23128.37
         },
         {
           "line": 7.5,
-          "over": 0.045,
-          "liq": 55.89
+          "over": 0.0055,
+          "liq": 22423.73
         },
         {
           "line": 8.5,
-          "over": 0.05,
-          "liq": 8017.6
+          "over": 0.0015,
+          "liq": 23806.3
         }
       ],
       "market_total": 2.64,
@@ -2727,485 +1727,485 @@
         {
           "team": "Argentina",
           "line": -1.5,
-          "cover": 0.345,
-          "liq": 68147.98
+          "cover": 0.365,
+          "liq": 83323.43
         },
         {
           "team": "Austria",
           "line": -1.5,
           "cover": 0.039,
-          "liq": 15478.32
+          "liq": 22363.39
         },
         {
           "team": "Argentina",
           "line": -2.5,
-          "cover": 0.165,
-          "liq": 22104.94
+          "cover": 0.175,
+          "liq": 54155.6
         },
         {
           "team": "Austria",
           "line": -2.5,
-          "cover": 0.009,
-          "liq": 9208.34
+          "cover": 0.0105,
+          "liq": 27295.49
         },
         {
           "team": "Argentina",
           "line": -4.5,
-          "cover": 0.065,
-          "liq": 7284.32
+          "cover": 0.05,
+          "liq": 19279.94
         },
         {
           "team": "Austria",
           "line": -3.5,
-          "cover": 0.045,
-          "liq": 32.13
+          "cover": 0.0055,
+          "liq": 23355.2
         },
         {
           "team": "Austria",
           "line": -4.5,
-          "cover": 0.045,
-          "liq": 3699.72
+          "cover": 0.003,
+          "liq": 12973.74
         },
         {
           "team": "Argentina",
           "line": -3.5,
-          "cover": 0.0525,
-          "liq": 13723.97
+          "cover": 0.062,
+          "liq": 42275.59
         },
         {
           "team": "Austria",
           "line": -5.5,
-          "cover": 0.045,
-          "liq": 66.23
+          "cover": 0.003,
+          "liq": 12863.23
         },
         {
           "team": "Argentina",
           "line": -5.5,
-          "cover": 0.0145,
-          "liq": 8190.51
+          "cover": 0.007,
+          "liq": 17013.9
         }
       ],
       "btts": {
         "yes": 0.23,
-        "liq": 14321.06
+        "liq": 12594.77
       }
     },
     "France|Iraq": {
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.27,
-          "liq": 7846.95
+          "prob": 0.405,
+          "liq": 9342.39
         }
       ],
       "totals": [
         {
           "line": 0.5,
-          "over": 0.98,
-          "liq": 17805.0
+          "over": 0.983,
+          "liq": 45262.32
         },
         {
           "line": 1.5,
           "over": 0.875,
-          "liq": 47365.62
+          "liq": 71822.37
         },
         {
           "line": 2.5,
           "over": 0.705,
-          "liq": 82159.28
+          "liq": 100521.03
         },
         {
           "line": 3.5,
           "over": 0.485,
-          "liq": 65626.53
+          "liq": 135063.84
         },
         {
           "line": 4.5,
           "over": 0.295,
-          "liq": 67204.9
+          "liq": 96871.93
         },
         {
           "line": 5.5,
-          "over": 0.14,
-          "liq": 44343.42
+          "over": 0.145,
+          "liq": 67437.83
         },
         {
           "line": 6.5,
-          "over": 0.06,
-          "liq": 16116.35
+          "over": 0.07,
+          "liq": 32530.86
         },
         {
           "line": 7.5,
-          "over": 0.02,
-          "liq": 6801.21
+          "over": 0.0245,
+          "liq": 20719.37
         },
         {
           "line": 8.5,
-          "over": 0.0105,
-          "liq": 6664.22
+          "over": 0.0135,
+          "liq": 18709.77
         }
       ],
-      "market_total": 3.58,
+      "market_total": 3.6,
       "spreads": [
         {
           "team": "Iraq",
           "line": -2.5,
-          "cover": 0.0015,
-          "liq": 12549.29
+          "cover": 0.004,
+          "liq": 22760.19
         },
         {
           "team": "France",
           "line": -1.5,
           "cover": 0.735,
-          "liq": 69213.67
+          "liq": 71157.29
         },
         {
           "team": "Iraq",
           "line": -1.5,
-          "cover": 0.0065,
-          "liq": 13340.49
+          "cover": 0.006,
+          "liq": 26927.6
         },
         {
           "team": "France",
           "line": -2.5,
-          "cover": 0.53,
-          "liq": 73119.87
+          "cover": 0.535,
+          "liq": 100805.79
         },
         {
           "team": "France",
           "line": -3.5,
-          "cover": 0.315,
-          "liq": 49067.41
+          "cover": 0.325,
+          "liq": 69804.37
         },
         {
           "team": "Iraq",
           "line": -5.5,
+          "cover": 0.004,
+          "liq": 11411.07
+        },
+        {
+          "team": "France",
+          "line": -5.5,
+          "cover": 0.085,
+          "liq": 10927.86
+        },
+        {
+          "team": "Iraq",
+          "line": -3.5,
           "cover": 0.005,
-          "liq": 6828.02
-        },
-        {
-          "team": "France",
-          "line": -5.5,
-          "cover": 0.11,
-          "liq": 3476.91
-        },
-        {
-          "team": "Iraq",
-          "line": -3.5,
-          "cover": 0.05,
-          "liq": 3593.22
+          "liq": 19512.17
         },
         {
           "team": "Iraq",
           "line": -4.5,
-          "cover": 0.045,
-          "liq": 74.63
+          "cover": 0.006,
+          "liq": 9092.48
         },
         {
           "team": "France",
           "line": -4.5,
-          "cover": 0.17,
-          "liq": 13390.99
+          "cover": 0.175,
+          "liq": 18670.43
         }
       ],
       "btts": {
-        "yes": 0.165,
-        "liq": 19804.09
+        "yes": 0.17,
+        "liq": 16861.8
       }
     },
     "Norway|Senegal": {
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.095,
-          "liq": 7488.37
-        }
-      ],
-      "totals": [
-        {
-          "line": 0.5,
-          "over": 0.93,
-          "liq": 25480.3
-        },
-        {
-          "line": 1.5,
-          "over": 0.745,
-          "liq": 58202.88
-        },
-        {
-          "line": 2.5,
-          "over": 0.495,
-          "liq": 66109.16
-        },
-        {
-          "line": 3.5,
-          "over": 0.275,
-          "liq": 63228.03
-        },
-        {
-          "line": 4.5,
-          "over": 0.125,
-          "liq": 28900.25
-        },
-        {
-          "line": 5.5,
-          "over": 0.055,
-          "liq": 22573.45
-        },
-        {
-          "line": 6.5,
-          "over": 0.0115,
-          "liq": 9862.64
-        },
-        {
-          "line": 7.5,
-          "over": 0.07,
-          "liq": 7556.56
-        },
-        {
-          "line": 8.5,
-          "over": 0.07,
-          "liq": 7583.91
-        }
-      ],
-      "market_total": 2.66,
-      "spreads": [
-        {
-          "team": "Senegal",
-          "line": -1.5,
-          "cover": 0.125,
-          "liq": 26774.42
-        },
-        {
-          "team": "Norway",
-          "line": -1.5,
-          "cover": 0.195,
-          "liq": 26149.03
-        },
-        {
-          "team": "Norway",
-          "line": -2.5,
-          "cover": 0.065,
-          "liq": 24873.92
-        },
-        {
-          "team": "Senegal",
-          "line": -2.5,
-          "cover": 0.037,
-          "liq": 10003.8
-        },
-        {
-          "team": "Norway",
-          "line": -4.5,
-          "cover": 0.33,
-          "liq": 3171.86
-        },
-        {
-          "team": "Norway",
-          "line": -5.5,
-          "cover": 0.3,
-          "liq": 3273.24
-        },
-        {
-          "team": "Norway",
-          "line": -3.5,
-          "cover": 0.065,
-          "liq": 11516.65
-        },
-        {
-          "team": "Senegal",
-          "line": -4.5,
-          "cover": 0.29,
-          "liq": 3237.89
-        },
-        {
-          "team": "Senegal",
-          "line": -5.5,
-          "cover": 0.305,
-          "liq": 3195.45
-        }
-      ],
-      "btts": {
-        "yes": 0.27,
-        "liq": 8308.97
-      }
-    },
-    "Jordan|Algeria": {
-      "exact": [
-        {
-          "score": "Any Other Score",
-          "prob": 0.125,
-          "liq": 7557.86
+          "prob": 0.13,
+          "liq": 6932.74
         }
       ],
       "totals": [
         {
           "line": 0.5,
           "over": 0.925,
-          "liq": 32450.53
+          "liq": 55201.25
         },
         {
           "line": 1.5,
           "over": 0.735,
-          "liq": 76799.39
+          "liq": 102814.74
         },
         {
           "line": 2.5,
-          "over": 0.49,
-          "liq": 72368.3
+          "over": 0.485,
+          "liq": 114152.26
         },
         {
           "line": 3.5,
-          "over": 0.265,
-          "liq": 55252.36
+          "over": 0.275,
+          "liq": 65964.93
         },
         {
           "line": 4.5,
           "over": 0.125,
-          "liq": 25208.4
+          "liq": 48715.31
         },
         {
           "line": 5.5,
-          "over": 0.0485,
-          "liq": 17273.02
+          "over": 0.055,
+          "liq": 53471.8
         },
         {
           "line": 6.5,
-          "over": 0.012,
-          "liq": 9651.08
+          "over": 0.015,
+          "liq": 43896.7
         },
         {
           "line": 7.5,
-          "over": 0.07,
-          "liq": 7000.47
+          "over": 0.006,
+          "liq": 20349.13
         },
         {
           "line": 8.5,
-          "over": 0.07,
-          "liq": 7897.6
+          "over": 0.0005,
+          "liq": 17845.85
         }
       ],
       "market_total": 2.62,
       "spreads": [
         {
+          "team": "Senegal",
+          "line": -1.5,
+          "cover": 0.115,
+          "liq": 49143.18
+        },
+        {
+          "team": "Norway",
+          "line": -1.5,
+          "cover": 0.195,
+          "liq": 67178.02
+        },
+        {
+          "team": "Norway",
+          "line": -2.5,
+          "cover": 0.075,
+          "liq": 51826.4
+        },
+        {
+          "team": "Senegal",
+          "line": -2.5,
+          "cover": 0.0395,
+          "liq": 22169.24
+        },
+        {
+          "team": "Norway",
+          "line": -4.5,
+          "cover": 0.0065,
+          "liq": 7586.39
+        },
+        {
+          "team": "Norway",
+          "line": -5.5,
+          "cover": 0.0065,
+          "liq": 7740.63
+        },
+        {
+          "team": "Norway",
+          "line": -3.5,
+          "cover": 0.0255,
+          "liq": 19998.99
+        },
+        {
+          "team": "Senegal",
+          "line": -4.5,
+          "cover": 0.0065,
+          "liq": 7758.67
+        },
+        {
+          "team": "Senegal",
+          "line": -5.5,
+          "cover": 0.006,
+          "liq": 7418.85
+        }
+      ],
+      "btts": {
+        "yes": 0.265,
+        "liq": 13711.83
+      }
+    },
+    "Jordan|Algeria": {
+      "exact": [
+        {
+          "score": "Any Other Score",
+          "prob": 0.095,
+          "liq": 5531.18
+        }
+      ],
+      "totals": [
+        {
+          "line": 0.5,
+          "over": 0.935,
+          "liq": 53870.27
+        },
+        {
+          "line": 1.5,
+          "over": 0.745,
+          "liq": 99311.87
+        },
+        {
+          "line": 2.5,
+          "over": 0.505,
+          "liq": 109192.62
+        },
+        {
+          "line": 3.5,
+          "over": 0.275,
+          "liq": 75745.4
+        },
+        {
+          "line": 4.5,
+          "over": 0.135,
+          "liq": 57749.64
+        },
+        {
+          "line": 5.5,
+          "over": 0.051,
+          "liq": 33562.01
+        },
+        {
+          "line": 6.5,
+          "over": 0.0125,
+          "liq": 21242.65
+        },
+        {
+          "line": 7.5,
+          "over": 0.006,
+          "liq": 20070.01
+        },
+        {
+          "line": 8.5,
+          "over": 0.006,
+          "liq": 20275.0
+        }
+      ],
+      "market_total": 2.68,
+      "spreads": [
+        {
           "team": "Algeria",
           "line": -2.5,
           "cover": 0.165,
-          "liq": 23460.13
+          "liq": 47750.83
         },
         {
           "team": "Jordan",
           "line": -2.5,
-          "cover": 0.015,
-          "liq": 9368.19
+          "cover": 0.014,
+          "liq": 21227.38
         },
         {
           "team": "Jordan",
           "line": -1.5,
-          "cover": 0.044,
-          "liq": 17889.7
+          "cover": 0.0465,
+          "liq": 26203.6
         },
         {
           "team": "Algeria",
           "line": -1.5,
-          "cover": 0.345,
-          "liq": 57532.03
+          "cover": 0.355,
+          "liq": 91016.48
         },
         {
           "team": "Jordan",
           "line": -3.5,
           "cover": 0.005,
-          "liq": 3521.15
+          "liq": 16951.05
         },
         {
           "team": "Algeria",
           "line": -5.5,
-          "cover": 0.31,
-          "liq": 3249.54
+          "cover": 0.006,
+          "liq": 7546.42
         },
         {
           "team": "Jordan",
           "line": -4.5,
-          "cover": 0.345,
-          "liq": 3748.77
+          "cover": 0.0045,
+          "liq": 3753.31
         },
         {
           "team": "Jordan",
           "line": -5.5,
-          "cover": 0.35,
-          "liq": 3309.59
+          "cover": 0.0065,
+          "liq": 7695.54
         },
         {
           "team": "Algeria",
           "line": -3.5,
           "cover": 0.065,
-          "liq": 10819.9
+          "liq": 42184.06
         },
         {
           "team": "Algeria",
           "line": -4.5,
-          "cover": 0.5,
-          "liq": 0.5
+          "cover": 0.0175,
+          "liq": 7294.73
         }
       ],
       "btts": {
         "yes": 0.225,
-        "liq": 11724.16
+        "liq": 13651.78
       }
     },
     "Portugal|Uzbekistan": {
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.16,
-          "liq": 8138.68
+          "prob": 0.25,
+          "liq": 5399.86
         }
       ],
       "totals": [
         {
           "line": 0.5,
-          "over": 0.96,
-          "liq": 8191.97
+          "over": 0.958,
+          "liq": 29138.35
         },
         {
           "line": 1.5,
           "over": 0.815,
-          "liq": 38220.85
+          "liq": 70698.82
         },
         {
           "line": 2.5,
-          "over": 0.595,
-          "liq": 50367.96
+          "over": 0.605,
+          "liq": 81785.57
         },
         {
           "line": 3.5,
-          "over": 0.365,
-          "liq": 31189.08
+          "over": 0.375,
+          "liq": 62671.83
         },
         {
           "line": 4.5,
-          "over": 0.195,
-          "liq": 20277.4
+          "over": 0.205,
+          "liq": 38721.18
         },
         {
           "line": 5.5,
           "over": 0.09,
-          "liq": 8991.71
+          "liq": 41784.98
         },
         {
           "line": 6.5,
-          "over": 0.09,
-          "liq": 26.68
+          "over": 0.037,
+          "liq": 13892.55
         },
         {
           "line": 7.5,
-          "over": 0.07,
-          "liq": 9.1
+          "over": 0.011,
+          "liq": 10336.02
         },
         {
           "line": 8.5,
-          "over": 0.065,
-          "liq": 9.01
+          "over": 0.0055,
+          "liq": 11349.01
         }
       ],
       "market_total": 3.1,
@@ -3214,115 +2214,115 @@
           "team": "Portugal",
           "line": -1.5,
           "cover": 0.585,
-          "liq": 66725.35
+          "liq": 84971.75
         },
         {
           "team": "Uzbekistan",
           "line": -1.5,
-          "cover": 0.0135,
-          "liq": 18582.73
+          "cover": 0.014,
+          "liq": 14827.11
         },
         {
           "team": "Portugal",
           "line": -2.5,
           "cover": 0.355,
-          "liq": 44702.71
+          "liq": 64608.17
         },
         {
           "team": "Uzbekistan",
           "line": -2.5,
           "cover": 0.0025,
-          "liq": 11062.13
+          "liq": 15726.79
         },
         {
           "team": "Uzbekistan",
           "line": -4.5,
-          "cover": 0.05,
-          "liq": 57.06
+          "cover": 0.0035,
+          "liq": 5486.01
         },
         {
           "team": "Portugal",
           "line": -5.5,
+          "cover": 0.0255,
+          "liq": 5843.95
+        },
+        {
+          "team": "Uzbekistan",
+          "line": -5.5,
+          "cover": 0.001,
+          "liq": 2560.33
+        },
+        {
+          "team": "Portugal",
+          "line": -4.5,
           "cover": 0.075,
-          "liq": 1125.95
-        },
-        {
-          "team": "Uzbekistan",
-          "line": -5.5,
-          "cover": 0.05,
-          "liq": 195.8
-        },
-        {
-          "team": "Portugal",
-          "line": -4.5,
-          "cover": 0.115,
-          "liq": 2903.62
+          "liq": 9908.35
         },
         {
           "team": "Uzbekistan",
           "line": -3.5,
-          "cover": 0.05,
-          "liq": 317.39
+          "cover": 0.0025,
+          "liq": 6712.19
         }
       ],
       "btts": {
-        "yes": 0.14,
-        "liq": 7980.43
+        "yes": 0.125,
+        "liq": 11830.26
       }
     },
     "England|Ghana": {
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.205,
-          "liq": 4989.64
+          "prob": 0.24,
+          "liq": 5456.56
         }
       ],
       "totals": [
         {
           "line": 0.5,
-          "over": 0.953,
-          "liq": 26928.99
+          "over": 0.952,
+          "liq": 31494.74
         },
         {
           "line": 1.5,
           "over": 0.805,
-          "liq": 38776.97
+          "liq": 56347.6
         },
         {
           "line": 2.5,
-          "over": 0.575,
-          "liq": 51404.52
+          "over": 0.585,
+          "liq": 80234.03
         },
         {
           "line": 3.5,
           "over": 0.345,
-          "liq": 33888.14
+          "liq": 58609.22
         },
         {
           "line": 4.5,
           "over": 0.18,
-          "liq": 16974.18
+          "liq": 53362.11
         },
         {
           "line": 5.5,
           "over": 0.075,
-          "liq": 15350.55
+          "liq": 45023.12
         },
         {
           "line": 6.5,
-          "over": 0.075,
-          "liq": 3423.3
+          "over": 0.0275,
+          "liq": 16131.67
         },
         {
           "line": 7.5,
-          "over": 0.075,
-          "liq": 3423.3
+          "over": 0.0115,
+          "liq": 13667.46
         },
         {
           "line": 8.5,
-          "over": 0.075,
-          "liq": 3967.81
+          "over": 0.0055,
+          "liq": 14280.14
         }
       ],
       "market_total": 3.0,
@@ -3330,122 +2330,122 @@
         {
           "team": "Ghana",
           "line": -2.5,
-          "cover": 0.0015,
-          "liq": 8824.58
+          "cover": 0.005,
+          "liq": 16464.37
         },
         {
           "team": "England",
           "line": -1.5,
-          "cover": 0.565,
-          "liq": 49691.1
+          "cover": 0.575,
+          "liq": 89631.63
         },
         {
           "team": "England",
           "line": -2.5,
-          "cover": 0.325,
-          "liq": 38977.48
+          "cover": 0.335,
+          "liq": 67088.52
         },
         {
           "team": "Ghana",
           "line": -1.5,
-          "cover": 0.0165,
-          "liq": 10962.07
+          "cover": 0.016,
+          "liq": 18226.08
         },
         {
           "team": "Ghana",
           "line": -5.5,
-          "cover": 0.29,
-          "liq": 91.6
+          "cover": 0.0035,
+          "liq": 5586.65
         },
         {
           "team": "Ghana",
           "line": -4.5,
-          "cover": 0.22,
-          "liq": 95.97
+          "cover": 0.0035,
+          "liq": 5523.1
         },
         {
           "team": "England",
           "line": -3.5,
-          "cover": 0.155,
-          "liq": 4892.07
+          "cover": 0.165,
+          "liq": 36172.52
         },
         {
           "team": "England",
           "line": -4.5,
-          "cover": 0.08,
-          "liq": 3383.25
+          "cover": 0.065,
+          "liq": 11642.1
         },
         {
           "team": "Ghana",
           "line": -3.5,
-          "cover": 0.0045,
-          "liq": 6242.34
+          "cover": 0.0005,
+          "liq": 8409.8
         },
         {
           "team": "England",
           "line": -5.5,
-          "cover": 0.075,
-          "liq": 3423.4
+          "cover": 0.0415,
+          "liq": 8742.43
         }
       ],
       "btts": {
-        "yes": 0.135,
-        "liq": 8407.58
+        "yes": 0.125,
+        "liq": 11634.16
       }
     },
     "Panama|Croatia": {
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.11,
-          "liq": 4367.8
+          "prob": 0.09,
+          "liq": 4221.12
         }
       ],
       "totals": [
         {
           "line": 0.5,
           "over": 0.925,
-          "liq": 6775.76
+          "liq": 37714.21
         },
         {
           "line": 1.5,
           "over": 0.745,
-          "liq": 37557.08
+          "liq": 61424.29
         },
         {
           "line": 2.5,
-          "over": 0.485,
-          "liq": 35559.7
+          "over": 0.495,
+          "liq": 72203.64
         },
         {
           "line": 3.5,
-          "over": 0.27,
-          "liq": 25749.89
+          "over": 0.265,
+          "liq": 56898.1
         },
         {
           "line": 4.5,
           "over": 0.125,
-          "liq": 7989.59
+          "liq": 54114.75
         },
         {
           "line": 5.5,
-          "over": 0.0475,
-          "liq": 6134.69
+          "over": 0.0455,
+          "liq": 13969.56
         },
         {
           "line": 6.5,
-          "over": 0.075,
-          "liq": 9.0
+          "over": 0.0155,
+          "liq": 11964.31
         },
         {
           "line": 7.5,
-          "over": 0.0145,
-          "liq": 5278.48
+          "over": 0.0075,
+          "liq": 11009.03
         },
         {
           "line": 8.5,
-          "over": 0.05,
-          "liq": 59.74
+          "over": 0.0055,
+          "liq": 10978.51
         }
       ],
       "market_total": 2.64,
@@ -3454,320 +2454,320 @@
           "team": "Panama",
           "line": -1.5,
           "cover": 0.035,
-          "liq": 10445.32
+          "liq": 20054.23
         },
         {
           "team": "Croatia",
           "line": -1.5,
-          "cover": 0.365,
-          "liq": 48224.12
+          "cover": 0.37,
+          "liq": 71362.83
         },
         {
           "team": "Panama",
           "line": -2.5,
-          "cover": 0.0075,
-          "liq": 8840.83
+          "cover": 0.008,
+          "liq": 11510.95
         },
         {
           "team": "Croatia",
           "line": -2.5,
           "cover": 0.175,
-          "liq": 7046.24
+          "liq": 30569.56
         },
         {
           "team": "Panama",
           "line": -3.5,
-          "cover": 0.0345,
-          "liq": 857.1
+          "cover": 0.006,
+          "liq": 12383.39
         },
         {
           "team": "Panama",
           "line": -4.5,
-          "cover": 0.05,
-          "liq": 66.65
+          "cover": 0.0005,
+          "liq": 2497.61
         },
         {
           "team": "Panama",
           "line": -5.5,
-          "cover": 0.05,
-          "liq": 80.19
+          "cover": 0.003,
+          "liq": 5530.74
         },
         {
           "team": "Croatia",
           "line": -3.5,
           "cover": 0.065,
-          "liq": 5669.88
+          "liq": 34179.92
         },
         {
           "team": "Croatia",
           "line": -4.5,
-          "cover": 0.075,
-          "liq": 9.1
+          "cover": 0.05,
+          "liq": 4749.07
         },
         {
           "team": "Croatia",
           "line": -5.5,
           "cover": 0.006,
-          "liq": 684.99
+          "liq": 4857.99
         }
       ],
       "btts": {
-        "yes": 0.145,
-        "liq": 6667.6
+        "yes": 0.15,
+        "liq": 11440.59
       }
     },
     "Colombia|DR Congo": {
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.265,
-          "liq": 3956.97
-        }
-      ],
-      "totals": [
-        {
-          "line": 0.5,
-          "over": 0.91,
-          "liq": 22271.23
-        },
-        {
-          "line": 1.5,
-          "over": 0.695,
-          "liq": 35686.82
-        },
-        {
-          "line": 2.5,
-          "over": 0.425,
-          "liq": 31668.58
-        },
-        {
-          "line": 3.5,
-          "over": 0.22,
-          "liq": 14907.47
-        },
-        {
-          "line": 4.5,
-          "over": 0.09,
-          "liq": 8686.33
-        },
-        {
-          "line": 5.5,
-          "over": 0.0375,
-          "liq": 5438.98
-        },
-        {
-          "line": 6.5,
-          "over": 0.065,
-          "liq": 8.9
-        },
-        {
-          "line": 7.5,
-          "over": 0.045,
-          "liq": 26.92
-        },
-        {
-          "line": 8.5,
-          "over": 0.045,
-          "liq": 79.39
-        }
-      ],
-      "market_total": 2.4,
-      "spreads": [
-        {
-          "team": "Colombia",
-          "line": -1.5,
-          "cover": 0.385,
-          "liq": 30822.51
-        },
-        {
-          "team": "Colombia",
-          "line": -2.5,
-          "cover": 0.17,
-          "liq": 6851.12
-        },
-        {
-          "team": "DR Congo",
-          "line": -2.5,
-          "cover": 0.0095,
-          "liq": 6033.28
-        },
-        {
-          "team": "DR Congo",
-          "line": -1.5,
-          "cover": 0.0355,
-          "liq": 10090.56
-        },
-        {
-          "team": "Colombia",
-          "line": -3.5,
-          "cover": 0.065,
-          "liq": 5701.01
-        },
-        {
-          "team": "DR Congo",
-          "line": -5.5,
-          "cover": 0.045,
-          "liq": 23.75
-        },
-        {
-          "team": "Colombia",
-          "line": -4.5,
-          "cover": 0.075,
-          "liq": 8.7
-        },
-        {
-          "team": "DR Congo",
-          "line": -4.5,
-          "cover": 0.045,
-          "liq": 23.75
-        },
-        {
-          "team": "DR Congo",
-          "line": -3.5,
-          "cover": 0.045,
-          "liq": 23.75
-        },
-        {
-          "team": "Colombia",
-          "line": -5.5,
-          "cover": 0.006,
-          "liq": 2465.26
-        }
-      ],
-      "btts": {
-        "yes": 0.19,
-        "liq": 4512.8
-      }
-    },
-    "Switzerland|Canada": {
-      "exact": [
-        {
-          "score": "Any Other Score",
-          "prob": 0.095,
-          "liq": 3812.3
+          "prob": 0.1,
+          "liq": 3974.7
         }
       ],
       "totals": [
         {
           "line": 0.5,
           "over": 0.915,
-          "liq": 20975.2
+          "liq": 37802.63
         },
         {
           "line": 1.5,
-          "over": 0.715,
-          "liq": 29699.51
+          "over": 0.695,
+          "liq": 73696.79
+        },
+        {
+          "line": 2.5,
+          "over": 0.425,
+          "liq": 76252.23
+        },
+        {
+          "line": 3.5,
+          "over": 0.215,
+          "liq": 27861.23
+        },
+        {
+          "line": 4.5,
+          "over": 0.095,
+          "liq": 52310.86
+        },
+        {
+          "line": 5.5,
+          "over": 0.0285,
+          "liq": 13713.64
+        },
+        {
+          "line": 6.5,
+          "over": 0.0105,
+          "liq": 12066.16
+        },
+        {
+          "line": 7.5,
+          "over": 0.0055,
+          "liq": 11489.79
+        },
+        {
+          "line": 8.5,
+          "over": 0.0035,
+          "liq": 11209.57
+        }
+      ],
+      "market_total": 2.38,
+      "spreads": [
+        {
+          "team": "Colombia",
+          "line": -1.5,
+          "cover": 0.365,
+          "liq": 64586.45
+        },
+        {
+          "team": "Colombia",
+          "line": -2.5,
+          "cover": 0.165,
+          "liq": 36816.64
+        },
+        {
+          "team": "DR Congo",
+          "line": -2.5,
+          "cover": 0.007,
+          "liq": 12583.2
+        },
+        {
+          "team": "DR Congo",
+          "line": -1.5,
+          "cover": 0.0365,
+          "liq": 17701.75
+        },
+        {
+          "team": "Colombia",
+          "line": -3.5,
+          "cover": 0.055,
+          "liq": 31372.27
+        },
+        {
+          "team": "DR Congo",
+          "line": -5.5,
+          "cover": 0.0035,
+          "liq": 5519.23
+        },
+        {
+          "team": "Colombia",
+          "line": -4.5,
+          "cover": 0.036,
+          "liq": 4833.35
+        },
+        {
+          "team": "DR Congo",
+          "line": -4.5,
+          "cover": 0.0055,
+          "liq": 5526.36
+        },
+        {
+          "team": "DR Congo",
+          "line": -3.5,
+          "cover": 0.006,
+          "liq": 12301.09
+        },
+        {
+          "team": "Colombia",
+          "line": -5.5,
+          "cover": 0.006,
+          "liq": 6043.36
+        }
+      ],
+      "btts": {
+        "yes": 0.18,
+        "liq": 9239.82
+      }
+    },
+    "Switzerland|Canada": {
+      "exact": [
+        {
+          "score": "Any Other Score",
+          "prob": 0.075,
+          "liq": 4861.52
+        }
+      ],
+      "totals": [
+        {
+          "line": 0.5,
+          "over": 0.905,
+          "liq": 30817.56
+        },
+        {
+          "line": 1.5,
+          "over": 0.705,
+          "liq": 70318.19
         },
         {
           "line": 2.5,
           "over": 0.445,
-          "liq": 15727.41
+          "liq": 48762.09
         },
         {
           "line": 3.5,
-          "over": 0.235,
-          "liq": 9439.64
+          "over": 0.24,
+          "liq": 24542.28
         },
         {
           "line": 4.5,
           "over": 0.105,
-          "liq": 6301.18
+          "liq": 21806.3
         },
         {
           "line": 5.5,
-          "over": 0.0475,
-          "liq": 5535.45
+          "over": 0.0445,
+          "liq": 9993.12
         },
         {
           "line": 6.5,
-          "over": 0.07,
-          "liq": 8.8
+          "over": 0.0115,
+          "liq": 7463.72
         },
         {
           "line": 7.5,
-          "over": 0.045,
-          "liq": 22.96
+          "over": 0.0055,
+          "liq": 5712.23
         },
         {
           "line": 8.5,
-          "over": 0.045,
-          "liq": 33.93
+          "over": 0.0185,
+          "liq": 5272.12
         }
       ],
-      "market_total": 2.48,
+      "market_total": 2.46,
       "spreads": [
         {
           "team": "Switzerland",
           "line": -1.5,
-          "cover": 0.22,
-          "liq": 8481.48
+          "cover": 0.175,
+          "liq": 22408.96
         },
         {
           "team": "Switzerland",
           "line": -2.5,
-          "cover": 0.08,
-          "liq": 6005.12
+          "cover": 0.065,
+          "liq": 17909.18
         },
         {
           "team": "Canada",
           "line": -2.5,
-          "cover": 0.0275,
-          "liq": 6513.67
+          "cover": 0.0305,
+          "liq": 7173.38
         },
         {
           "team": "Canada",
           "line": -1.5,
-          "cover": 0.1,
-          "liq": 8345.74
+          "cover": 0.11,
+          "liq": 31411.69
         },
         {
           "team": "Canada",
           "line": -4.5,
+          "cover": 0.026,
+          "liq": 5342.92
+        },
+        {
+          "team": "Switzerland",
+          "line": -5.5,
+          "cover": 0.0445,
+          "liq": 5065.43
+        },
+        {
+          "team": "Switzerland",
+          "line": -3.5,
+          "cover": 0.015,
+          "liq": 6313.13
+        },
+        {
+          "team": "Canada",
+          "line": -5.5,
           "cover": 0.045,
-          "liq": 86.66
-        },
-        {
-          "team": "Switzerland",
-          "line": -5.5,
-          "cover": 0.05,
-          "liq": 385.33
-        },
-        {
-          "team": "Switzerland",
-          "line": -3.5,
-          "cover": 0.075,
-          "liq": 8.7
-        },
-        {
-          "team": "Canada",
-          "line": -5.5,
-          "cover": 0.0505,
-          "liq": 34.48
+          "liq": 5126.6
         },
         {
           "team": "Canada",
           "line": -3.5,
-          "cover": 0.0505,
-          "liq": 69.31
+          "cover": 0.0075,
+          "liq": 5841.42
         },
         {
           "team": "Switzerland",
           "line": -4.5,
-          "cover": 0.045,
-          "liq": 23.74
+          "cover": 0.005,
+          "liq": 5509.51
         }
       ],
       "btts": {
-        "yes": 0.17,
-        "liq": 3757.29
+        "yes": 0.175,
+        "liq": 8528.84
       }
     },
     "Bosnia-Herzegovina|Qatar": {
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.115,
-          "liq": 4219.28
+          "prob": 0.135,
+          "liq": 4457.59
         }
       ]
     },
@@ -3775,487 +2775,487 @@
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.145,
-          "liq": 4093.02
+          "prob": 0.225,
+          "liq": 4512.61
         }
       ],
       "totals": [
         {
           "line": 0.5,
-          "over": 0.9475,
-          "liq": 5648.64
+          "over": 0.9555,
+          "liq": 13198.27
         },
         {
           "line": 1.5,
-          "over": 0.805,
-          "liq": 22352.49
+          "over": 0.815,
+          "liq": 43309.56
         },
         {
           "line": 2.5,
-          "over": 0.585,
-          "liq": 15042.37
+          "over": 0.595,
+          "liq": 60895.16
         },
         {
           "line": 3.5,
-          "over": 0.365,
-          "liq": 14739.74
+          "over": 0.375,
+          "liq": 54502.95
         },
         {
           "line": 4.5,
-          "over": 0.195,
-          "liq": 10277.42
+          "over": 0.205,
+          "liq": 20964.81
         },
         {
           "line": 5.5,
           "over": 0.09,
-          "liq": 6403.17
+          "liq": 16149.58
         },
         {
           "line": 6.5,
-          "over": 0.08,
-          "liq": 16.1
+          "over": 0.0335,
+          "liq": 10157.9
         },
         {
           "line": 7.5,
-          "over": 0.07,
-          "liq": 8.8
+          "over": 0.018,
+          "liq": 7856.85
         }
       ],
-      "market_total": 3.06,
+      "market_total": 3.1,
       "spreads": [
         {
           "team": "Haiti",
           "line": -2.5,
-          "cover": 0.0035,
-          "liq": 9464.52
+          "cover": 0.0055,
+          "liq": 11492.72
         },
         {
           "team": "Haiti",
           "line": -1.5,
-          "cover": 0.0195,
-          "liq": 9994.21
+          "cover": 0.015,
+          "liq": 12562.72
         },
         {
           "team": "Morocco",
           "line": -1.5,
-          "cover": 0.525,
-          "liq": 19977.76
+          "cover": 0.595,
+          "liq": 64421.09
         },
         {
           "team": "Morocco",
           "line": -2.5,
-          "cover": 0.3,
-          "liq": 13671.27
+          "cover": 0.365,
+          "liq": 52614.64
         },
         {
           "team": "Morocco",
           "line": -5.5,
-          "cover": 0.075,
-          "liq": 8.7
+          "cover": 0.055,
+          "liq": 4665.34
         },
         {
           "team": "Morocco",
           "line": -4.5,
-          "cover": 0.1,
-          "liq": 8.5
+          "cover": 0.075,
+          "liq": 6592.32
         },
         {
           "team": "Morocco",
           "line": -3.5,
-          "cover": 0.14,
-          "liq": 488.56
+          "cover": 0.185,
+          "liq": 15080.4
         },
         {
           "team": "Haiti",
           "line": -5.5,
-          "cover": 0.045,
-          "liq": 23.75
+          "cover": 0.0105,
+          "liq": 6428.15
         },
         {
           "team": "Haiti",
           "line": -3.5,
-          "cover": 0.045,
-          "liq": 23.75
+          "cover": 0.01,
+          "liq": 6628.32
         },
         {
           "team": "Haiti",
           "line": -4.5,
           "cover": 0.0055,
-          "liq": 2152.55
+          "liq": 7538.0
         }
       ],
       "btts": {
-        "yes": 0.17,
-        "liq": 4248.32
+        "yes": 0.13,
+        "liq": 9118.52
       }
     },
     "Scotland|Brazil": {
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.13,
-          "liq": 4405.27
+          "prob": 0.125,
+          "liq": 4616.63
         }
       ],
       "totals": [
         {
           "line": 0.5,
-          "over": 0.95,
-          "liq": 9149.58
+          "over": 0.945,
+          "liq": 24630.76
         },
         {
           "line": 1.5,
           "over": 0.765,
-          "liq": 35766.58
+          "liq": 45088.38
         },
         {
           "line": 2.5,
-          "over": 0.53,
-          "liq": 19425.61
+          "over": 0.535,
+          "liq": 55770.76
         },
         {
           "line": 3.5,
-          "over": 0.295,
-          "liq": 14929.23
+          "over": 0.305,
+          "liq": 52354.02
         },
         {
           "line": 4.5,
           "over": 0.145,
-          "liq": 12251.51
+          "liq": 26264.3
         },
         {
           "line": 5.5,
-          "over": 0.055,
-          "liq": 9544.19
+          "over": 0.065,
+          "liq": 19406.37
         },
         {
           "line": 6.5,
-          "over": 0.045,
-          "liq": 3790.71
+          "over": 0.0165,
+          "liq": 11913.87
         },
         {
           "line": 7.5,
-          "over": 0.045,
-          "liq": 23.25
+          "over": 0.011,
+          "liq": 9350.19
         },
         {
           "line": 8.5,
-          "over": 0.045,
-          "liq": 27.66
+          "over": 0.037,
+          "liq": 10085.95
         }
       ],
-      "market_total": 2.78,
+      "market_total": 2.8,
       "spreads": [
         {
           "team": "Brazil",
           "line": -1.5,
-          "cover": 0.43,
-          "liq": 17893.34
+          "cover": 0.465,
+          "liq": 64094.88
         },
         {
           "team": "Brazil",
           "line": -2.5,
-          "cover": 0.215,
-          "liq": 8244.23
+          "cover": 0.24,
+          "liq": 44903.16
         },
         {
           "team": "Scotland",
           "line": -1.5,
-          "cover": 0.0325,
-          "liq": 11680.34
+          "cover": 0.034,
+          "liq": 14712.35
         },
         {
           "team": "Scotland",
           "line": -2.5,
-          "cover": 0.0085,
-          "liq": 7255.52
+          "cover": 0.006,
+          "liq": 11579.62
         },
         {
           "team": "Scotland",
           "line": -4.5,
-          "cover": 0.05,
-          "liq": 384.63
+          "cover": 0.0065,
+          "liq": 5421.07
         },
         {
           "team": "Scotland",
           "line": -3.5,
-          "cover": 0.045,
-          "liq": 29.25
+          "cover": 0.005,
+          "liq": 9813.04
         },
         {
           "team": "Brazil",
           "line": -5.5,
           "cover": 0.05,
-          "liq": 27.3
+          "liq": 4906.32
         },
         {
           "team": "Brazil",
           "line": -4.5,
-          "cover": 0.075,
-          "liq": 8.7
+          "cover": 0.05,
+          "liq": 4734.21
         },
         {
           "team": "Scotland",
           "line": -5.5,
-          "cover": 0.05,
-          "liq": 381.12
+          "cover": 0.0115,
+          "liq": 4803.55
         },
         {
           "team": "Brazil",
           "line": -3.5,
-          "cover": 0.075,
-          "liq": 4507.32
+          "cover": 0.1,
+          "liq": 18623.93
         }
       ],
       "btts": {
-        "yes": 0.42,
-        "liq": 3687.47
+        "yes": 0.21,
+        "liq": 9035.07
       }
     },
     "Czechia|Mexico": {
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.1,
-          "liq": 4408.7
-        }
-      ],
-      "totals": [
-        {
-          "line": 0.5,
-          "over": 0.92,
-          "liq": 9999.7
-        },
-        {
-          "line": 1.5,
-          "over": 0.705,
-          "liq": 17034.64
-        },
-        {
-          "line": 2.5,
-          "over": 0.44,
-          "liq": 18911.49
-        },
-        {
-          "line": 3.5,
-          "over": 0.235,
-          "liq": 12446.81
-        },
-        {
-          "line": 4.5,
-          "over": 0.105,
-          "liq": 8838.4
-        },
-        {
-          "line": 5.5,
-          "over": 0.0425,
-          "liq": 9210.92
-        },
-        {
-          "line": 6.5,
-          "over": 0.07,
-          "liq": 3368.8
-        },
-        {
-          "line": 7.5,
-          "over": 0.065,
-          "liq": 3368.9
-        },
-        {
-          "line": 8.5,
-          "over": 0.045,
-          "liq": 20.88
-        }
-      ],
-      "market_total": 2.48,
-      "spreads": [
-        {
-          "team": "Czechia",
-          "line": -1.5,
-          "cover": 0.055,
-          "liq": 11072.82
-        },
-        {
-          "team": "Czechia",
-          "line": -2.5,
-          "cover": 0.0125,
-          "liq": 9867.21
-        },
-        {
-          "team": "Mexico",
-          "line": -2.5,
-          "cover": 0.1,
-          "liq": 9281.91
-        },
-        {
-          "team": "Mexico",
-          "line": -1.5,
-          "cover": 0.275,
-          "liq": 11303.46
-        },
-        {
-          "team": "Czechia",
-          "line": -3.5,
-          "cover": 0.065,
-          "liq": 8.9
-        },
-        {
-          "team": "Mexico",
-          "line": -5.5,
-          "cover": 0.045,
-          "liq": 17.24
-        },
-        {
-          "team": "Mexico",
-          "line": -4.5,
-          "cover": 0.07,
-          "liq": 8.9
-        },
-        {
-          "team": "Mexico",
-          "line": -3.5,
-          "cover": 0.08,
-          "liq": 8.7
-        },
-        {
-          "team": "Czechia",
-          "line": -4.5,
-          "cover": 0.05,
-          "liq": 488.92
-        },
-        {
-          "team": "Czechia",
-          "line": -5.5,
-          "cover": 0.05,
-          "liq": 13.65
-        }
-      ],
-      "btts": {
-        "yes": 0.165,
-        "liq": 3950.02
-      }
-    },
-    "South Africa|Korea Republic": {
-      "exact": [
-        {
-          "score": "Any Other Score",
-          "prob": 0.12,
-          "liq": 4244.64
+          "prob": 0.08,
+          "liq": 4758.82
         }
       ],
       "totals": [
         {
           "line": 0.5,
           "over": 0.925,
-          "liq": 6827.7
+          "liq": 34373.55
         },
         {
           "line": 1.5,
-          "over": 0.725,
-          "liq": 18550.14
+          "over": 0.705,
+          "liq": 59737.54
         },
         {
           "line": 2.5,
-          "over": 0.475,
-          "liq": 15960.5
+          "over": 0.445,
+          "liq": 59066.48
+        },
+        {
+          "line": 3.5,
+          "over": 0.235,
+          "liq": 37009.64
+        },
+        {
+          "line": 4.5,
+          "over": 0.105,
+          "liq": 22157.76
+        },
+        {
+          "line": 5.5,
+          "over": 0.0385,
+          "liq": 13546.69
+        },
+        {
+          "line": 6.5,
+          "over": 0.0125,
+          "liq": 12040.72
+        },
+        {
+          "line": 7.5,
+          "over": 0.0055,
+          "liq": 9620.8
+        },
+        {
+          "line": 8.5,
+          "over": 0.006,
+          "liq": 9329.7
+        }
+      ],
+      "market_total": 2.46,
+      "spreads": [
+        {
+          "team": "Czechia",
+          "line": -1.5,
+          "cover": 0.095,
+          "liq": 21537.35
+        },
+        {
+          "team": "Czechia",
+          "line": -2.5,
+          "cover": 0.027,
+          "liq": 10491.27
+        },
+        {
+          "team": "Mexico",
+          "line": -2.5,
+          "cover": 0.085,
+          "liq": 22418.58
+        },
+        {
+          "team": "Mexico",
+          "line": -1.5,
+          "cover": 0.235,
+          "liq": 48391.82
+        },
+        {
+          "team": "Czechia",
+          "line": -3.5,
+          "cover": 0.007,
+          "liq": 10620.25
+        },
+        {
+          "team": "Mexico",
+          "line": -5.5,
+          "cover": 0.013,
+          "liq": 5409.73
+        },
+        {
+          "team": "Mexico",
+          "line": -4.5,
+          "cover": 0.045,
+          "liq": 124.27
+        },
+        {
+          "team": "Mexico",
+          "line": -3.5,
+          "cover": 0.0305,
+          "liq": 9244.82
+        },
+        {
+          "team": "Czechia",
+          "line": -4.5,
+          "cover": 0.0105,
+          "liq": 1102.55
+        },
+        {
+          "team": "Czechia",
+          "line": -5.5,
+          "cover": 0.0075,
+          "liq": 5205.93
+        }
+      ],
+      "btts": {
+        "yes": 0.15,
+        "liq": 8898.59
+      }
+    },
+    "South Africa|Korea Republic": {
+      "exact": [
+        {
+          "score": "Any Other Score",
+          "prob": 0.22,
+          "liq": 4634.93
+        }
+      ],
+      "totals": [
+        {
+          "line": 0.5,
+          "over": 0.925,
+          "liq": 30244.07
+        },
+        {
+          "line": 1.5,
+          "over": 0.715,
+          "liq": 56573.03
+        },
+        {
+          "line": 2.5,
+          "over": 0.465,
+          "liq": 48376.19
         },
         {
           "line": 3.5,
           "over": 0.245,
-          "liq": 13798.43
+          "liq": 41332.32
         },
         {
           "line": 4.5,
-          "over": 0.11,
-          "liq": 6812.63
+          "over": 0.115,
+          "liq": 26734.36
         },
         {
           "line": 5.5,
-          "over": 0.057,
-          "liq": 5757.42
+          "over": 0.041,
+          "liq": 10501.63
         },
         {
           "line": 6.5,
-          "over": 0.075,
-          "liq": 8.7
+          "over": 0.0105,
+          "liq": 7009.24
         },
         {
           "line": 7.5,
-          "over": 0.05,
-          "liq": 24.59
+          "over": 0.0055,
+          "liq": 11431.69
         },
         {
           "line": 8.5,
-          "over": 0.05,
-          "liq": 371.13
+          "over": 0.006,
+          "liq": 9247.16
         }
       ],
-      "market_total": 2.56,
+      "market_total": 2.52,
       "spreads": [
         {
           "team": "South Africa",
           "line": -2.5,
-          "cover": 0.008,
-          "liq": 7599.55
+          "cover": 0.0155,
+          "liq": 11930.88
         },
         {
           "team": "South Africa",
           "line": -1.5,
-          "cover": 0.047,
-          "liq": 6147.21
+          "cover": 0.0455,
+          "liq": 13298.96
         },
         {
           "team": "Korea Republic",
           "line": -2.5,
-          "cover": 0.14,
-          "liq": 5679.5
+          "cover": 0.145,
+          "liq": 25489.49
         },
         {
           "team": "Korea Republic",
           "line": -1.5,
-          "cover": 0.345,
-          "liq": 12787.19
+          "cover": 0.335,
+          "liq": 52192.78
         },
         {
           "team": "Korea Republic",
           "line": -4.5,
-          "cover": 0.07,
-          "liq": 8.8
+          "cover": 0.049,
+          "liq": 9426.33
         },
         {
           "team": "Korea Republic",
           "line": -3.5,
-          "cover": 0.07,
-          "liq": 628.75
-        },
-        {
-          "team": "South Africa",
-          "line": -5.5,
-          "cover": 0.05,
-          "liq": 375.86
-        },
-        {
-          "team": "South Africa",
-          "line": -3.5,
-          "cover": 0.05,
-          "liq": 414.74
-        },
-        {
-          "team": "Korea Republic",
-          "line": -5.5,
           "cover": 0.045,
-          "liq": 24.54
+          "liq": 20691.43
+        },
+        {
+          "team": "South Africa",
+          "line": -5.5,
+          "cover": 0.006,
+          "liq": 10788.29
+        },
+        {
+          "team": "South Africa",
+          "line": -3.5,
+          "cover": 0.006,
+          "liq": 11460.07
+        },
+        {
+          "team": "Korea Republic",
+          "line": -5.5,
+          "cover": 0.006,
+          "liq": 10528.03
         },
         {
           "team": "South Africa",
           "line": -4.5,
-          "cover": 0.045,
-          "liq": 24.89
+          "cover": 0.006,
+          "liq": 10593.79
         }
       ],
       "btts": {
-        "yes": 0.205,
-        "liq": 4166.91
+        "yes": 0.215,
+        "liq": 14305.36
       }
     },
     "Ecuador|Germany": {
@@ -4263,54 +3263,54 @@
         {
           "score": "Any Other Score",
           "prob": 0.11,
-          "liq": 4153.65
+          "liq": 4553.28
         }
       ],
       "totals": [
         {
           "line": 0.5,
-          "over": 0.925,
-          "liq": 10371.7
+          "over": 0.93,
+          "liq": 11598.8
         },
         {
           "line": 1.5,
-          "over": 0.755,
-          "liq": 15102.38
+          "over": 0.745,
+          "liq": 27086.24
         },
         {
           "line": 2.5,
-          "over": 0.5,
-          "liq": 21906.82
+          "over": 0.505,
+          "liq": 19937.97
         },
         {
           "line": 3.5,
           "over": 0.28,
-          "liq": 15591.82
+          "liq": 18793.76
         },
         {
           "line": 4.5,
           "over": 0.13,
-          "liq": 9574.24
+          "liq": 13933.57
         },
         {
           "line": 5.5,
           "over": 0.05,
-          "liq": 9041.83
+          "liq": 9856.72
         },
         {
           "line": 6.5,
-          "over": 0.07,
-          "liq": 3368.8
+          "over": 0.0265,
+          "liq": 9004.43
         },
         {
           "line": 7.5,
-          "over": 0.045,
-          "liq": 24.89
+          "over": 0.006,
+          "liq": 5434.89
         },
         {
           "line": 8.5,
           "over": 0.045,
-          "liq": 23.74
+          "liq": 3545.74
         }
       ],
       "market_total": 2.68,
@@ -4319,681 +3319,681 @@
           "team": "Germany",
           "line": -2.5,
           "cover": 0.145,
-          "liq": 8849.76
+          "liq": 11403.55
         },
         {
           "team": "Ecuador",
           "line": -2.5,
-          "cover": 0.012,
-          "liq": 10129.7
+          "cover": 0.01,
+          "liq": 9728.24
         },
         {
           "team": "Ecuador",
           "line": -1.5,
           "cover": 0.06,
-          "liq": 9275.24
+          "liq": 13056.96
         },
         {
           "team": "Germany",
           "line": -1.5,
           "cover": 0.325,
-          "liq": 16470.06
+          "liq": 19120.93
         },
         {
           "team": "Germany",
           "line": -3.5,
-          "cover": 0.055,
-          "liq": 400.48
-        },
-        {
-          "team": "Ecuador",
-          "line": -5.5,
-          "cover": 0.045,
-          "liq": 23.74
-        },
-        {
-          "team": "Ecuador",
-          "line": -4.5,
-          "cover": 0.045,
-          "liq": 23.75
-        },
-        {
-          "team": "Germany",
-          "line": -4.5,
-          "cover": 0.0545,
-          "liq": 25.79
-        },
-        {
-          "team": "Ecuador",
-          "line": -3.5,
-          "cover": 0.045,
-          "liq": 370.95
-        },
-        {
-          "team": "Germany",
-          "line": -5.5,
           "cover": 0.05,
-          "liq": 25.09
+          "liq": 5816.45
+        },
+        {
+          "team": "Ecuador",
+          "line": -5.5,
+          "cover": 0.006,
+          "liq": 5548.33
+        },
+        {
+          "team": "Ecuador",
+          "line": -4.5,
+          "cover": 0.045,
+          "liq": 89.77
+        },
+        {
+          "team": "Germany",
+          "line": -4.5,
+          "cover": 0.05,
+          "liq": 4781.48
+        },
+        {
+          "team": "Ecuador",
+          "line": -3.5,
+          "cover": 0.006,
+          "liq": 6052.62
+        },
+        {
+          "team": "Germany",
+          "line": -5.5,
+          "cover": 0.006,
+          "liq": 5663.74
         }
       ],
       "btts": {
-        "yes": 0.185,
-        "liq": 4219.14
+        "yes": 0.23,
+        "liq": 4865.93
       }
     },
     "Curaçao|Côte d'Ivoire": {
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.28,
-          "liq": 4217.8
+          "prob": 0.27,
+          "liq": 4372.09
         }
       ],
       "totals": [
         {
           "line": 0.5,
-          "over": 0.9595,
-          "liq": 4659.96
+          "over": 0.9605,
+          "liq": 25801.06
         },
         {
           "line": 1.5,
-          "over": 0.86,
-          "liq": 15937.51
+          "over": 0.845,
+          "liq": 28970.92
         },
         {
           "line": 2.5,
           "over": 0.655,
-          "liq": 13382.24
+          "liq": 17134.57
         },
         {
           "line": 3.5,
-          "over": 0.435,
-          "liq": 11474.37
+          "over": 0.425,
+          "liq": 15367.79
         },
         {
           "line": 4.5,
-          "over": 0.245,
-          "liq": 9255.75
+          "over": 0.24,
+          "liq": 12907.65
         },
         {
           "line": 5.5,
-          "over": 0.13,
-          "liq": 6636.41
+          "over": 0.12,
+          "liq": 9392.13
         },
         {
           "line": 6.5,
-          "over": 0.055,
-          "liq": 382.28
+          "over": 0.05,
+          "liq": 5093.7
         },
         {
           "line": 7.5,
-          "over": 0.05,
-          "liq": 391.74
+          "over": 0.045,
+          "liq": 4437.0
         },
         {
           "line": 8.5,
-          "over": 0.045,
-          "liq": 25.18
+          "over": 0.006,
+          "liq": 5764.54
         }
       ],
-      "market_total": 3.38,
+      "market_total": 3.34,
       "spreads": [
         {
           "team": "Côte d'Ivoire",
           "line": -1.5,
-          "cover": 0.68,
-          "liq": 10189.86
+          "cover": 0.675,
+          "liq": 28655.51
         },
         {
           "team": "Côte d'Ivoire",
           "line": -2.5,
-          "cover": 0.44,
-          "liq": 11587.22
+          "cover": 0.445,
+          "liq": 13247.07
         },
         {
           "team": "Curaçao",
           "line": -1.5,
-          "cover": 0.019,
-          "liq": 7052.33
+          "cover": 0.0295,
+          "liq": 5511.6
         },
         {
           "team": "Curaçao",
           "line": -2.5,
-          "cover": 0.0045,
-          "liq": 8018.5
+          "cover": 0.0055,
+          "liq": 7923.28
         },
         {
           "team": "Curaçao",
           "line": -5.5,
           "cover": 0.045,
-          "liq": 24.53
+          "liq": 86.69
         },
         {
           "team": "Curaçao",
           "line": -4.5,
-          "cover": 0.045,
-          "liq": 27.11
+          "cover": 0.0495,
+          "liq": 4997.71
         },
         {
           "team": "Côte d'Ivoire",
           "line": -3.5,
-          "cover": 0.21,
-          "liq": 382.81
+          "cover": 0.245,
+          "liq": 5335.19
         },
         {
           "team": "Curaçao",
           "line": -3.5,
-          "cover": 0.045,
-          "liq": 24.54
+          "cover": 0.005,
+          "liq": 1404.47
         },
         {
           "team": "Côte d'Ivoire",
           "line": -5.5,
-          "cover": 0.095,
-          "liq": 8.6
+          "cover": 0.06,
+          "liq": 5266.91
         },
         {
           "team": "Côte d'Ivoire",
           "line": -4.5,
-          "cover": 0.13,
-          "liq": 7.9
+          "cover": 0.1,
+          "liq": 4923.93
         }
       ],
       "btts": {
-        "yes": 0.49,
-        "liq": 62.31
+        "yes": 0.19,
+        "liq": 3828.6
       }
     },
     "Japan|Sweden": {
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.095,
-          "liq": 3779.96
+          "prob": 0.13,
+          "liq": 4133.56
         }
       ],
       "totals": [
         {
           "line": 0.5,
           "over": 0.92,
-          "liq": 9176.11
+          "liq": 10962.74
         },
         {
           "line": 1.5,
-          "over": 0.74,
-          "liq": 18672.72
+          "over": 0.725,
+          "liq": 33070.93
         },
         {
           "line": 2.5,
-          "over": 0.485,
-          "liq": 20299.08
+          "over": 0.475,
+          "liq": 18264.72
         },
         {
           "line": 3.5,
-          "over": 0.245,
-          "liq": 14150.23
+          "over": 0.255,
+          "liq": 14281.94
         },
         {
           "line": 4.5,
-          "over": 0.105,
-          "liq": 9338.19
+          "over": 0.11,
+          "liq": 11869.13
         },
         {
           "line": 5.5,
-          "over": 0.0455,
-          "liq": 8448.06
+          "over": 0.047,
+          "liq": 9852.56
         },
         {
           "line": 6.5,
-          "over": 0.07,
-          "liq": 3368.8
+          "over": 0.015,
+          "liq": 5117.08
         },
         {
           "line": 7.5,
-          "over": 0.05,
-          "liq": 4811.16
+          "over": 0.045,
+          "liq": 3591.16
         },
         {
           "line": 8.5,
-          "over": 0.05,
-          "liq": 4805.0
+          "over": 0.045,
+          "liq": 3591.01
         }
       ],
-      "market_total": 2.58,
+      "market_total": 2.56,
       "spreads": [
         {
           "team": "Japan",
           "line": -2.5,
-          "cover": 0.075,
-          "liq": 8809.23
+          "cover": 0.08,
+          "liq": 10891.87
         },
         {
           "team": "Sweden",
           "line": -1.5,
-          "cover": 0.095,
-          "liq": 9721.38
+          "cover": 0.11,
+          "liq": 12539.55
         },
         {
           "team": "Sweden",
           "line": -2.5,
-          "cover": 0.0375,
-          "liq": 5503.29
+          "cover": 0.0355,
+          "liq": 6158.03
         },
         {
           "team": "Japan",
           "line": -1.5,
           "cover": 0.205,
-          "liq": 9936.91
+          "liq": 10534.08
         },
         {
           "team": "Japan",
           "line": -4.5,
-          "cover": 0.015,
-          "liq": 5674.12
+          "cover": 0.0105,
+          "liq": 5433.25
         },
         {
           "team": "Japan",
           "line": -3.5,
-          "cover": 0.065,
-          "liq": 3368.9
+          "cover": 0.024,
+          "liq": 9197.08
         },
         {
           "team": "Sweden",
           "line": -5.5,
           "cover": 0.045,
-          "liq": 23.75
+          "liq": 84.21
         },
         {
           "team": "Japan",
           "line": -5.5,
-          "cover": 0.05,
-          "liq": 380.95
+          "cover": 0.006,
+          "liq": 5157.61
         },
         {
           "team": "Sweden",
           "line": -4.5,
-          "cover": 0.015,
-          "liq": 5678.34
+          "cover": 0.0105,
+          "liq": 5360.39
         },
         {
           "team": "Sweden",
           "line": -3.5,
-          "cover": 0.045,
-          "liq": 23.75
+          "cover": 0.0085,
+          "liq": 5707.67
         }
       ],
       "btts": {
-        "yes": 0.485,
-        "liq": 63.22
+        "yes": 0.245,
+        "liq": 7168.21
       }
     },
     "Tunisia|Netherlands": {
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.12,
-          "liq": 4132.7
+          "prob": 0.115,
+          "liq": 3551.35
         }
       ],
       "totals": [
         {
           "line": 0.5,
-          "over": 0.9435,
-          "liq": 4823.66
+          "over": 0.9495,
+          "liq": 13969.85
         },
         {
           "line": 1.5,
-          "over": 0.805,
-          "liq": 10171.47
+          "over": 0.795,
+          "liq": 26251.12
         },
         {
           "line": 2.5,
           "over": 0.565,
-          "liq": 13331.49
+          "liq": 16547.02
         },
         {
           "line": 3.5,
-          "over": 0.34,
-          "liq": 11925.07
+          "over": 0.345,
+          "liq": 13958.51
         },
         {
           "line": 4.5,
-          "over": 0.16,
-          "liq": 9126.65
+          "over": 0.175,
+          "liq": 14365.0
         },
         {
           "line": 5.5,
           "over": 0.08,
-          "liq": 5482.05
+          "liq": 7073.16
         },
         {
           "line": 6.5,
-          "over": 0.5,
-          "liq": 0.1
+          "over": 0.04,
+          "liq": 5405.4
         },
         {
           "line": 7.5,
-          "over": 0.015,
-          "liq": 1456.06
+          "over": 0.0495,
+          "liq": 4915.22
         },
         {
           "line": 8.5,
-          "over": 0.36,
-          "liq": 49.6
+          "over": 0.045,
+          "liq": 3569.98
         }
       ],
-      "market_total": 3.12,
+      "market_total": 2.96,
       "spreads": [
         {
           "team": "Tunisia",
           "line": -1.5,
-          "cover": 0.0345,
-          "liq": 4549.65
+          "cover": 0.0215,
+          "liq": 10089.24
         },
         {
           "team": "Tunisia",
           "line": -2.5,
-          "cover": 0.0025,
-          "liq": 4625.12
+          "cover": 0.003,
+          "liq": 6318.45
         },
         {
           "team": "Netherlands",
           "line": -2.5,
-          "cover": 0.275,
-          "liq": 12593.68
+          "cover": 0.285,
+          "liq": 13158.13
         },
         {
           "team": "Netherlands",
           "line": -1.5,
-          "cover": 0.52,
-          "liq": 11153.92
+          "cover": 0.515,
+          "liq": 23896.32
         },
         {
           "team": "Tunisia",
           "line": -3.5,
-          "cover": 0.5,
-          "liq": 0.1
+          "cover": 0.05,
+          "liq": 39.0
         },
         {
           "team": "Netherlands",
           "line": -5.5,
-          "cover": 0.39,
-          "liq": 372.97
+          "cover": 0.05,
+          "liq": 4517.62
         },
         {
           "team": "Netherlands",
           "line": -4.5,
-          "cover": 0.5,
-          "liq": 0.1
+          "cover": 0.06,
+          "liq": 4337.43
         },
         {
           "team": "Tunisia",
           "line": -4.5,
-          "cover": 0.5,
-          "liq": 1.05
+          "cover": 0.05,
+          "liq": 35.75
         },
         {
           "team": "Netherlands",
           "line": -3.5,
-          "cover": 0.5,
-          "liq": 0.1
+          "cover": 0.135,
+          "liq": 5843.86
         },
         {
           "team": "Tunisia",
           "line": -5.5,
-          "cover": 0.415,
-          "liq": 24.51
+          "cover": 0.0475,
+          "liq": 251.91
         }
       ],
       "btts": {
-        "yes": 0.2,
-        "liq": 4235.2
+        "yes": 0.24,
+        "liq": 6421.88
       }
     },
     "Paraguay|Australia": {
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.075,
-          "liq": 4168.13
+          "prob": 0.115,
+          "liq": 1257.29
         }
       ],
       "totals": [
         {
           "line": 0.5,
-          "over": 0.905,
-          "liq": 9369.91
+          "over": 0.825,
+          "liq": 41191.0
         },
         {
           "line": 1.5,
-          "over": 0.675,
-          "liq": 18802.98
+          "over": 0.605,
+          "liq": 29392.96
         },
         {
           "line": 2.5,
-          "over": 0.41,
-          "liq": 13474.19
+          "over": 0.315,
+          "liq": 23088.04
         },
         {
           "line": 3.5,
-          "over": 0.2,
-          "liq": 12395.0
+          "over": 0.145,
+          "liq": 20145.67
         },
         {
           "line": 4.5,
-          "over": 0.08,
-          "liq": 10039.38
+          "over": 0.06,
+          "liq": 14058.07
         },
         {
           "line": 5.5,
-          "over": 0.0305,
-          "liq": 9267.42
+          "over": 0.0285,
+          "liq": 12023.6
         },
         {
           "line": 6.5,
-          "over": 0.05,
-          "liq": 4661.39
+          "over": 0.045,
+          "liq": 4076.95
         },
         {
           "line": 7.5,
-          "over": 0.05,
-          "liq": 3501.43
+          "over": 0.045,
+          "liq": 98.76
         },
         {
           "line": 8.5,
           "over": 0.045,
-          "liq": 23.39
+          "liq": 81.75
         }
       ],
-      "market_total": 2.32,
+      "market_total": 1.98,
       "spreads": [
         {
           "team": "Australia",
           "line": -1.5,
-          "cover": 0.09,
-          "liq": 9352.9
+          "cover": 0.08,
+          "liq": 14878.9
         },
         {
           "team": "Paraguay",
           "line": -2.5,
-          "cover": 0.07,
-          "liq": 8901.22
+          "cover": 0.05,
+          "liq": 14318.47
         },
         {
           "team": "Paraguay",
           "line": -1.5,
-          "cover": 0.19,
-          "liq": 8735.02
+          "cover": 0.14,
+          "liq": 14862.44
         },
         {
           "team": "Australia",
           "line": -2.5,
-          "cover": 0.031,
-          "liq": 4765.75
+          "cover": 0.0255,
+          "liq": 12385.22
         },
         {
           "team": "Australia",
           "line": -4.5,
-          "cover": 0.05,
-          "liq": 378.49
+          "cover": 0.045,
+          "liq": 81.67
         },
         {
           "team": "Australia",
           "line": -3.5,
-          "cover": 0.045,
-          "liq": 24.16
+          "cover": 0.0065,
+          "liq": 279.1
         },
         {
           "team": "Paraguay",
           "line": -3.5,
-          "cover": 0.05,
-          "liq": 3894.14
+          "cover": 0.0195,
+          "liq": 7523.48
         },
         {
           "team": "Australia",
           "line": -5.5,
-          "cover": 0.045,
-          "liq": 32.18
+          "cover": 0.041,
+          "liq": 5152.77
         },
         {
           "team": "Paraguay",
           "line": -5.5,
           "cover": 0.045,
-          "liq": 29.07
+          "liq": 182.81
         },
         {
           "team": "Paraguay",
           "line": -4.5,
-          "cover": 0.045,
-          "liq": 24.16
+          "cover": 0.05,
+          "liq": 4930.75
         }
       ],
       "btts": {
-        "yes": 0.485,
-        "liq": 61.62
+        "yes": 0.355,
+        "liq": 3633.86
       }
     },
     "Türkiye|United States": {
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.125,
-          "liq": 4302.2
+          "prob": 0.1,
+          "liq": 419.52
         }
       ],
       "totals": [
         {
           "line": 0.5,
-          "over": 0.94,
-          "liq": 9170.86
+          "over": 0.945,
+          "liq": 12169.17
         },
         {
           "line": 1.5,
-          "over": 0.775,
-          "liq": 15315.79
+          "over": 0.785,
+          "liq": 36575.27
         },
         {
           "line": 2.5,
-          "over": 0.525,
-          "liq": 16181.75
+          "over": 0.555,
+          "liq": 45061.58
         },
         {
           "line": 3.5,
-          "over": 0.305,
-          "liq": 13424.53
+          "over": 0.33,
+          "liq": 33249.67
         },
         {
           "line": 4.5,
-          "over": 0.14,
-          "liq": 12059.11
+          "over": 0.17,
+          "liq": 16122.75
         },
         {
           "line": 5.5,
-          "over": 0.06,
-          "liq": 9089.47
+          "over": 0.07,
+          "liq": 11989.22
         },
         {
           "line": 6.5,
-          "over": 0.075,
-          "liq": 3368.7
+          "over": 0.033,
+          "liq": 5703.45
         },
         {
           "line": 7.5,
-          "over": 0.05,
-          "liq": 3377.56
+          "over": 0.016,
+          "liq": 6295.83
         },
         {
           "line": 8.5,
-          "over": 0.04,
-          "liq": 23741.84
+          "over": 0.012,
+          "liq": 28545.16
         }
       ],
-      "market_total": 2.8,
+      "market_total": 2.9,
       "spreads": [
         {
           "team": "United States",
           "line": -1.5,
-          "cover": 0.2,
-          "liq": 11985.82
+          "cover": 0.235,
+          "liq": 13525.64
         },
         {
           "team": "Türkiye",
           "line": -2.5,
-          "cover": 0.055,
-          "liq": 9262.88
+          "cover": 0.0475,
+          "liq": 10671.66
         },
         {
           "team": "Türkiye",
           "line": -1.5,
-          "cover": 0.155,
-          "liq": 9373.92
+          "cover": 0.125,
+          "liq": 13785.42
         },
         {
           "team": "United States",
           "line": -2.5,
-          "cover": 0.075,
-          "liq": 5821.79
+          "cover": 0.105,
+          "liq": 14506.32
         },
         {
           "team": "United States",
           "line": -4.5,
-          "cover": 0.065,
-          "liq": 8.9
+          "cover": 0.05,
+          "liq": 64.57
         },
         {
           "team": "Türkiye",
           "line": -4.5,
-          "cover": 0.065,
-          "liq": 8.9
+          "cover": 0.05,
+          "liq": 56.67
         },
         {
           "team": "United States",
           "line": -3.5,
-          "cover": 0.075,
-          "liq": 8.7
+          "cover": 0.034,
+          "liq": 5927.14
         },
         {
           "team": "Türkiye",
           "line": -5.5,
-          "cover": 0.065,
-          "liq": 8.9
+          "cover": 0.05,
+          "liq": 56.88
         },
         {
           "team": "Türkiye",
           "line": -3.5,
-          "cover": 0.07,
-          "liq": 3368.8
+          "cover": 0.0145,
+          "liq": 5866.41
         },
         {
           "team": "United States",
           "line": -5.5,
-          "cover": 0.065,
-          "liq": 8.9
+          "cover": 0.05,
+          "liq": 57.31
         }
       ],
       "btts": {
-        "yes": 0.255,
-        "liq": 4268.65
+        "yes": 0.3,
+        "liq": 4613.73
       }
     },
     "Norway|France": {
@@ -5001,546 +4001,546 @@
         {
           "score": "Any Other Score",
           "prob": 0.145,
-          "liq": 4310.32
+          "liq": 400.46
         }
       ],
       "totals": [
         {
           "line": 0.5,
           "over": 0.94,
-          "liq": 8982.97
+          "liq": 10133.14
         },
         {
           "line": 1.5,
-          "over": 0.775,
-          "liq": 19791.62
+          "over": 0.785,
+          "liq": 23142.69
         },
         {
           "line": 2.5,
           "over": 0.545,
-          "liq": 23311.6
+          "liq": 23967.51
         },
         {
           "line": 3.5,
-          "over": 0.315,
-          "liq": 16795.39
+          "over": 0.305,
+          "liq": 20189.41
         },
         {
           "line": 4.5,
-          "over": 0.155,
-          "liq": 15426.07
+          "over": 0.145,
+          "liq": 15131.96
         },
         {
           "line": 5.5,
           "over": 0.06,
-          "liq": 9635.09
+          "liq": 11168.71
         },
         {
           "line": 6.5,
-          "over": 0.075,
-          "liq": 3368.7
+          "over": 0.0245,
+          "liq": 9415.09
         },
         {
           "line": 7.5,
-          "over": 0.05,
-          "liq": 4804.12
+          "over": 0.045,
+          "liq": 111.9
         },
         {
           "line": 8.5,
-          "over": 0.05,
-          "liq": 3564.2
+          "over": 0.048,
+          "liq": 8854.22
         }
       ],
-      "market_total": 2.86,
+      "market_total": 2.82,
       "spreads": [
         {
           "team": "Norway",
           "line": -1.5,
           "cover": 0.08,
-          "liq": 10043.07
+          "liq": 12478.28
         },
         {
           "team": "France",
           "line": -1.5,
-          "cover": 0.285,
-          "liq": 15705.46
+          "cover": 0.295,
+          "liq": 19367.28
         },
         {
           "team": "Norway",
           "line": -2.5,
-          "cover": 0.0245,
-          "liq": 9757.42
+          "cover": 0.028,
+          "liq": 10739.58
         },
         {
           "team": "France",
           "line": -2.5,
-          "cover": 0.125,
-          "liq": 9157.2
+          "cover": 0.135,
+          "liq": 10906.91
         },
         {
           "team": "Norway",
           "line": -5.5,
           "cover": 0.045,
-          "liq": 23.75
+          "liq": 83.16
         },
         {
           "team": "France",
           "line": -5.5,
-          "cover": 0.045,
-          "liq": 23.75
-        },
-        {
-          "team": "France",
-          "line": -3.5,
-          "cover": 0.045,
-          "liq": 412.87
-        },
-        {
-          "team": "Norway",
-          "line": -3.5,
-          "cover": 0.045,
-          "liq": 24.87
-        },
-        {
-          "team": "France",
-          "line": -4.5,
           "cover": 0.05,
-          "liq": 397.85
+          "liq": 4872.51
+        },
+        {
+          "team": "France",
+          "line": -3.5,
+          "cover": 0.05,
+          "liq": 5424.58
+        },
+        {
+          "team": "Norway",
+          "line": -3.5,
+          "cover": 0.007,
+          "liq": 5858.23
+        },
+        {
+          "team": "France",
+          "line": -4.5,
+          "cover": 0.045,
+          "liq": 137.35
         },
         {
           "team": "Norway",
           "line": -4.5,
-          "cover": 0.045,
-          "liq": 23.74
+          "cover": 0.0495,
+          "liq": 4888.26
         }
       ],
       "btts": {
-        "yes": 0.205,
-        "liq": 4243.0
+        "yes": 0.29,
+        "liq": 5532.65
       }
     },
     "Senegal|Iraq": {
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.135,
-          "liq": 4282.37
+          "prob": 0.155,
+          "liq": 861.93
         }
       ],
       "totals": [
         {
           "line": 0.5,
           "over": 0.94,
-          "liq": 5778.33
+          "liq": 8136.84
         },
         {
           "line": 1.5,
           "over": 0.765,
-          "liq": 20038.56
+          "liq": 29678.01
         },
         {
           "line": 2.5,
           "over": 0.525,
-          "liq": 21269.46
+          "liq": 16044.29
         },
         {
           "line": 3.5,
-          "over": 0.305,
-          "liq": 12279.94
+          "over": 0.3,
+          "liq": 14116.85
         },
         {
           "line": 4.5,
-          "over": 0.14,
-          "liq": 9293.36
+          "over": 0.15,
+          "liq": 10364.62
         },
         {
           "line": 5.5,
           "over": 0.065,
-          "liq": 5366.24
+          "liq": 7335.62
         },
         {
           "line": 6.5,
-          "over": 0.495,
-          "liq": 1.41
+          "over": 0.0195,
+          "liq": 1900.81
         },
         {
           "line": 7.5,
-          "over": 0.455,
-          "liq": 4.34
+          "over": 0.045,
+          "liq": 79.04
         },
         {
           "line": 8.5,
-          "over": 0.49,
-          "liq": 3.03
+          "over": 0.045,
+          "liq": 130.17
         }
       ],
-      "market_total": 3.0,
+      "market_total": 2.78,
       "spreads": [
         {
           "team": "Senegal",
           "line": -1.5,
-          "cover": 0.475,
-          "liq": 12025.47
+          "cover": 0.505,
+          "liq": 35156.5
         },
         {
           "team": "Senegal",
           "line": -2.5,
-          "cover": 0.24,
-          "liq": 10498.21
+          "cover": 0.275,
+          "liq": 14723.63
         },
         {
           "team": "Iraq",
           "line": -1.5,
-          "cover": 0.02,
-          "liq": 5066.77
+          "cover": 0.0195,
+          "liq": 10434.63
         },
         {
           "team": "Iraq",
           "line": -2.5,
+          "cover": 0.0065,
+          "liq": 6203.64
+        },
+        {
+          "team": "Iraq",
+          "line": -5.5,
+          "cover": 0.045,
+          "liq": 65.65
+        },
+        {
+          "team": "Iraq",
+          "line": -4.5,
+          "cover": 0.0065,
+          "liq": 5380.78
+        },
+        {
+          "team": "Senegal",
+          "line": -4.5,
+          "cover": 0.075,
+          "liq": 4765.18
+        },
+        {
+          "team": "Senegal",
+          "line": -3.5,
+          "cover": 0.125,
+          "liq": 6026.45
+        },
+        {
+          "team": "Iraq",
+          "line": -3.5,
           "cover": 0.007,
-          "liq": 4920.07
-        },
-        {
-          "team": "Iraq",
-          "line": -5.5,
-          "cover": 0.39,
-          "liq": 355.66
-        },
-        {
-          "team": "Iraq",
-          "line": -4.5,
-          "cover": 0.0015,
-          "liq": 1942.08
-        },
-        {
-          "team": "Senegal",
-          "line": -4.5,
-          "cover": 0.5,
-          "liq": 0.1
-        },
-        {
-          "team": "Senegal",
-          "line": -3.5,
-          "cover": 0.5,
-          "liq": 0.1
-        },
-        {
-          "team": "Iraq",
-          "line": -3.5,
-          "cover": 0.5,
-          "liq": 0.1
+          "liq": 5154.54
         },
         {
           "team": "Senegal",
           "line": -5.5,
-          "cover": 0.35,
-          "liq": 383.0
+          "cover": 0.045,
+          "liq": 235.32
         }
       ],
       "btts": {
-        "yes": 0.21,
-        "liq": 4233.4
+        "yes": 0.2,
+        "liq": 4713.6
       }
     },
     "Cabo Verde|Saudi Arabia": {
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.08,
-          "liq": 4180.32
+          "prob": 0.14,
+          "liq": 4164.27
         }
       ],
       "totals": [
         {
           "line": 0.5,
-          "over": 0.925,
-          "liq": 5715.08
+          "over": 0.92,
+          "liq": 11432.27
         },
         {
           "line": 1.5,
-          "over": 0.7,
-          "liq": 13657.88
+          "over": 0.705,
+          "liq": 22197.14
         },
         {
           "line": 2.5,
-          "over": 0.445,
-          "liq": 13272.84
+          "over": 0.455,
+          "liq": 26005.91
         },
         {
           "line": 3.5,
-          "over": 0.245,
-          "liq": 12109.91
+          "over": 0.24,
+          "liq": 16674.31
         },
         {
           "line": 4.5,
           "over": 0.115,
-          "liq": 6212.18
+          "liq": 15392.15
         },
         {
           "line": 5.5,
-          "over": 0.032,
-          "liq": 5270.24
+          "over": 0.044,
+          "liq": 9235.66
         },
         {
           "line": 6.5,
-          "over": 0.05,
-          "liq": 23.04
+          "over": 0.0145,
+          "liq": 8884.97
         },
         {
           "line": 7.5,
           "over": 0.045,
-          "liq": 23.75
+          "liq": 82.21
         },
         {
           "line": 8.5,
           "over": 0.05,
-          "liq": 387.51
+          "liq": 4537.92
         }
       ],
-      "market_total": 2.48,
+      "market_total": 2.5,
       "spreads": [
         {
           "team": "Cabo Verde",
           "line": -1.5,
           "cover": 0.145,
-          "liq": 6379.51
+          "liq": 10111.5
         },
         {
           "team": "Saudi Arabia",
           "line": -1.5,
-          "cover": 0.16,
-          "liq": 6126.25
+          "cover": 0.175,
+          "liq": 10565.8
         },
         {
           "team": "Cabo Verde",
           "line": -2.5,
-          "cover": 0.048,
-          "liq": 4579.45
+          "cover": 0.0475,
+          "liq": 9578.21
         },
         {
           "team": "Saudi Arabia",
           "line": -2.5,
-          "cover": 0.055,
-          "liq": 5660.56
+          "cover": 0.06,
+          "liq": 9636.58
         },
         {
           "team": "Saudi Arabia",
           "line": -3.5,
-          "cover": 0.05,
-          "liq": 22.99
+          "cover": 0.0185,
+          "liq": 5445.52
         },
         {
           "team": "Cabo Verde",
           "line": -3.5,
-          "cover": 0.07,
-          "liq": 8.8
+          "cover": 0.014,
+          "liq": 8964.85
         },
         {
           "team": "Saudi Arabia",
           "line": -5.5,
           "cover": 0.045,
-          "liq": 23.8
+          "liq": 85.62
         },
         {
           "team": "Saudi Arabia",
           "line": -4.5,
-          "cover": 0.05,
-          "liq": 502.12
+          "cover": 0.035,
+          "liq": 8175.4
         },
         {
           "team": "Cabo Verde",
           "line": -4.5,
-          "cover": 0.065,
-          "liq": 8.9
+          "cover": 0.045,
+          "liq": 83.89
         },
         {
           "team": "Cabo Verde",
           "line": -5.5,
-          "cover": 0.065,
-          "liq": 8.9
+          "cover": 0.045,
+          "liq": 83.38
         }
       ],
       "btts": {
-        "yes": 0.25,
-        "liq": 4256.35
+        "yes": 0.26,
+        "liq": 7950.27
       }
     },
     "Uruguay|Spain": {
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.115,
-          "liq": 4206.31
+          "prob": 0.17,
+          "liq": 3568.14
         }
       ],
       "totals": [
         {
           "line": 0.5,
-          "over": 0.93,
-          "liq": 5050.12
+          "over": 0.94,
+          "liq": 18065.73
         },
         {
           "line": 1.5,
           "over": 0.765,
-          "liq": 14202.07
+          "liq": 34495.55
         },
         {
           "line": 2.5,
-          "over": 0.505,
-          "liq": 16380.4
+          "over": 0.515,
+          "liq": 22062.06
         },
         {
           "line": 3.5,
-          "over": 0.29,
-          "liq": 11576.22
+          "over": 0.3,
+          "liq": 20703.37
         },
         {
           "line": 4.5,
-          "over": 0.14,
-          "liq": 6609.87
+          "over": 0.145,
+          "liq": 16391.35
         },
         {
           "line": 5.5,
-          "over": 0.065,
-          "liq": 5477.28
+          "over": 0.06,
+          "liq": 10184.04
         },
         {
           "line": 6.5,
-          "over": 0.05,
-          "liq": 23.5
+          "over": 0.0205,
+          "liq": 5085.82
         },
         {
           "line": 7.5,
-          "over": 0.055,
-          "liq": 10.15
+          "over": 0.05,
+          "liq": 3440.63
         },
         {
           "line": 8.5,
-          "over": 0.035,
-          "liq": 26.99
+          "over": 0.031,
+          "liq": 7948.42
         }
       ],
-      "market_total": 2.74,
+      "market_total": 2.76,
       "spreads": [
         {
           "team": "Spain",
           "line": -1.5,
-          "cover": 0.385,
-          "liq": 12835.61
+          "cover": 0.375,
+          "liq": 17228.53
         },
         {
           "team": "Spain",
           "line": -2.5,
-          "cover": 0.17,
-          "liq": 6016.37
+          "cover": 0.18,
+          "liq": 10277.08
         },
         {
           "team": "Uruguay",
           "line": -1.5,
-          "cover": 0.0655,
-          "liq": 6417.18
+          "cover": 0.044,
+          "liq": 11522.83
         },
         {
           "team": "Uruguay",
           "line": -2.5,
-          "cover": 0.055,
-          "liq": 4355.78
+          "cover": 0.0145,
+          "liq": 9225.35
         },
         {
           "team": "Uruguay",
           "line": -5.5,
-          "cover": 0.065,
-          "liq": 10.55
+          "cover": 0.05,
+          "liq": 3415.65
         },
         {
           "team": "Spain",
           "line": -4.5,
-          "cover": 0.075,
-          "liq": 10.35
+          "cover": 0.05,
+          "liq": 3408.58
         },
         {
           "team": "Spain",
           "line": -3.5,
-          "cover": 0.105,
-          "liq": 10.45
+          "cover": 0.07,
+          "liq": 9155.64
         },
         {
           "team": "Uruguay",
           "line": -3.5,
-          "cover": 0.065,
-          "liq": 10.65
+          "cover": 0.011,
+          "liq": 5205.84
         },
         {
           "team": "Uruguay",
           "line": -4.5,
-          "cover": 0.065,
-          "liq": 10.55
+          "cover": 0.05,
+          "liq": 3415.65
         },
         {
           "team": "Spain",
           "line": -5.5,
-          "cover": 0.065,
-          "liq": 10.55
+          "cover": 0.05,
+          "liq": 3393.11
         }
       ],
       "btts": {
-        "yes": 0.215,
-        "liq": 4100.04
+        "yes": 0.25,
+        "liq": 7895.44
       }
     },
     "Egypt|IR Iran": {
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.08,
-          "liq": 4230.85
+          "prob": 0.135,
+          "liq": 3774.13
         }
       ],
       "totals": [
         {
           "line": 0.5,
           "over": 0.89,
-          "liq": 6548.5
+          "liq": 25282.74
         },
         {
           "line": 1.5,
           "over": 0.655,
-          "liq": 18479.84
+          "liq": 29249.57
         },
         {
           "line": 2.5,
           "over": 0.385,
-          "liq": 12903.13
+          "liq": 21598.37
         },
         {
           "line": 3.5,
-          "over": 0.185,
-          "liq": 6631.88
+          "over": 0.19,
+          "liq": 16677.13
         },
         {
           "line": 4.5,
-          "over": 0.07,
-          "liq": 5328.13
+          "over": 0.08,
+          "liq": 12072.35
         },
         {
           "line": 5.5,
-          "over": 0.031,
-          "liq": 4704.6
+          "over": 0.0415,
+          "liq": 9623.21
         },
         {
           "line": 6.5,
-          "over": 0.045,
-          "liq": 23.75
+          "over": 0.0495,
+          "liq": 8164.14
         },
         {
           "line": 7.5,
-          "over": 0.045,
-          "liq": 382.25
+          "over": 0.048,
+          "liq": 8363.91
         },
         {
           "line": 8.5,
-          "over": 0.045,
-          "liq": 23.8
+          "over": 0.044,
+          "liq": 8162.15
         }
       ],
       "market_total": 2.24,
@@ -5548,184 +4548,184 @@
         {
           "team": "Egypt",
           "line": -1.5,
-          "cover": 0.22,
-          "liq": 11145.95
+          "cover": 0.215,
+          "liq": 17227.39
         },
         {
           "team": "IR Iran",
           "line": -1.5,
-          "cover": 0.08,
-          "liq": 5486.74
+          "cover": 0.075,
+          "liq": 11176.66
         },
         {
           "team": "Egypt",
           "line": -2.5,
-          "cover": 0.07,
-          "liq": 5767.9
+          "cover": 0.075,
+          "liq": 10010.93
         },
         {
           "team": "IR Iran",
           "line": -2.5,
-          "cover": 0.03,
-          "liq": 5550.91
+          "cover": 0.019,
+          "liq": 9709.44
         },
         {
           "team": "Egypt",
           "line": -4.5,
           "cover": 0.045,
-          "liq": 23.79
+          "liq": 83.33
         },
         {
           "team": "IR Iran",
           "line": -3.5,
-          "cover": 0.045,
-          "liq": 24.89
+          "cover": 0.0075,
+          "liq": 1485.93
         },
         {
           "team": "Egypt",
           "line": -5.5,
-          "cover": 0.045,
-          "liq": 388.08
+          "cover": 0.0495,
+          "liq": 8208.4
         },
         {
           "team": "Egypt",
           "line": -3.5,
+          "cover": 0.022,
+          "liq": 5354.66
+        },
+        {
+          "team": "IR Iran",
+          "line": -4.5,
+          "cover": 0.047,
+          "liq": 8336.66
+        },
+        {
+          "team": "IR Iran",
+          "line": -5.5,
           "cover": 0.05,
-          "liq": 29.9
-        },
-        {
-          "team": "IR Iran",
-          "line": -4.5,
-          "cover": 0.045,
-          "liq": 424.37
-        },
-        {
-          "team": "IR Iran",
-          "line": -5.5,
-          "cover": 0.045,
-          "liq": 37.75
+          "liq": 5036.4
         }
       ],
       "btts": {
-        "yes": 0.21,
-        "liq": 4237.6
+        "yes": 0.225,
+        "liq": 7918.66
       }
     },
     "New Zealand|Belgium": {
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.205,
-          "liq": 4246.89
+          "prob": 0.21,
+          "liq": 7838.64
         }
       ],
       "totals": [
         {
           "line": 0.5,
-          "over": 0.948,
-          "liq": 9155.5
+          "over": 0.947,
+          "liq": 12923.14
         },
         {
           "line": 1.5,
-          "over": 0.815,
-          "liq": 13556.59
+          "over": 0.81,
+          "liq": 25472.56
         },
         {
           "line": 2.5,
-          "over": 0.575,
-          "liq": 16728.77
+          "over": 0.585,
+          "liq": 25616.56
         },
         {
           "line": 3.5,
           "over": 0.35,
-          "liq": 15718.19
+          "liq": 24717.19
         },
         {
           "line": 4.5,
-          "over": 0.175,
-          "liq": 12304.78
+          "over": 0.18,
+          "liq": 20771.69
         },
         {
           "line": 5.5,
           "over": 0.08,
-          "liq": 9196.51
+          "liq": 15417.39
         },
         {
           "line": 6.5,
-          "over": 0.05,
-          "liq": 3396.45
+          "over": 0.046,
+          "liq": 12456.01
         },
         {
           "line": 7.5,
-          "over": 0.05,
-          "liq": 3416.39
+          "over": 0.045,
+          "liq": 7635.39
         },
         {
           "line": 8.5,
           "over": 0.045,
-          "liq": 23.8
+          "liq": 81.93
         }
       ],
-      "market_total": 3.0,
+      "market_total": 3.02,
       "spreads": [
         {
           "team": "New Zealand",
           "line": -1.5,
-          "cover": 0.04,
-          "liq": 10162.58
+          "cover": 0.0175,
+          "liq": 17718.59
         },
         {
           "team": "New Zealand",
           "line": -2.5,
           "cover": 0.007,
-          "liq": 5018.01
+          "liq": 10189.72
         },
         {
           "team": "Belgium",
           "line": -1.5,
           "cover": 0.575,
-          "liq": 14703.32
+          "liq": 40718.49
         },
         {
           "team": "Belgium",
           "line": -2.5,
           "cover": 0.335,
-          "liq": 15006.24
+          "liq": 21396.76
         },
         {
           "team": "Belgium",
           "line": -5.5,
-          "cover": 0.05,
-          "liq": 24.93
+          "cover": 0.0495,
+          "liq": 8055.2
         },
         {
           "team": "New Zealand",
           "line": -5.5,
-          "cover": 0.05,
-          "liq": 21.06
+          "cover": 0.0355,
+          "liq": 195.28
         },
         {
           "team": "New Zealand",
           "line": -4.5,
-          "cover": 0.0505,
-          "liq": 4853.97
+          "cover": 0.029,
+          "liq": 8713.79
         },
         {
           "team": "Belgium",
           "line": -3.5,
-          "cover": 0.115,
-          "liq": 3227.58
+          "cover": 0.16,
+          "liq": 12538.62
         },
         {
           "team": "Belgium",
           "line": -4.5,
-          "cover": 0.055,
-          "liq": 3374.76
+          "cover": 0.06,
+          "liq": 11922.02
         }
       ],
       "btts": {
         "yes": 0.205,
-        "liq": 9753.74
+        "liq": 13548.29
       }
     },
     "Panama|England": {
@@ -5733,54 +4733,54 @@
         {
           "score": "Any Other Score",
           "prob": 0.25,
-          "liq": 3397.6
+          "liq": 7850.02
         }
       ],
       "totals": [
         {
           "line": 0.5,
-          "over": 0.952,
-          "liq": 8171.5
+          "over": 0.957,
+          "liq": 13001.93
         },
         {
           "line": 1.5,
-          "over": 0.83,
-          "liq": 12213.6
+          "over": 0.82,
+          "liq": 22612.49
         },
         {
           "line": 2.5,
-          "over": 0.6,
-          "liq": 15088.31
+          "over": 0.605,
+          "liq": 22743.06
         },
         {
           "line": 3.5,
           "over": 0.37,
-          "liq": 14548.45
+          "liq": 22359.86
         },
         {
           "line": 4.5,
           "over": 0.19,
-          "liq": 8331.04
+          "liq": 19489.83
         },
         {
           "line": 5.5,
-          "over": 0.085,
-          "liq": 8900.84
+          "over": 0.08,
+          "liq": 14300.25
         },
         {
           "line": 6.5,
-          "over": 0.075,
-          "liq": 3368.8
+          "over": 0.055,
+          "liq": 12404.18
         },
         {
           "line": 7.5,
-          "over": 0.05,
-          "liq": 3413.79
+          "over": 0.045,
+          "liq": 3486.64
         },
         {
           "line": 8.5,
           "over": 0.045,
-          "liq": 23.75
+          "liq": 80.55
         }
       ],
       "market_total": 3.1,
@@ -5788,608 +4788,608 @@
         {
           "team": "Panama",
           "line": -1.5,
-          "cover": 0.025,
-          "liq": 8671.87
+          "cover": 0.019,
+          "liq": 16429.9
         },
         {
           "team": "England",
           "line": -1.5,
-          "cover": 0.545,
-          "liq": 14945.65
+          "cover": 0.565,
+          "liq": 31630.42
         },
         {
           "team": "Panama",
           "line": -2.5,
-          "cover": 0.0015,
-          "liq": 4878.87
+          "cover": 0.006,
+          "liq": 10147.54
         },
         {
           "team": "England",
           "line": -2.5,
-          "cover": 0.305,
-          "liq": 15177.47
+          "cover": 0.32,
+          "liq": 21988.43
         },
         {
           "team": "Panama",
           "line": -4.5,
-          "cover": 0.045,
-          "liq": 25.11
+          "cover": 0.006,
+          "liq": 1335.72
         },
         {
           "team": "Panama",
           "line": -3.5,
-          "cover": 0.045,
-          "liq": 23.75
+          "cover": 0.008,
+          "liq": 207.58
         },
         {
           "team": "England",
           "line": -5.5,
-          "cover": 0.075,
-          "liq": 8.7
+          "cover": 0.05,
+          "liq": 3423.46
         },
         {
           "team": "England",
           "line": -3.5,
-          "cover": 0.095,
-          "liq": 3266.24
+          "cover": 0.155,
+          "liq": 13010.03
         },
         {
           "team": "England",
           "line": -4.5,
-          "cover": 0.1,
-          "liq": 8.5
+          "cover": 0.07,
+          "liq": 7958.18
         },
         {
           "team": "Panama",
           "line": -5.5,
           "cover": 0.0055,
-          "liq": 1382.25
+          "liq": 9034.52
         }
       ],
       "btts": {
-        "yes": 0.16,
-        "liq": 3472.65
+        "yes": 0.15,
+        "liq": 7801.66
       }
     },
     "Croatia|Ghana": {
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.105,
-          "liq": 3396.43
+          "prob": 0.1,
+          "liq": 3526.74
         }
       ],
       "totals": [
         {
           "line": 0.5,
-          "over": 0.92,
-          "liq": 4972.03
+          "over": 0.925,
+          "liq": 11289.12
         },
         {
           "line": 1.5,
-          "over": 0.725,
-          "liq": 12488.66
+          "over": 0.73,
+          "liq": 23542.35
         },
         {
           "line": 2.5,
           "over": 0.455,
-          "liq": 10266.95
+          "liq": 21856.65
         },
         {
           "line": 3.5,
           "over": 0.24,
-          "liq": 8301.47
+          "liq": 16579.49
         },
         {
           "line": 4.5,
-          "over": 0.11,
-          "liq": 5868.11
+          "over": 0.1,
+          "liq": 11252.15
         },
         {
           "line": 5.5,
-          "over": 0.045,
-          "liq": 4282.91
+          "over": 0.0485,
+          "liq": 9187.98
         },
         {
           "line": 6.5,
-          "over": 0.5,
-          "liq": 0.1
+          "over": 0.055,
+          "liq": 491.25
         },
         {
           "line": 7.5,
-          "over": 0.0145,
-          "liq": 541.55
+          "over": 0.0095,
+          "liq": 8171.52
         },
         {
           "line": 8.5,
-          "over": 0.0055,
-          "liq": 7452.62
+          "over": 0.003,
+          "liq": 10686.34
         }
       ],
-      "market_total": 2.6,
+      "market_total": 2.52,
       "spreads": [
         {
           "team": "Ghana",
           "line": -1.5,
-          "cover": 0.0445,
-          "liq": 4663.31
+          "cover": 0.0405,
+          "liq": 12003.61
         },
         {
           "team": "Ghana",
           "line": -2.5,
-          "cover": 0.057,
-          "liq": 4419.29
+          "cover": 0.0115,
+          "liq": 9153.91
         },
         {
           "team": "Croatia",
           "line": -1.5,
           "cover": 0.345,
-          "liq": 12265.43
+          "liq": 16500.39
         },
         {
           "team": "Croatia",
           "line": -2.5,
           "cover": 0.15,
-          "liq": 5295.0
+          "liq": 9794.97
         },
         {
           "team": "Croatia",
           "line": -3.5,
           "cover": 0.055,
-          "liq": 72.1
+          "liq": 8564.95
         },
         {
           "team": "Ghana",
           "line": -5.5,
-          "cover": 0.008,
-          "liq": 996.7
+          "cover": 0.044,
+          "liq": 8327.57
         },
         {
           "team": "Ghana",
           "line": -4.5,
-          "cover": 0.007,
-          "liq": 665.35
+          "cover": 0.044,
+          "liq": 8236.26
         },
         {
           "team": "Ghana",
           "line": -3.5,
-          "cover": 0.006,
-          "liq": 1701.24
+          "cover": 0.0065,
+          "liq": 9499.15
         },
         {
           "team": "Croatia",
           "line": -4.5,
-          "cover": 0.485,
-          "liq": 3.78
+          "cover": 0.05,
+          "liq": 3408.33
         },
         {
           "team": "Croatia",
           "line": -5.5,
-          "cover": 0.34,
-          "liq": 85.48
+          "cover": 0.0485,
+          "liq": 4955.57
         }
       ],
       "btts": {
-        "yes": 0.26,
-        "liq": 3714.41
+        "yes": 0.3,
+        "liq": 8816.22
       }
     },
     "Colombia|Portugal": {
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.085,
-          "liq": 3886.97
+          "prob": 0.105,
+          "liq": 4435.6
         }
       ],
       "totals": [
         {
           "line": 0.5,
-          "over": 0.915,
-          "liq": 5937.76
+          "over": 0.92,
+          "liq": 11627.17
         },
         {
           "line": 1.5,
-          "over": 0.72,
-          "liq": 13949.26
+          "over": 0.715,
+          "liq": 24801.6
         },
         {
           "line": 2.5,
-          "over": 0.465,
-          "liq": 10462.89
+          "over": 0.455,
+          "liq": 21171.36
         },
         {
           "line": 3.5,
-          "over": 0.25,
-          "liq": 8452.82
+          "over": 0.235,
+          "liq": 16779.43
         },
         {
           "line": 4.5,
-          "over": 0.105,
-          "liq": 5918.3
+          "over": 0.11,
+          "liq": 11490.45
         },
         {
           "line": 5.5,
-          "over": 0.037,
-          "liq": 4286.4
+          "over": 0.062,
+          "liq": 10391.42
         },
         {
           "line": 6.5,
-          "over": 0.05,
-          "liq": 23.61
+          "over": 0.04,
+          "liq": 5063.73
         },
         {
           "line": 7.5,
-          "over": 0.05,
-          "liq": 24.79
+          "over": 0.045,
+          "liq": 88.97
         },
         {
           "line": 8.5,
-          "over": 0.05,
-          "liq": 24.84
+          "over": 0.045,
+          "liq": 106.29
         }
       ],
-      "market_total": 2.54,
+      "market_total": 2.5,
       "spreads": [
         {
           "team": "Colombia",
           "line": -1.5,
           "cover": 0.095,
-          "liq": 5435.96
+          "liq": 10856.53
         },
         {
           "team": "Portugal",
           "line": -1.5,
-          "cover": 0.215,
-          "liq": 5241.63
+          "cover": 0.225,
+          "liq": 16226.49
         },
         {
           "team": "Colombia",
           "line": -2.5,
-          "cover": 0.031,
-          "liq": 4288.52
+          "cover": 0.0305,
+          "liq": 9920.09
         },
         {
           "team": "Portugal",
           "line": -2.5,
-          "cover": 0.085,
-          "liq": 5613.79
+          "cover": 0.08,
+          "liq": 9502.91
         },
         {
           "team": "Portugal",
           "line": -4.5,
-          "cover": 0.05,
-          "liq": 26.97
-        },
-        {
-          "team": "Portugal",
-          "line": -3.5,
-          "cover": 0.05,
-          "liq": 25.63
-        },
-        {
-          "team": "Colombia",
-          "line": -3.5,
           "cover": 0.045,
-          "liq": 33.62
+          "liq": 92.66
+        },
+        {
+          "team": "Portugal",
+          "line": -3.5,
+          "cover": 0.0235,
+          "liq": 5427.0
+        },
+        {
+          "team": "Colombia",
+          "line": -3.5,
+          "cover": 0.006,
+          "liq": 1714.71
         },
         {
           "team": "Colombia",
           "line": -4.5,
-          "cover": 0.05,
-          "liq": 31.21
+          "cover": 0.045,
+          "liq": 85.81
         },
         {
           "team": "Colombia",
           "line": -5.5,
-          "cover": 0.05,
-          "liq": 24.83
+          "cover": 0.045,
+          "liq": 99.84
         },
         {
           "team": "Portugal",
           "line": -5.5,
-          "cover": 0.05,
-          "liq": 24.83
+          "cover": 0.045,
+          "liq": 100.87
         }
       ],
       "btts": {
-        "yes": 0.25,
-        "liq": 3723.95
+        "yes": 0.255,
+        "liq": 9719.01
       }
     },
     "DR Congo|Uzbekistan": {
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.085,
-          "liq": 3891.47
+          "prob": 0.16,
+          "liq": 3559.77
         }
       ],
       "totals": [
         {
           "line": 0.5,
           "over": 0.93,
-          "liq": 5134.17
+          "liq": 10677.6
         },
         {
           "line": 1.5,
-          "over": 0.715,
-          "liq": 13611.09
+          "over": 0.71,
+          "liq": 23536.06
         },
         {
           "line": 2.5,
           "over": 0.445,
-          "liq": 12845.04
+          "liq": 20048.35
         },
         {
           "line": 3.5,
-          "over": 0.22,
-          "liq": 8354.86
+          "over": 0.225,
+          "liq": 16188.29
         },
         {
           "line": 4.5,
           "over": 0.09,
-          "liq": 5043.32
+          "liq": 10901.39
         },
         {
           "line": 5.5,
-          "over": 0.039,
-          "liq": 4830.35
+          "over": 0.0395,
+          "liq": 8827.83
         },
         {
           "line": 6.5,
-          "over": 0.5,
-          "liq": 0.1
+          "over": 0.015,
+          "liq": 5025.18
         },
         {
           "line": 7.5,
-          "over": 0.435,
-          "liq": 18.5
+          "over": 0.05,
+          "liq": 4901.41
         },
         {
           "line": 8.5,
-          "over": 0.475,
-          "liq": 5.48
+          "over": 0.045,
+          "liq": 86.05
         }
       ],
-      "market_total": 2.56,
+      "market_total": 2.46,
       "spreads": [
         {
           "team": "DR Congo",
           "line": -1.5,
           "cover": 0.21,
-          "liq": 5937.79
+          "liq": 10886.22
         },
         {
           "team": "DR Congo",
           "line": -2.5,
-          "cover": 0.075,
-          "liq": 5406.41
+          "cover": 0.08,
+          "liq": 10467.12
         },
         {
           "team": "Uzbekistan",
           "line": -1.5,
-          "cover": 0.1,
-          "liq": 5918.0
+          "cover": 0.115,
+          "liq": 10537.4
         },
         {
           "team": "Uzbekistan",
           "line": -2.5,
-          "cover": 0.036,
-          "liq": 5152.85
+          "cover": 0.0295,
+          "liq": 10284.71
         },
         {
           "team": "Uzbekistan",
           "line": -3.5,
-          "cover": 0.015,
-          "liq": 5706.75
+          "cover": 0.0115,
+          "liq": 9437.86
         },
         {
           "team": "DR Congo",
           "line": -5.5,
-          "cover": 0.475,
-          "liq": 6.99
+          "cover": 0.0495,
+          "liq": 8273.98
         },
         {
           "team": "DR Congo",
           "line": -3.5,
-          "cover": 0.495,
-          "liq": 1.92
+          "cover": 0.024,
+          "liq": 5304.75
         },
         {
           "team": "DR Congo",
           "line": -4.5,
-          "cover": 0.495,
-          "liq": 0.05
+          "cover": 0.05,
+          "liq": 34.96
         },
         {
           "team": "Uzbekistan",
           "line": -4.5,
-          "cover": 0.345,
-          "liq": 61.55
+          "cover": 0.045,
+          "liq": 129.99
         },
         {
           "team": "Uzbekistan",
           "line": -5.5,
-          "cover": 0.495,
-          "liq": 0.05
+          "cover": 0.05,
+          "liq": 32.71
         }
       ],
       "btts": {
-        "yes": 0.19,
-        "liq": 3821.43
+        "yes": 0.265,
+        "liq": 8704.8
       }
     },
     "Jordan|Argentina": {
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.235,
-          "liq": 3913.13
+          "prob": 0.24,
+          "liq": 7791.26
         }
       ],
       "totals": [
         {
           "line": 0.5,
-          "over": 0.9575,
-          "liq": 13525.48
+          "over": 0.957,
+          "liq": 18921.71
         },
         {
           "line": 1.5,
           "over": 0.82,
-          "liq": 16607.89
+          "liq": 29110.13
         },
         {
           "line": 2.5,
-          "over": 0.615,
-          "liq": 15218.7
+          "over": 0.605,
+          "liq": 24393.0
         },
         {
           "line": 3.5,
-          "over": 0.39,
-          "liq": 14951.55
+          "over": 0.37,
+          "liq": 23580.41
         },
         {
           "line": 4.5,
-          "over": 0.2,
-          "liq": 16374.57
+          "over": 0.205,
+          "liq": 23479.93
         },
         {
           "line": 5.5,
-          "over": 0.09,
-          "liq": 14119.93
+          "over": 0.095,
+          "liq": 19348.25
         },
         {
           "line": 6.5,
-          "over": 0.075,
-          "liq": 3368.8
+          "over": 0.06,
+          "liq": 11956.78
         },
         {
           "line": 7.5,
-          "over": 0.07,
-          "liq": 3368.8
+          "over": 0.05,
+          "liq": 7588.73
         },
         {
           "line": 8.5,
-          "over": 0.065,
-          "liq": 3368.9
+          "over": 0.05,
+          "liq": 3406.57
         }
       ],
-      "market_total": 3.16,
+      "market_total": 3.12,
       "spreads": [
         {
           "team": "Jordan",
           "line": -1.5,
-          "cover": 0.015,
-          "liq": 12690.83
+          "cover": 0.013,
+          "liq": 20263.47
         },
         {
           "team": "Argentina",
           "line": -1.5,
           "cover": 0.595,
-          "liq": 14246.69
+          "liq": 20073.31
         },
         {
           "team": "Jordan",
           "line": -2.5,
-          "cover": 0.0035,
-          "liq": 10613.97
+          "cover": 0.0015,
+          "liq": 16830.01
         },
         {
           "team": "Argentina",
           "line": -2.5,
-          "cover": 0.36,
-          "liq": 14082.13
+          "cover": 0.365,
+          "liq": 21035.38
         },
         {
           "team": "Argentina",
           "line": -3.5,
-          "cover": 0.165,
-          "liq": 2928.52
+          "cover": 0.19,
+          "liq": 12042.57
         },
         {
           "team": "Jordan",
           "line": -5.5,
-          "cover": 0.065,
-          "liq": 8.9
+          "cover": 0.05,
+          "liq": 3399.77
         },
         {
           "team": "Jordan",
           "line": -4.5,
-          "cover": 0.065,
-          "liq": 8.9
+          "cover": 0.05,
+          "liq": 3399.77
         },
         {
           "team": "Argentina",
           "line": -4.5,
           "cover": 0.08,
-          "liq": 14.65
+          "liq": 11924.26
         },
         {
           "team": "Argentina",
           "line": -5.5,
-          "cover": 0.08,
-          "liq": 8.6
+          "cover": 0.05,
+          "liq": 3415.1
         }
       ],
       "btts": {
-        "yes": 0.185,
-        "liq": 3774.97
+        "yes": 0.2,
+        "liq": 7886.0
       }
     },
     "Algeria|Austria": {
       "exact": [
         {
           "score": "Any Other Score",
-          "prob": 0.09,
-          "liq": 178.35
+          "prob": 0.14,
+          "liq": 4181.02
         }
       ],
       "totals": [
         {
           "line": 0.5,
           "over": 0.91,
-          "liq": 8069.02
+          "liq": 15137.07
         },
         {
           "line": 1.5,
-          "over": 0.71,
-          "liq": 14760.88
+          "over": 0.715,
+          "liq": 23169.24
         },
         {
           "line": 2.5,
-          "over": 0.44,
-          "liq": 15160.34
+          "over": 0.445,
+          "liq": 23369.21
         },
         {
           "line": 3.5,
-          "over": 0.235,
-          "liq": 11521.92
+          "over": 0.225,
+          "liq": 19930.4
         },
         {
           "line": 4.5,
           "over": 0.1,
-          "liq": 8847.24
+          "liq": 15352.8
         },
         {
           "line": 5.5,
-          "over": 0.03,
-          "liq": 8648.78
+          "over": 0.031,
+          "liq": 14216.87
         },
         {
           "line": 6.5,
-          "over": 0.0195,
-          "liq": 8879.47
+          "over": 0.0495,
+          "liq": 12533.24
         },
         {
           "line": 7.5,
-          "over": 0.05,
-          "liq": 3471.39
+          "over": 0.045,
+          "liq": 122.63
         },
         {
           "line": 8.5,
-          "over": 0.05,
-          "liq": 3471.39
+          "over": 0.045,
+          "liq": 122.81
         }
       ],
       "market_total": 2.46,
@@ -6397,67 +5397,67 @@
         {
           "team": "Austria",
           "line": -1.5,
-          "cover": 0.15,
-          "liq": 9845.45
+          "cover": 0.155,
+          "liq": 13625.48
         },
         {
           "team": "Austria",
           "line": -2.5,
-          "cover": 0.055,
-          "liq": 9596.29
+          "cover": 0.065,
+          "liq": 15184.78
         },
         {
           "team": "Algeria",
           "line": -1.5,
-          "cover": 0.11,
-          "liq": 9820.06
+          "cover": 0.115,
+          "liq": 13797.47
         },
         {
           "team": "Algeria",
           "line": -2.5,
-          "cover": 0.0355,
-          "liq": 8852.72
+          "cover": 0.0375,
+          "liq": 14180.83
         },
         {
           "team": "Austria",
           "line": -4.5,
           "cover": 0.045,
-          "liq": 29.18
+          "liq": 87.26
         },
         {
           "team": "Algeria",
           "line": -5.5,
           "cover": 0.045,
-          "liq": 28.0
+          "liq": 169.05
         },
         {
           "team": "Algeria",
           "line": -4.5,
           "cover": 0.045,
-          "liq": 42.41
+          "liq": 173.1
         },
         {
           "team": "Algeria",
           "line": -3.5,
-          "cover": 0.019,
-          "liq": 4904.02
+          "cover": 0.0115,
+          "liq": 8959.69
         },
         {
           "team": "Austria",
           "line": -5.5,
-          "cover": 0.05,
-          "liq": 40.95
+          "cover": 0.0495,
+          "liq": 8155.55
         },
         {
           "team": "Austria",
           "line": -3.5,
-          "cover": 0.02,
-          "liq": 4809.46
+          "cover": 0.018,
+          "liq": 8899.97
         }
       ],
       "btts": {
-        "yes": 0.17,
-        "liq": 4236.98
+        "yes": 0.16,
+        "liq": 14156.73
       }
     }
   }
