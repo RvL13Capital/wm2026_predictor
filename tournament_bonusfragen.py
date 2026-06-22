@@ -127,12 +127,14 @@ def _get_match_elevation(team_a: str, team_b: str) -> tuple:
     return float(elevation), accl_a, accl_b
 
 # ==============================================================================
-# INJURY-BASED ELO CORRECTIONS (Stand: 19. Juni 2026, nach MD2 Gruppen A–B)
+# INJURY-BASED ELO CORRECTIONS (Stand: 22. Juni 2026, after MD2 Groups A–G)
 # ==============================================================================
 # Source: Verified via ESPN injuries tracker, Yahoo/CBC/UPI squad reports, FIFA/ESPN match reports.
 # MD2: Mexico (Montes) + South Africa (Sithole/Zwane) MD2 suspensions SERVED — reverted.
-# NEW: Canada's Ismaël Koné OUT for the tournament (tibia+fibula fracture vs Qatar);
+# Canada's Ismaël Koné OUT for the tournament (tibia+fibula fracture vs Qatar);
 #      Qatar's Madibo + Homam Ahmed both sent off vs Canada -> [SUSPENSION MD3].
+# 22 Jun: Belgium's Jeremy Doku OUT with a respiratory infection — missed MD2 (Iran 0:0),
+#      doubtful for MD3 (operator-confirmed). Surfaced via dropped-from-squad lineup scan.
 # Negative values = weaker due to injuries + form crisis
 # Suspension entries are flagged [SUSPENSION MDx] — REVERT after the team plays that matchday.
 INJURY_ELO_ADJUSTMENTS = {
@@ -146,7 +148,7 @@ INJURY_ELO_ADJUSTMENTS = {
     "England":     -12,   # White (knee) OUT, Branthwaite (thigh) OUT, Grealish (foot) OUT, Saka managing Achilles workload.
     "Canada":       -8,   # WAS -15: Davies fit & AVAILABLE (rested vs Qatar for continuity, starts MD3). NEW: Ismaël Koné OUT for the tournament (tibia+fibula fracture vs Qatar). Flores (ACL) OUT, Bombito (tibia). Won 6-0 vs Qatar.
     "Uruguay":     -10,   # de Arrascaeta (calf tear) group doubt, Ronald Araújo (calf) injured in training, Cáceres (concussion).
-    "Belgium":     -10,   # De Bruyne recovering, Debast (hamstring) out for first 2 matches, Lukaku injury-hit season.
+    "Belgium":     -14,   # 22 Jun: + Doku (respiratory infection) OUT, missed MD2. De Bruyne recovering, Lukaku injury-hit season; Debast (hamstring) back for MD3 after a 2-match absence (partial offset).
     "Spain":        -3,   # WAS -8: Yamal, Nico Williams, Dani Olmo all came off the bench vs Cape Verde (Jun 15) — fit/available going forward (minutes-managed). Only Fermín López (metatarsal), Barrenetxea still OUT.
     "Bosnia":       -6,   # Džeko (shoulder, 40) BENCH-only for the opener per official XI (Lukić starts with Demirović), Tabaković (metatarsal) bench, Šunjić (muscle) bench; 3rd GK Hadžikić withdrew (Jurkas in).
     "Portugal":     -5,   # Rúben Dias missed MD1 injured (unclear duration — monitor). Ronaldo fit (started vs DR Congo). Mateus Nunes health issues.
