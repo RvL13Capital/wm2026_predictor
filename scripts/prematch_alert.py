@@ -352,7 +352,7 @@ def build_message(match, team_a, team_b, tip_row, lineups_by_team, snapshot_path
     # flipped to the message orientation when the market lists teams reversed
     if snapshot_path and os.path.exists(snapshot_path):
         try:
-            probs, _ = matchday_tips.load_market_snapshot(snapshot_path)
+            probs, extras = matchday_tips.load_market_snapshot(snapshot_path)
             odds = probs.get(f"{team_a}|{team_b}")
             rev = probs.get(f"{team_b}|{team_a}")
             if not odds and rev:
@@ -362,6 +362,22 @@ def build_message(match, team_a, team_b, tip_row, lineups_by_team, snapshot_path
                 # placeholder (observed live: "liq $1.4M" arrived as "liq .4M")
                 lines.append(f"Mkt 1X2 {odds['1']:.2f}/{odds['X']:.2f}/{odds['2']:.2f}"
                              f" (liq {odds.get('liquidity', 0)/1e6:.1f}M USD)")
+            # Polymarket Over/Under (orientation-free: total goals don't flip).
+            # market_total = E[goals] implied by the ladder; O2.5/U2.5 shown as decimal
+            # odds (1/prob) to match the 1X2 style. under derived as 1-over (single feed).
+            ex = (extras or {}).get(f"{team_a}|{team_b}") or (extras or {}).get(f"{team_b}|{team_a}")
+            if ex:
+                mtot = ex.get("market_total")
+                o25 = next((tl.get("over") for tl in (ex.get("totals") or [])
+                            if tl.get("line") is not None and abs(tl["line"] - 2.5) < 0.01
+                            and tl.get("over")), None)
+                bits = []
+                if mtot:
+                    bits.append(f"{mtot:.1f}g")
+                if o25 and 0.0 < o25 < 1.0:
+                    bits.append(f"O2.5 {1.0/o25:.2f} U2.5 {1.0/(1.0-o25):.2f}")
+                if bits:
+                    lines.append("Mkt O/U " + " — ".join(bits))
         except Exception:   # noqa: BLE001 — message must still go out
             pass
 
