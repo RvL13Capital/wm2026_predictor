@@ -494,6 +494,32 @@ def process_match(match, dry_run: bool = False, refresh_odds: bool = True,
     return sent
 
 
+def warn_missed_alerts(schedule: list, state: dict) -> None:
+    """Loudly surface any fixture that kicked off in the last ~90 min WITHOUT ever
+    being alerted (its XI never published inside the T-45 window, so the gate held it
+    until kickoff and due_matches then dropped it). Warns ONCE per fixture (recorded
+    as miss:<id> in state). This is the no-silent-skip safety net for MD3, where two
+    games kick off together and a late XI on one could otherwise slip by unnoticed."""
+    now = datetime.now(timezone.utc)
+    changed = False
+    for m in schedule:
+        if not (m.get("home") and m.get("away") and m.get("utc")):
+            continue
+        try:
+            ko = datetime.fromisoformat(m["utc"].replace("Z", "+00:00"))
+        except ValueError:
+            continue
+        mins = (ko - now).total_seconds() / 60.0
+        mk = f"miss:{m['id']}"
+        if -90.0 < mins <= 0.0 and str(m["id"]) not in state and mk not in state:
+            log(f"⚠ MISSED ALERT: {m['home']} vs {m['away']} kicked off "
+                f"{abs(mins):.0f}m ago with NO alert sent (XI not published in window?)")
+            state[mk] = now.isoformat(timespec="seconds")
+            changed = True
+    if changed:
+        save_state(state)
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="T-45 pre-match WhatsApp alerts")
     ap.add_argument("--auto", action="store_true",
@@ -526,6 +552,7 @@ def main(argv=None) -> int:
         return 0
 
     state = load_state()
+    warn_missed_alerts(schedule, state)   # no-silent-skip safety net (esp. MD3 doubles)
     due = due_matches(schedule, args.lead)
     if not due:
         log("no matches in window")
