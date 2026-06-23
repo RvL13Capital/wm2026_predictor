@@ -494,12 +494,21 @@ def process_match(match, dry_run: bool = False, refresh_odds: bool = True,
     return sent
 
 
+# How far back warn_missed_alerts looks. Wide enough to catch a multi-hour daemon
+# OUTAGE (PC off / asleep through a T-45 window) on the first tick after recovery —
+# the in-daemon detector is useless while the daemon is down, so on restart it must
+# look back far enough to surface anything missed during the blackout. 12h covers an
+# overnight off; older fixtures are already settled and out of scope.
+MISS_LOOKBACK_MIN = 720.0
+
+
 def warn_missed_alerts(schedule: list, state: dict) -> None:
-    """Loudly surface any fixture that kicked off in the last ~90 min WITHOUT ever
-    being alerted (its XI never published inside the T-45 window, so the gate held it
-    until kickoff and due_matches then dropped it). Warns ONCE per fixture (recorded
-    as miss:<id> in state). This is the no-silent-skip safety net for MD3, where two
-    games kick off together and a late XI on one could otherwise slip by unnoticed."""
+    """Surface — by LOG and an active WhatsApp ping — any fixture that kicked off in the
+    last MISS_LOOKBACK_MIN minutes WITHOUT ever being alerted. Two causes this catches:
+    (1) a late XI the T-45 gate held past kickoff; (2) a daemon/PC OUTAGE that swallowed
+    the whole window (the real Switzerland-Bosnia miss on 2026-06-18). Warns ONCE per
+    fixture (recorded as miss:<id>). The WhatsApp ping means the operator is told even if
+    nobody is reading the log — essential for MD3 overnight doubles."""
     now = datetime.now(timezone.utc)
     changed = False
     for m in schedule:
@@ -511,9 +520,15 @@ def warn_missed_alerts(schedule: list, state: dict) -> None:
             continue
         mins = (ko - now).total_seconds() / 60.0
         mk = f"miss:{m['id']}"
-        if -90.0 < mins <= 0.0 and str(m["id"]) not in state and mk not in state:
-            log(f"⚠ MISSED ALERT: {m['home']} vs {m['away']} kicked off "
-                f"{abs(mins):.0f}m ago with NO alert sent (XI not published in window?)")
+        if -MISS_LOOKBACK_MIN < mins <= 0.0 and str(m["id"]) not in state and mk not in state:
+            msg = (f"⚠ MISSED ALERT: {m['home']} vs {m['away']} kicked off "
+                   f"{abs(mins):.0f}m ago with NO T-45 alert sent "
+                   f"(late XI, or daemon/PC down in its window — enter this one manually)")
+            log(msg)
+            try:
+                notify.send_whatsapp(msg)   # actively ping; don't rely on log-reading
+            except Exception:               # noqa: BLE001 — a flag must never crash the tick
+                pass
             state[mk] = now.isoformat(timespec="seconds")
             changed = True
     if changed:
@@ -561,8 +576,15 @@ def main(argv=None) -> int:
     for m in due:
         if str(m["id"]) in state:
             continue
-        ok = process_match(m, dry_run=args.dry_run,
-                           refresh_odds=not args.no_odds_refresh)
+        # Per-match isolation: one game's unexpected failure must NEVER skip the other
+        # simultaneous game (MD3 doubles). Defence-in-depth independent of notify's
+        # never-raise contract — a crash here just drops THIS match to retry next tick.
+        try:
+            ok = process_match(m, dry_run=args.dry_run,
+                               refresh_odds=not args.no_odds_refresh)
+        except Exception as e:   # noqa: BLE001
+            log(f"process_match crashed for {m.get('home')} vs {m.get('away')}: {e}")
+            ok = False
         if ok and not args.dry_run:
             state[str(m["id"])] = datetime.now(timezone.utc).isoformat(timespec="seconds")
             save_state(state)
