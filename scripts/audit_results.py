@@ -23,13 +23,19 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def build_fixtures():
     slot = {f"{g}{i+1}": t for g, ts in GROUPS.items() for i, t in enumerate(ts)}
+    # Round-robin matchday from the group's team ORDER (not match-id — those don't map to matchdays:
+    # e.g. Group L's round 2 is M49/M50). MD1 {0,1}{2,3} · MD2 {0,2}{1,3} · MD3 {0,3}{1,2}.
+    md_of = {frozenset((0, 1)): 1, frozenset((2, 3)): 1, frozenset((0, 2)): 2,
+             frozenset((1, 3)): 2, frozenset((0, 3)): 3, frozenset((1, 2)): 3}
+    pos = {t: i for ts in GROUPS.values() for i, t in enumerate(ts)}
     sched = json.load(open(os.path.join(ROOT, "data", "fifa_2026_schedule.json")))
     fixtures = {}
     for m in sched:
         if m.get("phase") != "GROUP":
             continue
         a, b, mid = slot[m["team_a_slot"]], slot[m["team_b_slot"]], m["match_id"]
-        fixtures[frozenset((a, b))] = (mid, m["date"], a, b, 1 if mid <= 24 else 2 if mid <= 48 else 3)
+        md = md_of.get(frozenset((pos[a], pos[b])), 0)
+        fixtures[frozenset((a, b))] = (mid, m["date"], a, b, md)
     return fixtures
 
 
