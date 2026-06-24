@@ -70,14 +70,17 @@ def _level(a, b):
 
 
 def best_thirds(tables):
-    """Rank the 12 third-placed teams; top 8 advance. Returns (ranked_rows, qualified_set)."""
+    """Rank the third-placed teams; top 8 advance. Only teams that have PLAYED are eligible to be
+    marked qualified (an unplayed 0-0-0 third carries no evidence). Returns (ranked_rows, qualified).
+    """
     thirds = []
     for g, lst in tables.items():
         if len(lst) >= 3:
             r = dict(lst[2]); r["group"] = g
             thirds.append(r)
     thirds.sort(key=lambda r: (-r["Pts"], -r["GD"], -r["GF"], r["team"]))
-    qualified = {r["team"] for r in thirds[:8]}
+    played_thirds = [t for t in thirds if t["P"] >= 1]
+    qualified = {r["team"] for r in played_thirds[:8]}
     return thirds, qualified
 
 
@@ -96,13 +99,17 @@ def render(tables, live_state):
     _, third_q = best_thirds(tables)
     for g in sorted(tables):
         lst = tables[g]
-        L.append(f"── Group {g} " + "─" * 47)
+        g_played = sum(r["P"] for r in lst) > 0          # any evidence in this group yet?
+        suffix = "" if g_played else "   (not started)"
+        L.append(f"── Group {g} " + "─" * 47 + suffix)
         L.append(f"   {'#':<2}{'Team':<15}{'P':>2}{'W':>3}{'D':>2}{'L':>2}{'GF':>4}{'GA':>3}{'GD':>4}{'Pts':>4}")
         for i, r in enumerate(lst, 1):
-            mark = "✓" if i <= 2 else ("⊕" if r["team"] in third_q else (" " if i == 3 else " "))
-            warn = ""
-            if i < len(lst) and _level(r, lst[i]):
-                warn = " ⚠"
+            # no qualification marks without evidence: a 0-game group is ordered alphabetically only
+            if not g_played:
+                mark = ""
+            else:
+                mark = "✓" if i <= 2 else ("⊕" if r["team"] in third_q else " ")
+            warn = " ⚠" if g_played and i < len(lst) and _level(r, lst[i]) else ""
             L.append(f"   {i:<2}{r['team']:<15}{r['P']:>2}{r['W']:>3}{r['D']:>2}{r['L']:>2}"
                      f"{r['GF']:>4}{r['GA']:>3}{r['GD']:>+4}{r['Pts']:>4} {mark}{warn}")
         L.append("")
@@ -111,8 +118,8 @@ def render(tables, live_state):
     if thirds:
         L.append("── Best 3rd-place race (top 8 advance) " + "─" * 21)
         for i, r in enumerate(thirds, 1):
-            mark = "✓" if r["team"] in third_q else " "
-            L.append(f"   {i:>2} {r['team']:<15} (Grp {r['group']})  "
+            mark = "✓" if r["team"] in third_q else ("·" if r["P"] == 0 else " ")
+            L.append(f"   {i:>2} {r['team']:<15} (Grp {r['group']})  P{r['P']} "
                      f"Pts {r['Pts']} GD {r['GD']:+d} GF {r['GF']}  {mark}")
         L.append("")
     L.append("=" * 60)
