@@ -1,0 +1,75 @@
+  SIMULATING THE NEXT GAMES — round-3 group completion (100,000 sims, pure model, no market)
+  P(win) / P(top-2) / P(3rd→adv) / P(ADVANCE) / P(out)   per team
+
+── Group A ────────────────────────────────────────
+   Mexico         win  94.6  top2 100.0  3rd→  0.0  ADV 100.0%  out   0.0  ████████████████████
+   South Korea    win   5.4  top2  85.4  3rd→ 10.8  ADV  96.2%  out   3.8  ███████████████████
+   Czechia        win   0.0  top2   6.0  3rd→ 14.1  ADV  20.1%  out  79.9  ████
+   South Africa   win   0.0  top2   8.6  3rd→  1.6  ADV  10.2%  out  89.8  ██
+
+── Group B ────────────────────────────────────────
+   Canada         win  63.8  top2 100.0  3rd→  0.0  ADV 100.0%  out   0.0  ████████████████████
+   Switzerland    win  36.2  top2  99.6  3rd→  0.4  ADV 100.0%  out   0.0  ████████████████████
+   Bosnia         win   0.0  top2   0.4  3rd→ 57.6  ADV  58.0%  out  42.0  ████████████
+   Qatar          win   0.0  top2   0.0  3rd→ 10.3  ADV  10.3%  out  89.7  ██
+
+── Group C ────────────────────────────────────────
+   Brazil         win  60.2  top2  87.9  3rd→ 12.1  ADV 100.0%  out   0.0  ████████████████████
+   Morocco        win  35.8  top2  98.6  3rd→  1.4  ADV 100.0%  out   0.0  ████████████████████
+   Scotland       win   3.9  top2  13.5  3rd→ 72.2  ADV  85.7%  out  14.3  █████████████████
+   Haiti          win   0.0  top2   0.0  3rd→  0.3  ADV   0.3%  out  99.7  
+
+── Group D ────────────────────────────────────────
+   USA            win  99.8  top2 100.0  3rd→  0.0  ADV 100.0%  out   0.0  ████████████████████
+   Paraguay       win   0.1  top2  41.9  3rd→ 44.7  ADV  86.5%  out  13.5  █████████████████
+   Australia      win   0.2  top2  58.1  3rd→ 27.9  ADV  86.1%  out  13.9  █████████████████
+   Turkey         win   0.0  top2   0.0  3rd→ 13.4  ADV  13.4%  out  86.6  ███
+
+── Group E ────────────────────────────────────────
+   Germany        win  99.7  top2 100.0  3rd→  0.0  ADV 100.0%  out   0.0  ████████████████████
+   Ivory Coast    win   0.3  top2  95.0  3rd→  3.5  ADV  98.6%  out   1.4  ████████████████████
+   Ecuador        win   0.0  top2   2.5  3rd→ 24.6  ADV  27.0%  out  73.0  █████
+   Curaçao        win   0.0  top2   2.5  3rd→  0.9  ADV   3.4%  out  96.6  █
+
+── Group F ────────────────────────────────────────
+   Netherlands    win  66.0  top2  99.7  3rd→  0.3  ADV 100.0%  out   0.0  ████████████████████
+   Japan          win  26.7  top2  78.8  3rd→ 21.2  ADV 100.0%  out   0.0  ████████████████████
+   Sweden         win   7.4  top2  21.4  3rd→ 73.6  ADV  95.0%  out   5.0  ███████████████████
+   Tunisia        win   0.0  top2   0.0  3rd→  0.0  ADV   0.0%  out 100.0  
+
+── Group G ────────────────────────────────────────
+   Egypt          win  61.0  top2  79.8  3rd→ 20.2  ADV 100.0%  out   0.0  ████████████████████
+   Belgium        win  25.9  top2  85.1  3rd→ 10.0  ADV  95.1%  out   4.9  ███████████████████
+   Iran           win  13.1  top2  31.7  3rd→ 40.2  ADV  72.0%  out  28.0  ██████████████
+   New Zealand    win   0.0  top2   3.4  3rd→  1.2  ADV   4.6%  out  95.4  █
+
+── Group H ────────────────────────────────────────
+   Spain          win  88.8  top2  96.2  3rd→  3.8  ADV 100.0%  out   0.0  ████████████████████
+   Cape Verde     win   1.4  top2  58.2  3rd→ 16.8  ADV  75.0%  out  25.0  ███████████████
+   Uruguay        win   9.8  top2  23.1  3rd→ 28.0  ADV  51.1%  out  48.9  ██████████
+   Saudi Arabia   win   0.0  top2  22.4  3rd→  2.7  ADV  25.2%  out  74.8  █████
+
+── Group I ────────────────────────────────────────
+   France         win  85.0  top2 100.0  3rd→  0.0  ADV 100.0%  out   0.0  ████████████████████
+   Norway         win  15.0  top2 100.0  3rd→  0.0  ADV 100.0%  out   0.0  ████████████████████
+   Senegal        win   0.0  top2   0.0  3rd→ 63.2  ADV  63.2%  out  36.8  █████████████
+   Iraq           win   0.0  top2   0.0  3rd→  2.3  ADV   2.3%  out  97.7  
+
+── Group J ────────────────────────────────────────
+   Argentina      win 100.0  top2 100.0  3rd→  0.0  ADV 100.0%  out   0.0  ████████████████████
+   Austria        win   0.0  top2  78.3  3rd→ 17.9  ADV  96.3%  out   3.7  ███████████████████
+   Algeria        win   0.0  top2  21.7  3rd→ 59.3  ADV  80.9%  out  19.1  ████████████████
+   Jordan         win   0.0  top2   0.0  3rd→  0.5  ADV   0.5%  out  99.5  
+
+── Group K ────────────────────────────────────────
+   Portugal       win  41.1  top2 100.0  3rd→  0.0  ADV 100.0%  out   0.0  ████████████████████
+   Colombia       win  58.9  top2 100.0  3rd→  0.0  ADV 100.0%  out   0.0  ████████████████████
+   DR Congo       win   0.0  top2   0.0  3rd→ 37.3  ADV  37.3%  out  62.7  ███████
+   Uzbekistan     win   0.0  top2   0.0  3rd→  7.5  ADV   7.5%  out  92.5  ██
+
+── Group L ────────────────────────────────────────
+   England        win  83.9  top2 100.0  3rd→  0.0  ADV 100.0%  out   0.0  ████████████████████
+   Ghana          win   2.5  top2  34.3  3rd→ 65.7  ADV 100.0%  out   0.0  ████████████████████
+   Croatia        win  13.6  top2  65.7  3rd→ 32.3  ADV  98.0%  out   2.0  ████████████████████
+   Panama         win   0.0  top2   0.0  3rd→  0.2  ADV   0.2%  out  99.8  
+
