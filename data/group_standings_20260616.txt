@@ -1,15 +1,15 @@
 ============================================================
-  WM 2026 — GROUP STANDINGS   (46/72 group games played)
+  WM 2026 — GROUP STANDINGS   (48/72 group games played)
 ============================================================
   Top 2 per group + 8 best 3rd-place → Round of 32.  ✓=adv  ⊕=best-3rd
   Order: Pts·GD·GF (H2H/lots NOT applied; ⚠=teams level on all three).
 
 ── Group A ───────────────────────────────────────────────
    # Team            P  W D L  GF GA  GD Pts
-   1 Mexico          1  1 0 0   2  0  +2   3 ✓
-   2 South Korea     1  1 0 0   2  1  +1   3 ✓
-   3 Czechia         1  0 0 1   1  2  -1   0  
-   4 South Africa    1  0 0 1   0  2  -2   0  
+   1 Mexico          2  2 0 0   3  0  +3   6 ✓
+   2 South Korea     2  1 0 1   2  2  +0   3 ✓
+   3 Czechia         2  0 1 1   2  3  -1   1 ⊕
+   4 South Africa    2  0 1 1   1  3  -2   1  
 
 ── Group B ───────────────────────────────────────────────
    # Team            P  W D L  GF GA  GD Pts
@@ -78,7 +78,7 @@
    # Team            P  W D L  GF GA  GD Pts
    1 Colombia        2  2 0 0   4  1  +3   6 ✓
    2 Portugal        2  1 1 0   6  1  +5   4 ✓
-   3 DR Congo        2  0 1 1   1  2  -1   1 ⊕
+   3 DR Congo        2  0 1 1   1  2  -1   1  
    4 Uzbekistan      2  0 0 2   1  8  -7   0  
 
 ── Group L ───────────────────────────────────────────────
@@ -96,10 +96,10 @@
     5 Paraguay        (Grp D)  P2 Pts 3 GD -2 GF 2  ✓
     6 Cape Verde      (Grp H)  P2 Pts 2 GD +0 GF 2  ✓
     7 Belgium         (Grp G)  P2 Pts 2 GD +0 GF 1  ✓
-    8 DR Congo        (Grp K)  P2 Pts 1 GD -1 GF 1  ✓
-    9 Ecuador         (Grp E)  P2 Pts 1 GD -1 GF 0   
-   10 Bosnia          (Grp B)  P2 Pts 1 GD -3 GF 2   
-   11 Czechia         (Grp A)  P1 Pts 0 GD -1 GF 1   
+    8 Czechia         (Grp A)  P2 Pts 1 GD -1 GF 2  ✓
+    9 DR Congo        (Grp K)  P2 Pts 1 GD -1 GF 1   
+   10 Ecuador         (Grp E)  P2 Pts 1 GD -1 GF 0   
+   11 Bosnia          (Grp B)  P2 Pts 1 GD -3 GF 2   
    12 Senegal         (Grp I)  P2 Pts 0 GD -3 GF 3   
 
 ============================================================
