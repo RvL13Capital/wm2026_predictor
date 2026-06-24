@@ -29,7 +29,12 @@ from backtest_wm2022 import PRE_WM2022_ELO
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 ELO = {2014: PRE_WM2014_ELO, 2018: PRE_WM2018_ELO, 2022: PRE_WM2022_ELO}
-POINTS_FLOOR = 295
+# Re-baselined 2026-06-24: the pool's goal-difference tier EXCLUDES draws (a correct-but-inexact
+# draw scores 2, not 3 — confirmed with the pool owner; see get_points / POOL_RULES.md). Under the
+# corrected rule the production constants score 289/192 (was 299 under the old draw=3 assumption);
+# floor set 4 below the measured baseline, mirroring the prior 295-vs-299 margin.
+POINTS_FLOOR = 285
+MEASURED_BASELINE = 289
 
 # Mirrors the production tipping path: lambdas from predictor.CONSTANTS via the
 # real estimator; rho is predict_single_match's default (-0.05); alpha 0.
@@ -70,7 +75,7 @@ class TestLambdaPointsFloor(unittest.TestCase):
             total += get_points(t_a, t_b, ga, gb)
 
         print(f"\n[POINTS FLOOR] production constants score {total}/192 "
-              f"(floor {POINTS_FLOOR}, measured baseline 299)")
+              f"(floor {POINTS_FLOOR}, measured baseline {MEASURED_BASELINE} under draws-excluded rule)")
         self.assertGreaterEqual(
             total, POINTS_FLOOR,
             f"Production calibration scores {total} < {POINTS_FLOOR} on the frozen "

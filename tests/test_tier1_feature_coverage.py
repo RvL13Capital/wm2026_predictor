@@ -192,8 +192,9 @@ class TestTier1FeatureCoverage(unittest.TestCase):
         self.assertEqual(predictor.get_points(2, 0, 3, 2), 2)
 
     def test_t1_f3_draw_tendency_only(self):
-        """Verifies that if you tip a draw (e.g. 1-1) and the result is a different draw (e.g. 2-2), you get 3 points (correct difference of 0) and not 2 points."""
-        self.assertEqual(predictor.get_points(1, 1, 2, 2), 3)
+        """This pool EXCLUDES draws from the goal-difference tier: tipping a draw (e.g. 1-1) and
+        getting a different draw (2-2) scores the tendency 2, NOT 3 (verified w/ pool owner 2026-06-24)."""
+        self.assertEqual(predictor.get_points(1, 1, 2, 2), 2)
 
     def test_t1_f3_ev_maximization(self):
         """Verifies that the solver returns the tip that maximizes the mathematically expected value."""

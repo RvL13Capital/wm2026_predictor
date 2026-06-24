@@ -56,3 +56,32 @@ If the pool ran in 2022/2024, open one historical shootout game in the pool
 and confirm the entered scoreline matches this convention. If the pool shows
 a different representation (e.g. winner +1 goal), update
 `kicktipp_ko_convention` handling in S12 accordingly.
+
+---
+
+## Draw scoring tier (RESOLVED 2026-06-24)
+
+**Status:** ✅ VERIFIED 2026-06-24 — the goal-difference (3) tier **EXCLUDES draws**.
+**Owner of the decision:** pool participant (answer given in session).
+
+### The question
+Under 4/3/2 scoring, when you tip a draw and the result is a draw but with the
+**wrong score** (e.g. tip 0:0, result 1:1), do you get the goal-difference 3
+(both GD = 0) or only the tendency 2?
+
+### Verified answer
+- **2 points** — the goal-difference tier does NOT apply to draws. A correct-but-
+  inexact draw scores tendency (2). An exact draw still scores 4. Correct GD on a
+  **non-draw** (e.g. tip 2:1, result 3:2) still scores 3.
+
+### Consequences
+1. `predictor.get_points` returns `pts_diff` only when `diff_actual == diff_tip
+   and diff_actual != 0`; a non-exact draw-on-draw falls through to `pts_tend`.
+2. The analytic solver `solve_optimal_tip_from_grid` draw branch uses
+   `p_t*(pts_exact-pts_tend) + prob_draw*pts_tend` (no GD bonus on draws).
+3. Production constants score **289/192** (was 299 under the old draw=3 rule);
+   `tests/test_lambda_points_floor.py` floor re-baselined to 285.
+4. EV-optimal tips shift: cagey-favorite games that previously optimized to `0:0`
+   (to bank 3 on any draw) now flip to a decisive scoreline; only genuinely
+   draw-likely games keep `0:0`. **λ re-optimization vs the corrected objective is
+   a post-tournament item** (the low-λ→0:0 rationale is now weaker).

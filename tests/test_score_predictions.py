@@ -28,13 +28,13 @@ class TestScoreEntry(unittest.TestCase):
     def test_points_orientation_and_draw_rule(self):
         results = sp.build_results_index({
             "Mexico vs South Africa": [2, 0],          # exact -> 4
-            "Tschechien vs Südkorea": [1, 1],          # swapped + German + non-exact draw -> 3 (Tordifferenz)
+            "Tschechien vs Südkorea": [1, 1],          # swapped + German + non-exact draw -> 2 (draws excluded from GD tier)
             "Qatar vs Switzerland": [1, 4],            # tendency only -> 2
         })
         s = sp.score_entry(ENTRY, results)
         pts = [p for (_m, res, p) in s["rows"] if res is not None]
-        self.assertEqual(pts, [4, 3, 2])   # 0:2 vs 1:4: sign right, diff wrong -> 2
-        self.assertEqual(s["points"], 9)
+        self.assertEqual(pts, [4, 2, 2])   # tip 0:0 on 1:1 draw -> 2 (no GD bonus on draws); 0:2 vs 1:4 -> 2
+        self.assertEqual(s["points"], 8)
         self.assertEqual(s["n_scored"], 3)
         self.assertEqual(s["pending"], 1)               # Canada vs Bosnia unplayed
         # EV expectation accumulates ONLY over the scored subset

@@ -89,10 +89,12 @@ def get_points(t_a: int, t_b: int, g_a: int, g_b: int, pts_exact=4, pts_diff=3, 
     """
     Calculates Kicktipp points according to the scoring rules:
     - pts_exact points: Exact score (t_a == g_a and t_b == g_b)
-    - pts_diff points: Correct goal difference (t_a - t_b == g_a - g_b). Per the
-      Kicktipp "Tordifferenz" rule this includes a non-exact draw tip on a draw
-      result (0 == 0), e.g. tip 1:1 on a 0:0 scores pts_diff.
-    - pts_tend points: Correct tendency (sign of the difference) otherwise
+    - pts_diff points: Correct goal difference (t_a - t_b == g_a - g_b) on a
+      NON-draw only. This pool's goal-difference tier EXCLUDES draws: a correct-
+      but-inexact draw (e.g. tip 1:1 on a 0:0) scores only pts_tend, NOT pts_diff.
+      (Verified with the pool owner 2026-06-24.)
+    - pts_tend points: Correct tendency (sign of the difference) otherwise —
+      this is where a non-exact draw-on-draw lands (sign 0 == sign 0).
     - 0 points: Otherwise
     """
     if not (is_integer_like(t_a) and is_integer_like(t_b) and is_integer_like(g_a) and is_integer_like(g_b)):
@@ -112,10 +114,10 @@ def get_points(t_a: int, t_b: int, g_a: int, g_b: int, pts_exact=4, pts_diff=3, 
     sign_actual = sign(diff_actual)
     sign_tip = sign(diff_tip)
     
-    if diff_actual == diff_tip:
-        return pts_diff
+    if diff_actual == diff_tip and diff_actual != 0:
+        return pts_diff          # goal-difference bonus — NON-draws only (draws excluded by this pool)
     elif sign_actual == sign_tip:
-        return pts_tend
+        return pts_tend          # correct tendency; a non-exact draw-on-draw lands here (2 pts)
     else:
         return 0
 
@@ -175,8 +177,10 @@ def solve_optimal_tip_from_grid(
             elif d < 0:
                 ev = p_t * (pts_exact - pts_diff) + diff_probs.get(d, 0.0) * (pts_diff - pts_tend) + prob_away * pts_tend
             else:
-                ev = p_t * (pts_exact - pts_diff) + prob_draw * pts_diff
-                
+                # draw tip: this pool gives NO goal-difference bonus on draws, so a draw tip earns
+                # pts_exact only on the exact draw, else pts_tend on any other draw (never pts_diff).
+                ev = p_t * (pts_exact - pts_tend) + prob_draw * pts_tend
+
             expected_points[(t_a, t_b)] = ev
             
     sorted_tips = sorted(expected_points.items(), key=lambda x: x[1] if not math.isnan(x[1]) else -float('inf'), reverse=True)

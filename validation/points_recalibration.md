@@ -1,5 +1,15 @@
 # λ Recalibration — Points Validation of the Production Config (S10)
 
+> ⚠️ **CORRECTION 2026-06-24 — draw scoring rule changed.** The pool owner confirmed the
+> goal-difference (3) tier **EXCLUDES draws**: a correct-but-inexact draw scores **2**, not 3
+> (see `validation/POOL_RULES.md` → "Draw scoring tier"). Under the corrected rule the production
+> config (`elo_baseline_goals=1.0`) scores **289/192**, not the 299 quoted below; the points-floor
+> test was re-baselined 295 → 285. The "low λ → 0:0 tips" mechanism still holds *directionally* but
+> is **weaker** (a wrong-score draw now banks 2, not 3), so the λ optimum likely shifts upward —
+> **re-run the LOTO grid against the corrected objective post-tournament.** Numbers below are the
+> historical (pre-correction) record.
+
+
 **Date:** 2026-06-10 · **Closes:** review finding C1 / plan step S10
 **Harness:** same 192 real matches as F9 (WC2014+2018+2022, pre-tournament Elo,
 no lookahead, `data/wc20XX_results.csv`), EV-optimal 4/3/2 tips under the

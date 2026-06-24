@@ -26,11 +26,14 @@ class TestSolver(unittest.TestCase):
         self.assertEqual(get_points(2, 0, 3, 2), 2)  # Home win, different diff
         self.assertEqual(get_points(0, 2, 1, 4), 2)  # Away win, different diff
 
-    def test_get_points_draw_difference_exception(self):
-        # 3 points: Draw tip on a non-exact draw outcome (Goal difference of 0 is correct)
-        self.assertEqual(get_points(1, 1, 2, 2), 3)
-        self.assertEqual(get_points(2, 2, 0, 0), 3)
-        self.assertEqual(get_points(0, 0, 3, 3), 3)
+    def test_get_points_draw_excluded_from_diff_tier(self):
+        # 2 points: a correct-but-inexact draw scores TENDENCY only — this pool's
+        # goal-difference tier EXCLUDES draws (verified with pool owner 2026-06-24).
+        self.assertEqual(get_points(1, 1, 2, 2), 2)
+        self.assertEqual(get_points(2, 2, 0, 0), 2)
+        self.assertEqual(get_points(0, 0, 3, 3), 2)
+        # exact draw still scores the full 4
+        self.assertEqual(get_points(1, 1, 1, 1), 4)
 
     def test_get_points_incorrect(self):
         # 0 points: Incorrect tendency
