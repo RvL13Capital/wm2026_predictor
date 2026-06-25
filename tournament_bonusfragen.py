@@ -154,7 +154,8 @@ INJURY_ELO_ADJUSTMENTS = {
     "Portugal":     -5,   # Rúben Dias missed MD1 injured (unclear duration — monitor). Ronaldo fit (started vs DR Congo). Mateus Nunes health issues.
     "Germany":      -5,   # Gnabry (adductor) OUT, Karl (thigh muscle tear) OUT — Ouédraogo called up.
     "Croatia":      -5,   # Modrić cheekbone fracture (playing with mask).
-    "Qatar":        -8,   # [SUSPENSION MD3] Madibo (straight red, leg-breaking foul on Koné) + Homam Ahmed (2nd yellow) both sent off vs Canada — miss MD3. (Qatar all but eliminated already.)
+    # 25 Jun: Qatar -8 [SUSPENSION MD3] REMOVED — Madibo + Homam Ahmed served their bans in
+    #         Bosnia-Qatar (3:1); Qatar eliminated, no further fixtures. Entry retired per convention.
 }
 
 # ==============================================================================
