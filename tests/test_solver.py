@@ -26,11 +26,13 @@ class TestSolver(unittest.TestCase):
         self.assertEqual(get_points(2, 0, 3, 2), 2)  # Home win, different diff
         self.assertEqual(get_points(0, 2, 1, 4), 2)  # Away win, different diff
 
-    def test_get_points_draw_difference_exception(self):
-        # 3 points: Draw tip on a non-exact draw outcome (Goal difference of 0 is correct)
-        self.assertEqual(get_points(1, 1, 2, 2), 3)
-        self.assertEqual(get_points(2, 2, 0, 0), 3)
-        self.assertEqual(get_points(0, 0, 3, 3), 3)
+    def test_get_points_draw_on_draw_is_tendency(self):
+        # 2 points: a non-exact draw tip on a draw outcome scores the TENDENCY points,
+        # NOT pts_diff — operator-verified pool rule (2026-06-27): no Tordifferenz bonus
+        # on draws (corrects the earlier G1 "Tordifferenz includes draws" assumption).
+        self.assertEqual(get_points(1, 1, 2, 2), 2)
+        self.assertEqual(get_points(2, 2, 0, 0), 2)
+        self.assertEqual(get_points(0, 0, 3, 3), 2)
 
     def test_get_points_incorrect(self):
         # 0 points: Incorrect tendency

@@ -1,15 +1,21 @@
 """Points-floor regression for the production Elo->lambda calibration (S10).
 
 The EV-optimal-tip yield of the PRODUCTION constants on the frozen 192-match
-set (WC2014+2018+2022, pre-tournament Elo, corrected Tordifferenz scoring) is
-measured at 299 points (validation/points_recalibration.md). This test pins a
->= 295 floor so no config edit can silently regress the points objective:
-the old 1.35 default scores 291 and the once-recommended 1.25/rho-0 scores
-289 — both below the floor by design.
+set (WC2014+2018+2022, pre-tournament Elo) under the operator-VERIFIED pool
+scoring is measured at 289 points. This test pins a >= 285 floor so no config
+edit can silently regress the points objective.
 
-If you change the calibration DELIBERATELY: re-measure, beat the floor or
-update it here together with a new measurement table in
-validation/points_recalibration.md. Never weaken the floor without numbers.
+SCORING CORRECTION (2026-06-27): a non-exact draw tip on a draw result scores
+the TENDENCY points (2), NOT pts_diff (3) — the operator verified this against
+real Kicktipp results, correcting the earlier G1 "Tordifferenz includes draws"
+assumption. The fix (get_points + solve_optimal_tip_from_grid draw branch) cost
+~10 pts vs the old (wrong) 299/floor-295 figures. CAVEAT: elo_baseline_goals=1.0
+was calibrated to EXPLOIT the wrong draws=3 rule (low lambda -> 0:0 tips); under
+draws=2 it may no longer be points-optimal — flagged for the post-tournament
+recalibration (validation/points_recalibration.md).
+
+If you change the calibration DELIBERATELY: re-measure, beat the floor or update
+it here together with a new measurement in validation/points_recalibration.md.
 """
 import csv
 import os
@@ -29,7 +35,7 @@ from backtest_wm2022 import PRE_WM2022_ELO
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 ELO = {2014: PRE_WM2014_ELO, 2018: PRE_WM2018_ELO, 2022: PRE_WM2022_ELO}
-POINTS_FLOOR = 295
+POINTS_FLOOR = 285   # was 295 under the wrong draws=3 rule; production now 289 (draws=2)
 
 # Mirrors the production tipping path: lambdas from predictor.CONSTANTS via the
 # real estimator; rho is predict_single_match's default (-0.05); alpha 0.
@@ -70,7 +76,7 @@ class TestLambdaPointsFloor(unittest.TestCase):
             total += get_points(t_a, t_b, ga, gb)
 
         print(f"\n[POINTS FLOOR] production constants score {total}/192 "
-              f"(floor {POINTS_FLOOR}, measured baseline 299)")
+              f"(floor {POINTS_FLOOR}, measured baseline 289 under draws=2)")
         self.assertGreaterEqual(
             total, POINTS_FLOOR,
             f"Production calibration scores {total} < {POINTS_FLOOR} on the frozen "

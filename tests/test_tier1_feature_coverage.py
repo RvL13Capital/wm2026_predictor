@@ -192,8 +192,9 @@ class TestTier1FeatureCoverage(unittest.TestCase):
         self.assertEqual(predictor.get_points(2, 0, 3, 2), 2)
 
     def test_t1_f3_draw_tendency_only(self):
-        """Verifies that if you tip a draw (e.g. 1-1) and the result is a different draw (e.g. 2-2), you get 3 points (correct difference of 0) and not 2 points."""
-        self.assertEqual(predictor.get_points(1, 1, 2, 2), 3)
+        """A draw tip (e.g. 1-1) on a DIFFERENT draw (e.g. 2-2) scores the TENDENCY points (2),
+        NOT pts_diff — operator-verified pool rule (2026-06-27): no Tordifferenz bonus on draws."""
+        self.assertEqual(predictor.get_points(1, 1, 2, 2), 2)
 
     def test_t1_f3_ev_maximization(self):
         """Verifies that the solver returns the tip that maximizes the mathematically expected value."""

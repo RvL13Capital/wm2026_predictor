@@ -89,10 +89,12 @@ def get_points(t_a: int, t_b: int, g_a: int, g_b: int, pts_exact=4, pts_diff=3, 
     """
     Calculates Kicktipp points according to the scoring rules:
     - pts_exact points: Exact score (t_a == g_a and t_b == g_b)
-    - pts_diff points: Correct goal difference (t_a - t_b == g_a - g_b). Per the
-      Kicktipp "Tordifferenz" rule this includes a non-exact draw tip on a draw
-      result (0 == 0), e.g. tip 1:1 on a 0:0 scores pts_diff.
-    - pts_tend points: Correct tendency (sign of the difference) otherwise
+    - pts_diff points: Correct goal difference on a DECISIVE result (t_a-t_b ==
+      g_a-g_b and the result is not a draw), e.g. tip 2:1 on a 3:2.
+    - pts_tend points: Correct tendency (same sign) — AND a non-exact draw tip on a
+      draw result (operator-verified 2026-06-27: THIS pool gives the tendency points,
+      NOT pts_diff, for a non-exact draw — correcting the earlier G1 "Tordifferenz
+      includes draws" assumption). e.g. tip 0:0 on a 1:1 scores pts_tend.
     - 0 points: Otherwise
     """
     if not (is_integer_like(t_a) and is_integer_like(t_b) and is_integer_like(g_a) and is_integer_like(g_b)):
@@ -105,15 +107,17 @@ def get_points(t_a: int, t_b: int, g_a: int, g_b: int, pts_exact=4, pts_diff=3, 
 
     if t_a == g_a and t_b == g_b:
         return pts_exact
-    
+
     diff_actual = g_a - g_b
     diff_tip = t_a - t_b
-    
+
     sign_actual = sign(diff_actual)
     sign_tip = sign(diff_tip)
-    
+
     if diff_actual == diff_tip:
-        return pts_diff
+        # Tordifferenz bonus applies only to DECISIVE results. A non-exact draw tip on
+        # a draw (diff 0 == 0, exact already returned above) scores the tendency points.
+        return pts_tend if diff_actual == 0 else pts_diff
     elif sign_actual == sign_tip:
         return pts_tend
     else:
@@ -175,7 +179,9 @@ def solve_optimal_tip_from_grid(
             elif d < 0:
                 ev = p_t * (pts_exact - pts_diff) + diff_probs.get(d, 0.0) * (pts_diff - pts_tend) + prob_away * pts_tend
             else:
-                ev = p_t * (pts_exact - pts_diff) + prob_draw * pts_diff
+                # draw tip: exact draw -> pts_exact, any OTHER draw -> pts_tend (the
+                # operator-verified pool rule; no Tordifferenz bonus on draws).
+                ev = p_t * (pts_exact - pts_tend) + prob_draw * pts_tend
                 
             expected_points[(t_a, t_b)] = ev
             
