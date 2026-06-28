@@ -103,3 +103,52 @@ def fatigue_adjusted_tip(lambda_h_adj, lambda_a_adj, config, factor_h, factor_a)
         "lam_h": la, "lam_a": lb,
         "p_home": p_home, "p_draw": p_draw, "p_away": p_away,
     }
+
+
+def fatigue_adjusted_ko_tip(lambda_h_adj, lambda_a_adj, config, factor_h, factor_a,
+                            team_a="", team_b=""):
+    """KNOCKOUT-convention-correct sibling of fatigue_adjusted_tip.
+
+    fatigue_adjusted_tip rebuilds with generate_joint_grid (90-minute grid, DRAWS
+    allowed) — right for group games, but WRONG for a knockout, whose pool scoring
+    is ``shootout_total`` (no draws; 90'+ET+every shootout kick summed). On a draw-
+    allowed grid a tight KO game can spuriously pick a 0:0, which is not even a legal
+    KO score. This rebuilds the SAME grid predictor.predict_single_match uses for the
+    active ``kicktipp_ko_convention``, so the fatigue-shifted KO tip is directly
+    comparable to the main KO tip. team_a/team_b feed per-team penalty strength under
+    shootout_total. Return shape matches fatigue_adjusted_tip."""
+    la = float(lambda_h_adj) * float(factor_h)
+    lb = float(lambda_a_adj) * float(factor_a)
+    mt = max(getattr(config, "max_tip", 10), 10)
+    cfg = predictor.MatchModelConfig(
+        dist_type=config.dist_type, mu_a=la, mu_b=lb,
+        alpha_a=getattr(config, "alpha_a", 0.0), alpha_b=getattr(config, "alpha_b", 0.0),
+        rho=getattr(config, "rho", -0.05), max_goals=getattr(config, "max_goals", 12),
+        max_tip=mt, pts_exact=getattr(config, "pts_exact", 4),
+        pts_diff=getattr(config, "pts_diff", 3), pts_tend=getattr(config, "pts_tend", 2),
+        phase=getattr(config, "phase", None))
+    convention = str(predictor.CONSTANTS.get("kicktipp_ko_convention", "shootout_total")).strip().lower()
+    if convention == "120min":
+        grid = predictor.generate_ko_120_grid(cfg, max_final_goals=15)
+    elif convention == "90min":
+        grid = predictor.generate_joint_grid(cfg)
+    else:  # shootout_total — 3-layer KO grid with team-specific penalty strength
+        base = predictor.CONSTANTS["pen_conversion_rate"]
+        grid = predictor.generate_ko_final_grid(
+            cfg, max_final_goals=15,
+            pen_conv_a=base * predictor.PENALTY_STRENGTH.get(team_a, 1.0),
+            pen_conv_b=base * predictor.PENALTY_STRENGTH.get(team_b, 1.0))
+    tips, scores, (p_home, p_draw, p_away) = predictor.solve_optimal_tip_from_grid(
+        grid, mt, pts_exact=getattr(config, "pts_exact", 4),
+        pts_diff=getattr(config, "pts_diff", 3), pts_tend=getattr(config, "pts_tend", 2))
+    if convention != "120min":
+        p_draw = 0.0                       # no-draw outcome space; zero numerical noise
+    (ta, tb), ev = tips[0]
+    (r2a, r2b), ev2 = tips[1] if len(tips) > 1 else tips[0]
+    return {
+        "ev_by_tip": {f"{a}:{b}": e for (a, b), e in tips},
+        "tip": f"{ta}:{tb}", "tip_a": ta, "tip_b": tb, "ev": ev,
+        "runner_up": f"{r2a}:{r2b}", "runner_up_ev": ev2,
+        "lam_h": la, "lam_a": lb,
+        "p_home": p_home, "p_draw": p_draw, "p_away": p_away,
+    }
