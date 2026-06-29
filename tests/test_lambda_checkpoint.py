@@ -52,12 +52,14 @@ class TestBandConditional(unittest.TestCase):
         self.assertAlmostEqual(p_band, 2.0 / 9.0, places=9)
         self.assertAlmostEqual(p_cond, 0.5, places=9)
 
-    def test_draw_tip_band_includes_all_draws(self):
-        # Tordifferenz rule: a 0:0 tip earns 3 on ANY draw -> band = diagonal.
+    def test_draw_tip_band_is_exact_only_under_draws2(self):
+        # draws=2 (operator-verified 2026-06-27): a 0:0 tip earns 4 on exact 0:0 but only
+        # 2 (TENDENCY, no Tordifferenz) on other draws (1:1, 2:2) -> the >=3-pt band is
+        # JUST {(0,0)}, not the whole diagonal. (Corrects the old draws=3 assumption.)
         grid = {a: {b: 1.0 / 9.0 for b in range(3)} for a in range(3)}
         p_cond, p_band = band_conditional_p(grid, 0, 0)
-        self.assertAlmostEqual(p_band, 3.0 / 9.0, places=9)
-        self.assertAlmostEqual(p_cond, 1.0 / 3.0, places=9)
+        self.assertAlmostEqual(p_band, 1.0 / 9.0, places=9)
+        self.assertAlmostEqual(p_cond, 1.0, places=9)
 
 
 if __name__ == "__main__":
