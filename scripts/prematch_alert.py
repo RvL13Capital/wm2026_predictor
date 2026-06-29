@@ -247,15 +247,87 @@ def compute_group_tip(md: int, pair, snapshot_path):
     return None
 
 
+def ko_travel_context(team_home: str, team_away: str) -> dict:
+    """Per-team rest / travel / timezone + venue altitude for a KO fixture, as
+    predict_single_match row fields (rest_days_{a,b}, travel_miles_{a,b},
+    tz_crossed_{a,b}, direction_{a,b}, elevation, accl_days_{a,b}). The KO analogue
+    of matchday_tips' group schedule-context injection, sourced from the live FIFA
+    calendar Stadium/Date: a team's previous match (any prior round) → this venue.
+
+    EXCEPTION-SAFE: any calendar-fetch / venue-resolution failure returns {} so the
+    KO tip degrades to the pre-travel behaviour and the alert path never raises."""
+    import datetime as _dt
+    try:
+        import stadium_data
+        import weather_tips                       # lazy: weather_tips imports this module
+        raw = _http_json(CALENDAR_URL)
+
+        def _d(t):
+            try:
+                return t["TeamName"][0]["Description"]
+            except Exception:
+                return None
+
+        pair = {team_home, team_away}
+        tl, this = {}, None
+        for m in raw.get("Results", []):
+            hn, an = engine_name(_d(m.get("Home"))), engine_name(_d(m.get("Away")))
+            if not hn or not an:
+                continue                           # future-round slot not yet drawn
+            sd = m.get("Stadium") or {}
+            vk = weather_tips.venue_key((sd.get("Name") or [{}])[0].get("Description", ""))
+            d = m.get("Date")
+            tl.setdefault(hn, []).append((d, vk))
+            tl.setdefault(an, []).append((d, vk))
+            if {hn, an} == pair and this is None:
+                this = (d, vk)
+        if not this or not this[0]:
+            return {}                              # this fixture not found / no date
+        this_date, venue = this
+        td = _dt.date.fromisoformat(this_date[:10])
+        for t in tl:
+            tl[t].sort()
+
+        ctx = {}
+        for side, team in (("a", team_home), ("b", team_away)):
+            hist = [(d, v) for (d, v) in tl.get(team, []) if d and d[:10] < this_date[:10]]
+            if not hist:
+                ctx[f"rest_days_{side}"] = "5.0"   # no prior match -> treat as rested
+                continue
+            prev_d, prev_v = hist[-1]
+            rest = (td - _dt.date.fromisoformat(prev_d[:10])).days
+            miles = stadium_data.haversine_distance(prev_v, venue)
+            tz, direction = 0, "None"
+            A, B = predictor.STADIUM_DATA.get(prev_v), predictor.STADIUM_DATA.get(venue)
+            if A and B:
+                tz = abs(int(A.get("tz_offset", 0)) - int(B.get("tz_offset", 0)))
+                direction = "east" if B["lon"] > A["lon"] else ("west" if B["lon"] < A["lon"] else "None")
+            ctx[f"rest_days_{side}"] = str(float(max(0, rest)))
+            ctx[f"travel_miles_{side}"] = str(float(miles))
+            ctx[f"tz_crossed_{side}"] = str(int(tz))
+            ctx[f"direction_{side}"] = direction
+
+        elev = (predictor.STADIUM_DATA.get(venue, {}) or {}).get("elevation", 0)
+        if elev and elev > 1000:                   # altitude only bites above 1000 m
+            ctx["elevation"] = str(float(elev))
+            ctx["accl_days_a"] = ctx.get("rest_days_a", "5.0")   # acclimatization ~ days since prior match
+            ctx["accl_days_b"] = ctx.get("rest_days_b", "5.0")
+        return ctx
+    except Exception as e:
+        log(f"ko_travel_context failed ({e}); KO tip computed without travel context")
+        return {}
+
+
 def build_ko_row(team_home: str, team_away: str, phase: str, snapshot_path) -> dict:
     """Mirror ko_tips.run_ko_round's row construction: phase + xG form
-    multipliers + 0.80 market blend. Dead-legs fatigue is the ONE deliberate
-    omission (it needs the operator's --fatigued judgment call, which a T-30
-    cron tick does not have) — the alert message discloses it."""
+    multipliers + 0.80 market blend + KO rest/travel/altitude context. Dead-legs
+    ET fatigue is the ONE deliberate omission (it needs the operator's --fatigued
+    judgment call, which a T-30 cron tick does not have) — the alert discloses it."""
     row = {"team_a": team_home, "team_b": team_away, "phase": phase}
     form_a, form_b = tbf.compute_xg_form_multipliers(team_home, team_away)
     row["form_a"] = str(form_a)
     row["form_b"] = str(form_b)
+    row.update(ko_travel_context(team_home, team_away))   # rest/travel/tz/altitude
     if snapshot_path:
         probs, _ = matchday_tips.load_market_snapshot(snapshot_path)
         odds = probs.get(f"{team_home}|{team_away}")

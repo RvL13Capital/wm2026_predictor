@@ -3,18 +3,18 @@
 
 Knockout sibling of fatigue_tips.py (which is group-matchday only). For a KO round
 it reconstructs each team's full match timeline (venue + date, all prior rounds)
-from the FIFA calendar, derives per-team rest / travel / timezone / cumulative
-miles, fetches the per-venue kickoff forecast (open-meteo, via weather_tips), asks
-fatigue_engine for each team's capacity factor, then rebuilds the SAME KO
-shootout_total grid the main tip uses (fatigue_engine.fatigue_adjusted_ko_tip —
-NOT the 90' draw-allowed grid) and prints the fatigue-adjusted tip next to the
-main tip. The asymmetric per-team factors can shift a goal margin or, in a tight
-game, flip the winner — and travel/congestion bite hardest here (3-4 day KO rest,
-longer hops) exactly as the engine docstring predicts.
+from the FIFA calendar and fetches the per-venue kickoff forecast (open-meteo).
+
+NOTE: rest/travel/altitude now live in the MAIN KO tip itself (the core consumes
+prematch_alert.ko_travel_context inside build_ko_row), so this overlay applies ONLY
+the increment the core lacks — heat[forecast @ kickoff hour] × congestion — on top
+of the core's lambda_adj, to avoid double-counting travel. It rebuilds the SAME KO
+shootout_total grid the main tip uses (fatigue_engine.fatigue_adjusted_ko_tip — NOT
+the 90' draw grid). rest/mi columns are shown for context (now in the core).
 
 ISOLATION CONTRACT: read-only. Drives lambdas from prematch_alert.compute_ko_tip,
-applies fatigue, prints a side column. Mutates nothing; never imported by the core
-path; the main KO tips are unaffected.
+applies the heat+congestion increment, prints a side column. Mutates nothing; the
+main KO tips are unaffected by THIS file.
 
 Usage:
     python3 fatigue_ko_tips.py --round R32
@@ -101,7 +101,8 @@ def main(argv=None):
         print(f"No {args.round} fixtures with known pairings yet — the bracket slot is undetermined.")
         print("Re-run once the prior round has been played and the FIFA calendar resolves the teams.")
         return 0
-    print("heat = open-meteo forecast AT the kickoff hour; travel/congestion from the prior-round timeline.")
+    print("travel/rest now live in the MAIN tip (prematch_alert.ko_travel_context); this overlay adds only")
+    print("the increment the core lacks: heat[open-meteo @ kickoff hour] × congestion. rest/mi shown for context.")
     print("-" * 122)
     print(f"{'Match (official)':28} {'Venue':12} {'rest h/a':>8} {'mi h/a':>10} {'cum h/a':>11} "
           f"{'C/WBGT':>8} {'fH/fA':>11} {'Main':>5} {'Fatig':>6}  Note")
@@ -122,6 +123,11 @@ def main(argv=None):
         fac_h, ch = fatigue_engine.team_fatigue_factor(temp, hum, venue, ppda_h, rest_h, mi_h, tz_h, dir_h, cum_h)
         fac_a, ca = fatigue_engine.team_fatigue_factor(temp, hum, venue, ppda_a, rest_a, mi_a, tz_a, dir_a, cum_a)
 
+        # Travel is now baked into the main tip's lambda_adj (prematch_alert.ko_travel_context),
+        # so apply ONLY the increment the core lacks — heat[forecast] × congestion — to avoid
+        # double-counting the travel penalty. (rest/mi columns below stay informational.)
+        fac_h = ch["f_heat"] * ch["f_cong"]
+        fac_a = ca["f_heat"] * ca["f_cong"]
         fat = fatigue_engine.fatigue_adjusted_ko_tip(
             row["lambda_a_adj"], row["lambda_b_adj"], row["config"], fac_h, fac_a, home, away)
         fat_tip = fat["tip"]
