@@ -144,22 +144,22 @@ def _get_match_elevation(team_a: str, team_b: str) -> tuple:
 #   KO window — confirm at the T-45 lineup or via news before trusting the magnitude.
 #   Decay a weight ONLY on confirmation; never fabricate a recovery.
 INJURY_ELO_ADJUSTMENTS = {
-    "Netherlands": -42,   # Xavi Simons (ACL) OUT, de Ligt (back) OUT, Timber OUT (replaced by Geertruida) — season-ending, persist. [PRE-KO confirm: Verbruggen (keeper) friendly knock — may have recovered by R32 Jul 1 vs Morocco].
-    "Brazil":      -38,   # Rodrygo (ACL/meniscus) OUT, Militão (hamstring surgery) OUT, Estevão OUT — season-ending, persist. [PRE-KO confirm: Neymar (grade-2 calf) was targeted to return MD3 vs Haiti — if fit for R32 Jun 29 vs Japan this decays toward ~-30].
-    "Japan":       -32,   # Mitoma (hamstring) OUT of squad (persists). [PRE-KO confirm: Kubo (doubtful) + captain Endo (foot) — R32 Jun 29 vs Brazil].
-    "USA":         -18,   # Richards back. Cardoso (ankle) OUT. [PRE-KO confirm: Pulisic (calf) was day-to-day in groups — if he started MD2/MD3 fit, -18 is too heavy → decays toward ~-8. R32 Jul 2 vs Bosnia].
-    "Mexico":       -5,   # Montes MD2 suspension served (back). Malagón (Achilles) OUT. R32 Jul 1 vs Ecuador.
+    # ── R16 refresh 2026-07-01: pruned to teams still alive (Germany/Netherlands/Japan OUT in R32) ──
+    "Brazil":      -38,   # Rodrygo (ACL/meniscus), Militão (hamstring surgery), Estevão OUT — season-ending, persist. ADVANCED 2:1 vs Japan. [confirm: Neymar (calf) — if now fit, decays toward ~-30].
+    "USA":         -18,   # Richards back. Cardoso (ankle) OUT. [PRE-KO confirm: Pulisic (calf) — if he starts fit, -18 too heavy → ~-8. R32 Jul 2 vs Bosnia].
+    "Mexico":       -5,   # Montes suspension served. Malagón (Achilles) OUT. ADVANCED 2:0 vs Ecuador.
     "Argentina":   -12,   # Messi fit. Romero (MCL), Foyth, Panichelli, Balerdi OUT (persist). R32 Jul 3 vs Cabo Verde.
-    "France":       -8,   # Full first-choice XI available (won 3-1 vs Senegal). Only Ekitike (Achilles) + Kamara OUT (depth). R32 Jun 30 vs Sweden.
-    "England":     -12,   # White (knee) OUT, Branthwaite (thigh) OUT, Grealish (foot) OUT, Saka managing Achilles (persist). R32 Jul 1 vs Congo DR.
-    "Canada":       -8,   # Davies fit. Koné OUT for the tournament (tibia+fibula fracture), Flores (ACL) OUT, Bombito (tibia). R32 TODAY Jun 28 vs South Africa.
-    "Belgium":     -10,   # Doku recovered (started, won 5-1). [PRE-KO confirm: De Bruyne (recovering) + Lukaku (injury-hit) — R32 Jul 1 vs Senegal].
-    "Spain":        -3,   # Yamal, Nico Williams, Olmo all fit (minutes-managed). Only Fermín López (metatarsal), Barrenetxea OUT. R32 Jul 2 vs Austria.
+    "France":       -8,   # Full first-choice XI. Only Ekitike (Achilles) + Kamara OUT (depth). ADVANCED 3:0 vs Sweden.
+    "England":     -12,   # White (knee), Branthwaite (thigh), Grealish (foot) OUT, Saka managing Achilles (persist). R32 Jul 1 vs Congo DR.
+    "Canada":       -8,   # Davies fit. Koné OUT for tournament (tibia+fibula), Flores (ACL), Bombito OUT. ADVANCED 1:0 vs South Africa.
+    "Belgium":     -10,   # Doku recovered. [PRE-KO confirm: De Bruyne (recovering) + Lukaku (injury-hit) — R32 Jul 1 vs Senegal].
+    "Spain":        -3,   # Yamal, Nico Williams, Olmo fit (minutes-managed). Only Fermín López (metatarsal), Barrenetxea OUT. R32 Jul 2 vs Austria.
     "Bosnia":       -6,   # Džeko (shoulder) bench-capable, Tabaković (metatarsal) + Šunjić (muscle) bench. R32 Jul 2 vs USA.
-    "Portugal":     -5,   # Ronaldo fit. [PRE-KO confirm: Rúben Dias missed MD1 injured (duration unclear) — R32 Jul 2 vs Croatia]. Mateus Nunes health issues.
-    "Germany":      -5,   # Gnabry (adductor) OUT, Karl (thigh muscle tear) OUT (persist). R32 Jun 29 vs Paraguay.
+    "Portugal":     -5,   # Ronaldo fit. [PRE-KO confirm: Rúben Dias missed MD1 injured — R32 Jul 2 vs Croatia]. Mateus Nunes health issues.
     "Croatia":      -5,   # Modrić cheekbone fracture — playing with a mask (available). R32 Jul 2 vs Portugal.
     # ── retired entries (eliminated — no further fixtures) ──
+    # 01 Jul: Germany -5, Netherlands -42, Japan -32 REMOVED — all OUT in R32 (Germany &
+    #         Netherlands lost on penalties; Japan 1:2 to Brazil). Their entries retired.
     # 28 Jun: Uruguay -10 REMOVED — eliminated in the group stage (absent from the R32
     #         bracket; Spain + Cabo Verde advanced). de Arrascaeta/Araújo/Cáceres now moot.
     # 25 Jun: Qatar -8 [SUSPENSION MD3] REMOVED — Madibo + Homam Ahmed served their bans in
