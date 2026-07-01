@@ -460,7 +460,7 @@ def build_message(match, team_a, team_b, tip_row, lineups_by_team, snapshot_path
         tt = tip_row.get("top_tips") or []
         if len(tt) >= 2:
             delta = tt[0]["ev"] - tt[1]["ev"]
-            strength = "STARK" if delta >= matchday_tips.EV_PLATEAU else "flach (≈Gleichstand)"
+            strength = "STARK" if delta >= matchday_tips.EV_PLATEAU else "flach ≈Gleichstand"
             lines.append(f"   #2 {tt[1]['tip']}  (Δ{delta:.2f} · {strength})")
         p_h, p_d, p_a = _grid_probs(tip_row["grid"])
         lines.append(f"   P(Modell)  Heim {p_h:.0f}% · X {p_d:.0f}% · Ausw {p_a:.0f}%")
