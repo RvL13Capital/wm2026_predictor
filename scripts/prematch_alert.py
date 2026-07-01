@@ -384,44 +384,57 @@ def _reorient_tip_row(tip_row, home, away):
     return r
 
 
+def _ou_tip_line(tip_row, ex, team_a, team_b):
+    """The tendency-preserving O/U-coinflip tip as a compact display string, or None
+    if the tip_row lacks lambdas/config or there is no usable O/U ladder. Read-only:
+    consumes the message-oriented lambdas + the market O/U extras, mutates nothing.
+    ex = the per-game extras dict ({'totals': [...]}) — orientation-free (a total is
+    a total). See ou_total_engine.ou_adjusted_from_extras (coin-flip line + liquidity
+    guard + tendency preservation: a draw stays a draw, a winner stays that winner)."""
+    if not tip_row or not ex:
+        return None
+    la = tip_row.get("lambda_a_adj", tip_row.get("lambda_adj_a"))
+    lb = tip_row.get("lambda_b_adj", tip_row.get("lambda_adj_b"))
+    cfg = tip_row.get("config")
+    ot = tip_row.get("optimal_tip")
+    if la is None or lb is None or cfg is None or ot is None:
+        return None
+    try:
+        import ou_total_engine as _ou
+        ta, tb = (tuple(int(x) for x in ot.split(":")) if isinstance(ot, str)
+                  else (int(ot[0]), int(ot[1])))
+        tip, meta = _ou.ou_adjusted_from_extras(
+            float(la), float(lb), cfg, ex, (ta, tb),
+            ko_convention=tip_row.get("ko_convention"), team_a=team_a, team_b=team_b)
+        if not meta["eligible"]:
+            return "↳ O/U: keine belastbare Linie/Liquidität"
+        if meta["shifted"]:
+            return (f"↳ O/U-Tipp {tip[0]}:{tip[1]}  "
+                    f"[Coinflip {meta['coinflip_line']}g · liq {meta['liq']/1000:.0f}k]")
+        return f"↳ O/U bestätigt {ta}:{tb}  [Coinflip {meta['coinflip_line']}g]"
+    except Exception:   # noqa: BLE001 — message must still go out
+        return None
+
+
 def build_message(match, team_a, team_b, tip_row, lineups_by_team, snapshot_path) -> str:
-    """Compose the alert. team_a/team_b define the orientation of EVERY
-    number in the message (tip, P(model), market 1X2) — the caller passes the
-    tip_row orientation so a FIFA home/away flip can never mislabel the tip."""
+    """Compose the T-45 alert as a clean, sectioned, all-in-one message. team_a/team_b
+    fix the orientation of EVERY number (tip, O/U tip, P(model), market). Sections:
+    header · 🎯 TIPP (+ O/U-coinflip tip) · 📊 Markt · 🩹 InjElo · 🧢 Startelf."""
     ko_utc = (match.get("utc") or "")[11:16]
     label = match.get("group") or match.get("stage") or ""
     tlabel = "T-45"
     try:
-        from datetime import datetime, timezone
         ko_dt = datetime.fromisoformat((match.get("utc") or "").replace("Z", "+00:00"))
         mins = int(round((ko_dt - datetime.now(timezone.utc)).total_seconds() / 60))
         if mins > 0:
             tlabel = f"T-{mins}"
     except Exception:
         pass
-    lines = [f"⚽ {tlabel} {team_a} vs {team_b} ({label}, {ko_utc}Z)"]
 
-    if tip_row:
-        ta, tb = tip_row["optimal_tip"]
-        lines.append(f"TIP {ta}:{tb} — EV {tip_row['ev']:.3f}")
-        tt = tip_row.get("top_tips") or []
-        if len(tt) >= 2:
-            delta = tt[0]["ev"] - tt[1]["ev"]
-            strength = ("STRONG" if delta >= matchday_tips.EV_PLATEAU
-                        else "flat — effectively tied")
-            lines.append(f"#2 {tt[1]['tip']} (Δ{delta:.3f}) → {strength}")
-        p_h, p_d, p_a = _grid_probs(tip_row["grid"])
-        lines.append(f"P(model) {p_h:.0f}/{p_d:.0f}/{p_a:.0f}")
-        mc = tip_row.get("mc")
-        if mc:
-            lines.append(f"MC μ{mc['mean']:.2f} | P(0pts) {mc['p0']*100:.0f}%")
-        if tip_row.get("note"):
-            lines.append(f"[i] {tip_row['note']}")
-    else:
-        lines.append("⚠ no tip computed — run the sheet manually!")
-
-    # market line (raw decimals, straight from the snapshot we blended),
-    # flipped to the message orientation when the market lists teams reversed
+    # Load the market snapshot UP FRONT so the TIPP section can carry the O/U tip.
+    # odds flipped to message orientation; ex (the O/U ladder) is orientation-free.
+    # No "$" anywhere — CallMeBot swallows "$1" ("liq $1.4M" arrived as "liq .4M").
+    odds = ex = None
     if snapshot_path and os.path.exists(snapshot_path):
         try:
             probs, extras = matchday_tips.load_market_snapshot(snapshot_path)
@@ -429,43 +442,73 @@ def build_message(match, team_a, team_b, tip_row, lineups_by_team, snapshot_path
             rev = probs.get(f"{team_b}|{team_a}")
             if not odds and rev:
                 odds = dict(rev, **{"1": rev["2"], "2": rev["1"]})
-            if odds:
-                # no "$" in the text — CallMeBot/WhatsApp swallows "$1" as a
-                # placeholder (observed live: "liq $1.4M" arrived as "liq .4M")
-                lines.append(f"Mkt 1X2 {odds['1']:.2f}/{odds['X']:.2f}/{odds['2']:.2f}"
-                             f" (liq {odds.get('liquidity', 0)/1e6:.1f}M USD)")
-            # Polymarket Over/Under (orientation-free: total goals don't flip).
-            # market_total = E[goals] implied by the ladder; O2.5/U2.5 shown as decimal
-            # odds (1/prob) to match the 1X2 style. under derived as 1-over (single feed).
             ex = (extras or {}).get(f"{team_a}|{team_b}") or (extras or {}).get(f"{team_b}|{team_a}")
-            if ex:
-                mtot = ex.get("market_total")
-                o25 = next((tl.get("over") for tl in (ex.get("totals") or [])
-                            if tl.get("line") is not None and abs(tl["line"] - 2.5) < 0.01
-                            and tl.get("over")), None)
-                bits = []
-                if mtot:
-                    bits.append(f"{mtot:.1f}g")
-                if o25 and 0.0 < o25 < 1.0:
-                    bits.append(f"O2.5 {1.0/o25:.2f} U2.5 {1.0/(1.0-o25):.2f}")
-                if bits:
-                    lines.append("Mkt O/U " + " — ".join(bits))
         except Exception:   # noqa: BLE001 — message must still go out
-            pass
+            odds = ex = None
 
+    lines = [f"⚽ {tlabel} · {team_a} vs {team_b}", f"🗓 {label} · {ko_utc}Z"]
+
+    # ── 🎯 TIPP ──
+    if tip_row:
+        ot = tip_row["optimal_tip"]
+        ta, tb = (tuple(int(x) for x in ot.split(":")) if isinstance(ot, str)
+                  else (int(ot[0]), int(ot[1])))
+        lines += ["", f"🎯 TIPP  {ta}:{tb}   (EV {tip_row['ev']:.2f})"]
+        ouln = _ou_tip_line(tip_row, ex, team_a, team_b)
+        if ouln:
+            lines.append(f"   {ouln}")
+        tt = tip_row.get("top_tips") or []
+        if len(tt) >= 2:
+            delta = tt[0]["ev"] - tt[1]["ev"]
+            strength = "STARK" if delta >= matchday_tips.EV_PLATEAU else "flach (≈Gleichstand)"
+            lines.append(f"   #2 {tt[1]['tip']}  (Δ{delta:.2f} · {strength})")
+        p_h, p_d, p_a = _grid_probs(tip_row["grid"])
+        lines.append(f"   P(Modell)  Heim {p_h:.0f}% · X {p_d:.0f}% · Ausw {p_a:.0f}%")
+        mc = tip_row.get("mc")
+        if mc:
+            lines.append(f"   MC μ{mc['mean']:.2f} · P(0 Pkt) {mc['p0']*100:.0f}%")
+        if tip_row.get("note"):
+            lines.append(f"   ℹ {tip_row['note']}")
+    else:
+        lines += ["", "⚠ kein Tipp berechnet — Sheet manuell prüfen!"]
+
+    # ── 📊 Markt ──
+    if odds or ex:
+        lines += ["", "📊 Markt (Polymarket)"]
+        if odds:
+            lines.append(f"   1X2  {odds['1']:.2f}/{odds['X']:.2f}/{odds['2']:.2f}"
+                         f"  (liq {odds.get('liquidity', 0)/1e6:.1f}M)")
+        if ex:
+            mtot = ex.get("market_total")
+            o25 = next((tl.get("over") for tl in (ex.get("totals") or [])
+                        if tl.get("line") is not None and abs(tl["line"] - 2.5) < 0.01
+                        and tl.get("over")), None)
+            bits = []
+            if mtot:
+                bits.append(f"{mtot:.1f}g")
+            if o25 and 0.0 < o25 < 1.0:
+                bits.append(f"O2.5 {1.0/o25:.2f} · U2.5 {1.0/(1.0-o25):.2f}")
+            if bits:
+                lines.append("   O/U  " + "   ".join(bits))
+
+    # ── 🩹 InjElo ──
+    inj_a_ = tbf.INJURY_ELO_ADJUSTMENTS.get(team_a)
+    inj_b_ = tbf.INJURY_ELO_ADJUSTMENTS.get(team_b)
+    ia = f"{inj_a_:+.0f}" if inj_a_ else "—"
+    ib = f"{inj_b_:+.0f}" if inj_b_ else "—"
+    lines += ["", f"🩹 InjElo  {team_a} {ia} · {team_b} {ib}"]
+
+    # ── 🧢 Startelf ──
     if lineups_by_team:
+        lines += ["", "🧢 Startelf"]
         for t in (team_a, team_b):
             d = lineups_by_team.get(t)
             if d:
-                lines.append(f"XI {t} ({d['formation']}): "
+                lines.append(f"   {t} ({d['formation']}): "
                              + ", ".join(_surname(p) for p in d["xi"]))
     else:
-        lines.append("⚠ official XIs not published yet")
+        lines += ["", "⚠ Startelf noch nicht veröffentlicht"]
 
-    inj_a_ = tbf.INJURY_ELO_ADJUSTMENTS.get(team_a)
-    inj_b_ = tbf.INJURY_ELO_ADJUSTMENTS.get(team_b)
-    lines.append(f"InjElo {team_a} {inj_a_:+.0f}" if inj_a_ else f"InjElo {team_a} —")
-    lines[-1] += f" | {team_b} {inj_b_:+.0f}" if inj_b_ else f" | {team_b} —"
     return "\n".join(lines)
 
 
@@ -544,6 +587,12 @@ def process_match(match, dry_run: bool = False, refresh_odds: bool = True,
                 tip_row = {"team_a": eng_home, "team_b": eng_away, "grid": grid,
                            "optimal_tip": tip, "ev": res["ev"],
                            "top_tips": res.get("top_tips", []), "mc": None,
+                           # lambdas/config carried in message (eng_home/away) orientation
+                           # so build_message can add the O/U-coinflip tip (no reorient here).
+                           "lambda_a_adj": res.get("lambda_a_adj"),
+                           "lambda_b_adj": res.get("lambda_b_adj"),
+                           "config": res.get("config"),
+                           "ko_convention": res.get("ko_convention"),
                            "note": "KO quick path: no fatigue flags — ko_tips sheet authoritative"}
             else:
                 log(f"cannot classify stage '{match.get('stage')}' — no tip path")

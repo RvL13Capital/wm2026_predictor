@@ -166,10 +166,10 @@ class TestKoPhaseAndFormatting(unittest.TestCase):
         match = {"utc": "2026-06-12T19:00:00Z", "group": "Group B", "stage": "First stage"}
         msg = pa.build_message(match, "Canada", "Bosnia", tip_row, lineups_by_team,
                                snapshot_path=None)
-        self.assertIn("TIP 1:0", msg)
-        self.assertIn("STRONG", msg)
-        self.assertIn("XI Canada", msg)
-        self.assertLess(len(msg), 1400)
+        self.assertIn("TIPP  1:0", msg)
+        self.assertIn("STARK", msg)
+        self.assertIn("Canada (4-4-2):", msg)
+        self.assertLess(len(msg), 1500)
 
     def test_build_message_orientation_follows_caller_not_fifa(self):
         # the tip orientation (team_a/team_b) drives header + XI labelling;
@@ -185,17 +185,17 @@ class TestKoPhaseAndFormatting(unittest.TestCase):
         msg = pa.build_message(match, "Bosnia", "Canada", tip_row, lineups_by_team,
                                snapshot_path=None)
         self.assertIn("Bosnia vs Canada", msg.splitlines()[0])
-        xi_lines = [l for l in msg.splitlines() if l.startswith("XI ")]
-        self.assertIn("Bihguy", xi_lines[0])      # first XI line = team_a = Bosnia
-        self.assertIn("XI Bosnia (3-5-2)", xi_lines[0])
+        xi_lines = [l for l in msg.splitlines() if "):" in l and ("Bihguy" in l or "Canguy" in l)]
+        self.assertIn("Bihguy", xi_lines[0])      # first lineup line = team_a = Bosnia
+        self.assertIn("Bosnia (3-5-2)", xi_lines[0])
         self.assertIn("Canguy", xi_lines[1])
-        self.assertIn("XI Canada (4-4-2)", xi_lines[1])
+        self.assertIn("Canada (4-4-2)", xi_lines[1])
 
     def test_build_message_without_tip_or_lineups_still_warns(self):
         match = {"utc": "2026-06-12T19:00:00Z", "group": "Group B"}
         msg = pa.build_message(match, "Canada", "Bosnia", None, None, None)
-        self.assertIn("no tip computed", msg)
-        self.assertIn("not published", msg)
+        self.assertIn("kein Tipp berechnet", msg)
+        self.assertIn("noch nicht veröffentlicht", msg)
 
 
 if __name__ == "__main__":
